@@ -12,4 +12,4 @@ TODO
 
 * Needs to be packaged properly for use with PIP.
 * A few more S2 features could be added especially those associated with segments of a sphere.
-* I regret some of the naming conventions and wish they were more in line with how the C++ S2 library was originally packaged. For example I think it might be nicer for there to be separate packages called r1, s1 and s2. This would make it more inline with the mathematics behind the S2 Geometry Library.
+* I regret some of the naming conventions and wish they were more in line with how the C++ S2 library was originally packaged. For example I think it might be nicer for there to be separate packages called r1, s1 and s2. This would make also make it conform better with the mathematics behind the S2 Geometry Library.
