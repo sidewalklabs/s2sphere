@@ -1,14 +1,17 @@
 from __future__ import print_function, unicode_literals, division
+from future.builtins import int
+from future.builtins import range
 
 import bisect
 import math
 import decimal
 import heapq
 
+
 class Angle(object):
 
     def __init__(self, radians=0):
-        if not isinstance(radians, (long, float, int)):
+        if not isinstance(radians, (float, int)):
             raise ValueError()
         self.__radians = radians
 
@@ -38,6 +41,7 @@ class Angle(object):
     def degrees(self):
         return math.degrees(self.__radians)
 
+
 class Point(object):
 
     def __init__(self, x, y, z):
@@ -65,7 +69,8 @@ class Point(object):
     def __add__(self, other):
         return self.__class__(self[0] + other[0],
                                 self[1] + other[1],
-                                self[2] + other[2])  
+                                self[2] + other[2])
+
     def __sub__(self, other):
         return self.__class__(self[0] - other[0],
                                 self[1] - other[1],
@@ -126,6 +131,7 @@ class Point(object):
         if n != 0:
             n = 1.0 / n
         return self.__class__(self[0] * n, self[1] * n, self[2] * n)
+
 
 class LatLon(object):
     
@@ -188,7 +194,6 @@ class LatLon(object):
     def longitude(point):
         return Angle.from_radians(math.atan2(point[1], point[0]))
 
-
     def lat(self):
         return Angle.from_radians(self.__coords[0])
 
@@ -206,6 +211,7 @@ class LatLon(object):
         return Point(math.cos(theta) * cosphi, 
                         math.sin(theta) * cosphi, 
                             math.sin(phi))
+
     def normalized(self):
         return self.__class__(
             max(-math.pi / 2.0, min(math.pi / 2.0, self.lat().radians)),
@@ -229,6 +235,7 @@ class LatLon(object):
         x = dlat * dlat + dlon * dlon * math.cos(from_lat) * math.cos(to_lat)
         return Angle.from_radians(2 * math.atan2(
             math.sqrt(x), math.sqrt(max(0.0, 1.0 - x))))
+
 
 class Cap(object):
 
@@ -329,7 +336,7 @@ class Cap(object):
             return (self.axis() - other).norm2() <= 2 * self.height()
         elif isinstance(other, Cell):
             vertices = []
-            for k in xrange(4):
+            for k in range(4):
                 vertices.append(other.get_vertex(k))
                 if not self.contains(vertices[k]):
                     return False
@@ -363,7 +370,7 @@ class Cap(object):
                 return True
 
             sin2_angle = self.height() * (2 - self.height())
-            for k in xrange(4):
+            for k in range(4):
                 edge = cell.get_edge_raw(k)
                 dot = self.axis().dot_prod(edge)
                 if dot > 0:
@@ -380,7 +387,7 @@ class Cap(object):
 
     def may_intersect(self, other):
         vertices = []
-        for k in xrange(4):
+        for k in range(4):
             vertices.append(other.get_vertex(k))
             if self.contains(vertices[k]):
                 return True
@@ -458,6 +465,7 @@ class LatLonRect(object):
     def __eq__(self, other):
         return isinstance(other, self.__class__) \
                 and self.lat() == other.lat() and self.lon() == other.lon()
+
     def __ne__(self, other):
         return not self.__eq__(other)
 
@@ -565,7 +573,7 @@ class LatLonRect(object):
         cap = Cap.from_axis_angle(Point(1, 0, 0), angle)
 
         r = self
-        for k in xrange(4):
+        for k in range(4):
             vertex_cap = Cap.from_axis_height(self.get_vertex(k).to_point(),
                                                 cap.height())
             r = r.union(vertex_cap.get_rect_bound())
@@ -626,7 +634,7 @@ class LatLonRect(object):
 
             cell_v = []
             cell_ll = []
-            for i in xrange(4):
+            for i in range(4):
                 cell_v.append(cell.get_vertex(i))
                 cell_ll.append(LatLon.from_point(cell_v[i]))
                 if self.contains(cell_ll[i]):
@@ -634,7 +642,7 @@ class LatLonRect(object):
                 if cell.contains(self.get_vertex(i).to_point()):
                     return True
 
-            for i in xrange(4):
+            for i in range(4):
                 edge_lon = SphereInterval.from_point_pair(
                         cell_ll[i].lon().radians, 
                         cell_ll[(i + 1) & 3].lon().radians)
@@ -765,7 +773,7 @@ class LatLonRect(object):
                 mid_cap = Cap.from_axis_angle(self.get_center().to_point(),
                                                 Angle.from_radians(0))
 
-                for k in xrange(4):
+                for k in range(4):
                     mid_cap.add_point(self.get_vertex(k).to_point())
                 if mid_cap.height() < pole_cap.height():
                     return mid_cap
@@ -795,7 +803,7 @@ def _init_lookup_cell(level, i, j, orig_orientation, pos, orientation):
         j <<= 1
         pos <<= 2
         r = POS_TO_IJ[orientation]
-        for index in xrange(4):
+        for index in range(4):
             _init_lookup_cell(level, i + (r[index] >> 1),
                         j + (r[index] & 1), orig_orientation,
                         pos + index, orientation ^ POS_TO_ORIENTATION[index])
@@ -826,10 +834,10 @@ class CellId(object):
 
     def __init__(self, *args, **kwargs):
         if len(args) == 0:
-            self.__id = long(0)
+            self.__id = int(0)
         elif len(args) == 1:
             # modulus to ensure wrap around
-            self.__id = long(args[0]) % 0xffffffffffffffff
+            self.__id = int(args[0]) % 0xffffffffffffffff
         else:
             raise ValueError()
 
@@ -865,7 +873,7 @@ class CellId(object):
         n = face << (cls.POS_BITS - 1)
         bits = face & SWAP_MASK
 
-        for k in xrange(7, -1, -1):
+        for k in range(7, -1, -1):
             mask = (1 << LOOKUP_BITS) - 1
             bits += (((i >> (k * LOOKUP_BITS)) & mask) << (LOOKUP_BITS + 2))
             bits += (((j >> (k * LOOKUP_BITS)) & mask) << 2)
@@ -1035,7 +1043,6 @@ class CellId(object):
             yield cell_id
             cell_id = cell_id.next()
 
-
     def range_min(self):
         return self.__class__(self.id() - (self.lsb() - 1))
 
@@ -1081,7 +1088,7 @@ class CellId(object):
             if steps < min_steps:
                 step_wrap = self.__class__.WRAP_OFFSET >> step_shift
                 # cannot use steps %= step_wrap as Python % different to C++
-                steps = long(math.fmod(steps, step_wrap))
+                steps = int(math.fmod(steps, step_wrap))
                 if steps < min_steps:
                     steps += step_wrap
         else:
@@ -1089,7 +1096,7 @@ class CellId(object):
             if steps > max_steps:
                 step_wrap = self.__class__.WRAP_OFFSET >> step_shift
                 # cannot use steps %= step_wrap as Python % different to C++
-                steps = long(math.fmod(steps, step_wrap))
+                steps = int(math.fmod(steps, step_wrap))
                 if steps > max_steps:
                     steps -= step_wrap
 
@@ -1148,7 +1155,7 @@ class CellId(object):
         face = self.face()
         bits = (face & SWAP_MASK)
 
-        for k in xrange(7, -1, -1):
+        for k in range(7, -1, -1):
             if k == 7:
                 nbits = (self.__class__.MAX_LEVEL - 7 * LOOKUP_BITS)
             else:
@@ -1378,19 +1385,23 @@ class Metric(object):
         assert level == CellId.MAX_LEVEL or self.get_value(level + 1) < value
         return level
 
+
 class LengthMetric(Metric):
     def __init__(self, deriv):
         super(LengthMetric, self).__init__(deriv, 1)
 
+
 class AreaMetric(Metric):
     def __init__(self, deriv):
         super(AreaMetric, self).__init__(deriv, 2)
+
 
 # like fmod but rounds to nearest integer instead of floor
 def drem(x, y):
     xd = decimal.Decimal(x)
     yd = decimal.Decimal(y)
     return float(xd.remainder_near(yd))
+
 
 # functions originally in S2 source file
 def valid_face_xyz_to_uv(face, p):
@@ -1408,12 +1419,14 @@ def valid_face_xyz_to_uv(face, p):
     else:
         return -p[1] / p[2], -p[0] / p[2]
 
+
 def xyz_to_face_uv(p):
     face = p.largest_abs_component()
     if p[face] < 0:
         face += 3
     u, v = valid_face_xyz_to_uv(face, p)
     return face, u, v
+
 
 def face_xyz_to_uv(face, p):
     if face < 3:
@@ -1424,6 +1437,7 @@ def face_xyz_to_uv(face, p):
             return False, 0, 0
     u, v = valid_face_xyz_to_uv(face, p)
     return True, u, v
+
 
 def face_uv_to_xyz(face, u, v):
     if face == 0:
@@ -1439,8 +1453,10 @@ def face_uv_to_xyz(face, u, v):
     else:
         return Point(v, u, -1)
 
+
 def get_norm(face):
     return face_uv_to_xyz(face, 0, 0)
+
 
 # Return the right-handed normal (not necessarily unit length) for an
 # edge in the direction of the positive v-axis at the given u-value on
@@ -1459,7 +1475,8 @@ def get_u_norm(face, u):
         return Point(0, -u, 1)
     else:
         return Point(0, -1, -u)
-   
+
+
 # Return the right-handed normal (not necessarily unit length) for an
 # edge in the direction of the positive u-axis at the given v-value on
 # the given face.
@@ -1477,6 +1494,7 @@ def get_v_norm(face, v):
     else:
         return Point(1, 0, v)
 
+
 def get_u_axis(face):
     if face == 0:
         return Point(0, 1, 0)
@@ -1490,6 +1508,7 @@ def get_u_axis(face):
         return Point(0, 0, -1)
     else:
         return Point(0, 1, 0)
+
 
 def get_v_axis(face):
     if face == 0:
@@ -1505,8 +1524,10 @@ def get_v_axis(face):
     else:
         return Point(1, 0, 0)
 
+
 def is_unit_length(p):
     return math.fabs(p.norm() * p.norm() - 1) <= 1e-15
+
 
 def ortho(a):
     k = a.largest_abs_component() - 1
@@ -1520,9 +1541,11 @@ def ortho(a):
         temp = Point(0.012, 0.0053, 1)
     return a.cross_prod(temp).normalize()
 
+
 def origin():
     # These values are ones that try not to overlap cells etc
     return Point(0.00457, 1, 0.0321).normalize()
+
 
 '''
    The direction of a.CrossProd(b) becomes unstable as (a + b) or (a - b)
@@ -1547,6 +1570,7 @@ def robust_cross_prod(a, b):
 
     return ortho(a)
 
+
 def simple_crossing(a, b, c, d):
     ab = a.cross_prod(b)
     acb = -(ab.dot_prod(c))
@@ -1559,11 +1583,13 @@ def simple_crossing(a, b, c, d):
     dac = cd.dot_prod(a)
     return (acb * cbd > 0) and (acb * dac > 0)
 
+
 def girard_area(a, b, c):
     ab = robust_cross_prod(a, b)
     bc = robust_cross_prod(b, c)
     ac = robust_cross_prod(a, c)
     return max(0.0, ab.angle(ac) - ab.angle(bc) + bc.angle(ac))
+
 
 def area(a, b, c):
     assert is_unit_length(a)
@@ -1608,6 +1634,7 @@ def simple_ccw(a, b, c):
     #     (2) (-x).DotProd(y) == -(x.DotProd(y))
     return c.cross_prod(a).dot_prod(b) > 0
 
+
 class Interval(object):
     def __init__(self, lo, hi):
         #self.__bounds = [args[0], args[1]]
@@ -1632,6 +1659,7 @@ class Interval(object):
     @classmethod
     def empty(cls):
         return cls()
+
 
 class LineInterval(Interval):
 
@@ -1713,6 +1741,7 @@ class LineInterval(Interval):
             return self.get_length() <= max_error
         return math.fabs(other.lo() - self.lo()) \
                 + math.fabs(other.hi() - self.hi()) <= max_error
+
 
 # originally S1Interval in C++ code
 class SphereInterval(Interval):
@@ -1971,6 +2000,7 @@ class SphereInterval(Interval):
             assert hi_hi > 0 or lo_lo > 0
             return max(hi_hi, lo_lo)
 
+
 class Cell(object):
 
     def __init__(self, cell_id=None):
@@ -1984,7 +2014,7 @@ class Cell(object):
             self.__level = cell_id.level()
 
             cell_size = cell_id.get_size_ij()
-            for d in xrange(2):
+            for d in range(2):
                 ij_lo = ij[d] & -cell_size
                 ij_hi = ij_lo + cell_size
                 self.__uv[d][0] = CellId.st_to_uv(
@@ -2060,7 +2090,6 @@ class Cell(object):
         v3 = self.get_vertex(3)
         return area(v0, v1, v2) + area(v0, v2, v3)
 
-    
     def average_area(self):
         return CellId.avg_area().get_value(self.__level)
 
@@ -2084,7 +2113,6 @@ class Cell(object):
             child.__level = self.__level + 1
             child.__orientation = self.__orientation ^ POS_TO_ORIENTATION[pos]
             child.__cell_id = cell_id
-
 
             # We want to split the cell in half in "u" and "v".  To decide which
             # side to set equal to the midpoint value, we look at cell's (i,j)
@@ -2130,7 +2158,7 @@ class Cell(object):
         v = 0.5 * (self.__uv[1][0] + self.__uv[1][1])
         cap = Cap.from_axis_height(
                 face_uv_to_xyz(self.__face, u, v).normalize(), 0)
-        for k in xrange(4):
+        for k in range(4):
             cap.add_point(self.get_vertex(k))
         return cap
 
@@ -2161,6 +2189,7 @@ class Cell(object):
             return LatLonRect(lat, lon.expanded(max_error)) 
 
         pole_min_lat = math.asin(math.sqrt(1.0 / 3.0))
+
         if self.__face == 0:
             return LatLonRect(
                     LineInterval(-math.pi / 4.0, math.pi / 4.0),
@@ -2185,6 +2214,7 @@ class Cell(object):
             return LatLonRect(
                     LineInterval(-math.pi / 2.0, -pole_min_lat),
                     SphereInterval(-math.pi, math.pi))
+
 
 class CellUnion(object):
 
@@ -2265,7 +2295,7 @@ class CellUnion(object):
 
             cell_union = cls(cell_ids)
             assert all(cell_union.__cell_ids[i] <= cell_union.__cell_ids[i + 1] 
-                    for i in xrange(cell_union.num_cells() - 1))
+                    for i in range(cell_union.num_cells() - 1))
             assert not cell_union.normalize()
 
             return cell_union
@@ -2273,7 +2303,7 @@ class CellUnion(object):
             raise NotImplementedError()
 
     def expand(self, *args):
-        if len(args) == 1 and isinstance(args[0], (int, long)):
+        if len(args) == 1 and isinstance(args[0], int):
             level = args[0]
             output = []
             level_lsb = CellId.lsb_for_level(level)
@@ -2282,14 +2312,14 @@ class CellUnion(object):
                 cell_id = self.__cell_ids[i]
                 if cell_id.lsb() < level_lsb:
                     cell_id = cell_id.parent(level)
-                    while i > 0 and cel_id.contains(self.__cell_ids[i - 1]):
+                    while i > 0 and cell_id.contains(self.__cell_ids[i - 1]):
                         i -= 1
                 output.append(cell_id)
                 cell_id.append_all_neighbors(level, output)
                 i -= 1
             self.__cell_ids = output
         elif len(args) == 2 and isinstance(args[0], Angle) \
-                and isinstance(args[1], (int, long)):
+                and isinstance(args[1], int):
             min_radius, max_level_diff = args
             min_level = CellId.MAX_LEVEL
             for cell_id in self.__cell_ids:
@@ -2312,7 +2342,7 @@ class CellUnion(object):
 
         cell_union = cls(cell_ids)
         assert all(cell_union.__cell_ids[i] <= cell_union.__cell_ids[i + 1] 
-                for i in xrange(cell_union.num_cells() - 1))
+                for i in range(cell_union.num_cells() - 1))
         assert not cell_union.normalize()
         return cell_union
 
@@ -2407,7 +2437,7 @@ class CellUnion(object):
             return self.contains(CellId.from_point(args[0]))
         elif len(args) == 1 and isinstance(args[0], self.__class__):
             cell_union = args[0]
-            for i in xrange(cell_union.num_cells()):
+            for i in range(cell_union.num_cells()):
                 if not self.contains(cell_union.cell_id(i)):
                     return False
             return True
@@ -2439,6 +2469,7 @@ FACE_CELLS = (Cell.from_face_pos_level(0, 0, 0),
                 Cell.from_face_pos_level(3, 0, 0),
                 Cell.from_face_pos_level(4, 0, 0),
                 Cell.from_face_pos_level(5, 0, 0))
+
 
 class RegionCoverer(object):
 
@@ -2588,11 +2619,11 @@ class RegionCoverer(object):
             if level > 0:
                 cell_id = CellId.from_point(cap.axis())
                 base = cell_id.get_vertex_neighbors(level)
-                for i in xrange(len(base)):
+                for i in range(len(base)):
                     self.__add_candidate(self.__new_candidate(Cell(base[i])))
                 return
 
-        for face in xrange(6):
+        for face in range(6):
             self.__add_candidate(self.__new_candidate(FACE_CELLS[face]))
 
     def __get_covering(self, region):
@@ -2626,7 +2657,6 @@ class RegionCoverer(object):
         self.__pq = []
         self.__region = None
 
-
     def __get_cell_union(self, region):
         self.__interior_covering = False
         self.__get_covering(region)
@@ -2639,9 +2669,9 @@ class RegionCoverer(object):
 
     @classmethod
     def flood_fill(cls, region, start):
-        all = set()
+        all_nbrs = set()
         frontier = []
-        all.add(start)
+        all_nbrs.add(start)
         frontier.append(start)
         while len(frontier) != 0:
             cell_id = frontier.pop()
@@ -2651,8 +2681,8 @@ class RegionCoverer(object):
         
             neighbors = cell_id.get_edge_neighbors()
             for nbr in neighbors:
-                if nbr not in all:
-                    all.add(nbr)
+                if nbr not in all_nbrs:
+                    all_nbrs.add(nbr)
                     frontier.append(nbr)
 
     @classmethod
