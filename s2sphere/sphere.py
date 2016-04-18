@@ -1309,11 +1309,15 @@ class CellId(object):
                                           j + size < self.__class__.MAX_SIZE)
                        .parent(nbr_level))
 
-            yield self.__class__.from_face_ij_same(face, i - nbr_size, j + k,
-                        same_face and i - size >= 0).parent(nbr_level)
-            yield self.__class__.from_face_ij_same(face, i + size, j + k,
-                        same_face and i + size < self.__class__.MAX_SIZE) \
-                            .parent(nbr_level)
+            yield (self.__class__
+                   .from_face_ij_same(face, i - nbr_size, j + k,
+                                      same_face and i - size >= 0)
+                   .parent(nbr_level))
+            yield (self.__class__
+                   .from_face_ij_same(face, i + size, j + k,
+                                      same_face and
+                                      i + size < self.__class__.MAX_SIZE)
+                   .parent(nbr_level))
 
             if k >= size:
                 break
@@ -1687,7 +1691,7 @@ def simple_ccw(a, b, c):
 
 class Interval(object):
     def __init__(self, lo, hi):
-        #self.__bounds = [args[0], args[1]]
+        # self.__bounds = [args[0], args[1]]
         self.__bounds = (lo, hi)
 
     def __repr__(self):
@@ -1717,9 +1721,9 @@ class LineInterval(Interval):
         super(LineInterval, self).__init__(lo, hi)
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) \
-                and ((self.lo() == other.lo() and self.hi() == other.hi()) \
-                    or (self.is_empty() and other.is_empty()))
+        return (isinstance(other, self.__class__) and
+                ((self.lo() == other.lo() and self.hi() == other.hi()) or
+                (self.is_empty() and other.is_empty())))
 
     def __hash__(self):
         return hash(self.__bounds)
