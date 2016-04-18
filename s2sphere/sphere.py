@@ -987,8 +987,8 @@ class CellId(object):
         return self.__id
 
     def is_valid(self):
-        return (self.face() < self.__class__.NUM_FACES) \
-                and (self.lsb() & 0x1555555555555555) != 0
+        return ((self.face() < self.__class__.NUM_FACES) and
+                (self.lsb() & 0x1555555555555555) != 0)
 
     def lsb(self):
         return self.id() & -self.id()

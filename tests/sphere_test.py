@@ -1763,21 +1763,21 @@ class TestCrossings(unittest.TestCase):
             self.assertEqual(expected, actual)
 
     def check_crossing(self, a, b, c, d, robust, edge_or_vertex, simple):
-
         a = a.normalize()
         b = b.normalize()
         c = c.normalize()
         d = d.normalize()
-        #CompareResult(S2EdgeUtil::RobustCrossing(a, b, c, d), robust)
+        # CompareResult(S2EdgeUtil::RobustCrossing(a, b, c, d), robust)
         if simple:
-          self.assertEqual(robust > 0, s2sphere.simple_crossing(a, b, c, d))
-        #S2EdgeUtil::EdgeCrosser crosser(&a, &b, &c)
-        #CompareResult(crosser.RobustCrossing(&d), robust)
-        #CompareResult(crosser.RobustCrossing(&c), robust)
+            self.assertEqual(robust > 0, s2sphere.simple_crossing(a, b, c, d))
+        # S2EdgeUtil::EdgeCrosser crosser(&a, &b, &c)
+        # CompareResult(crosser.RobustCrossing(&d), robust)
+        # CompareResult(crosser.RobustCrossing(&c), robust)
 
-        #EXPECT_EQ(edge_or_vertex, S2EdgeUtil::EdgeOrVertexCrossing(a, b, c, d))
-        #EXPECT_EQ(edge_or_vertex, crosser.EdgeOrVertexCrossing(&d))
-        #EXPECT_EQ(edge_or_vertex, crosser.EdgeOrVertexCrossing(&c))
+        # EXPECT_EQ(edge_or_vertex,
+        #           S2EdgeUtil::EdgeOrVertexCrossing(a, b, c, d))
+        # EXPECT_EQ(edge_or_vertex, crosser.EdgeOrVertexCrossing(&d))
+        # EXPECT_EQ(edge_or_vertex, crosser.EdgeOrVertexCrossing(&c))
 
     def check_crossings(self, a, b, c, d, robust, edge_or_vertex, simple):
 
@@ -1788,8 +1788,8 @@ class TestCrossings(unittest.TestCase):
         self.check_crossing(a, a, c, d, self.degen, 0, False)
         self.check_crossing(a, b, c, c, self.degen, 0, False)
         self.check_crossing(a, b, a, b, 0, 1, False)
-        self.check_crossing(c, d, a, b,
-            robust, edge_or_vertex ^ (robust == 0), simple)
+        self.check_crossing(
+            c, d, a, b, robust, edge_or_vertex ^ (robust == 0), simple)
 
     def testCrossings(self):
         # The real tests of edge crossings are in s2{loop,polygon}_unittest,
@@ -1858,7 +1858,7 @@ class TestUtils(unittest.TestCase):
     def testDrem(self):
         self.assertAlmostEqual(s2sphere.drem(6.5, 2.3), -0.4)
         self.assertAlmostEqual(s2sphere.drem(1.0, 2.0), 1.0)
-        self.assertAlmostEqual(sphere.drem(1.0, 3.0), 1.0)
+        self.assertAlmostEqual(s2sphere.drem(1.0, 3.0), 1.0)
 
 
 class TestCellUnion(unittest.TestCase):
@@ -1997,7 +1997,7 @@ class TestCellUnion(unittest.TestCase):
 
             x_and_y_cells = CellUnion.get_intersection(xcells, ycells)
             self.assertEqual(x_and_y_cells.cell_ids(),
-                                x_and_y_expected.cell_ids())
+                             x_and_y_expected.cell_ids())
 
             x_minus_y_cells = CellUnion.get_difference(xcells, ycells)
             y_minus_x_cells = CellUnion.get_difference(ycells, xcells)
@@ -2009,7 +2009,7 @@ class TestCellUnion(unittest.TestCase):
 
             diff_union = CellUnion.get_union(x_minus_y_cells, y_minus_x_cells)
             diff_intersection_union = CellUnion.get_union(diff_union,
-                                                        x_and_y_cells)
+                                                          x_and_y_cells)
             self.assertEqual(diff_intersection_union, x_or_y_cells)
 
             test, dummy = [], []
@@ -2035,7 +2035,7 @@ class TestCellUnion(unittest.TestCase):
         self.assertEqual(0, empty_cell_union.num_cells())
 
         # Denormalize(...)
-        output = empty_cell_union.denormalize(0, 2)
+        # output = empty_cell_union.denormalize(0, 2)
         self.assertEqual(0, empty_cell_union.num_cells())
 
         # Contains(...)
@@ -2054,12 +2054,12 @@ class TestCellUnion(unittest.TestCase):
         intersection = CellUnion.get_intersection(empty_cell_union, face1_id)
         self.assertEqual(0, intersection.num_cells())
         intersection = CellUnion.get_intersection(empty_cell_union,
-                                                    empty_cell_union)
+                                                  empty_cell_union)
         self.assertEqual(0, intersection.num_cells())
 
         # GetDifference(...)
         difference = CellUnion.get_difference(empty_cell_union,
-                empty_cell_union)
+                                              empty_cell_union)
         self.assertEqual(0, difference.num_cells())
 
         # Expand(...)
@@ -2140,8 +2140,6 @@ class TestRegionCoverer(unittest.TestCase):
         else:
             cell_union = CellUnion(covering)
             self.check_cell_union_covering(region, cell_union, True, CellId())
-
-
 
     def testRandomCaps(self):
         for i in xrange(RANDOM_CAPS_ITERATIONS):
