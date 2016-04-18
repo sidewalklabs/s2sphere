@@ -8,7 +8,7 @@ class CoveringTest(unittest.TestCase):
         p1 = s2sphere.LatLon.from_degrees(33, -122)
         p2 = s2sphere.LatLon.from_degrees(33, -122.1)
         cell_ids = r.get_covering(s2sphere.LatLonRect.from_point_pair(p1, p2))
-        ids = sorted([long(c.id()) for c in cell_ids])
+        ids = sorted([c.id() for c in cell_ids])
         target = [9291046973249421312,
                   9291046994724257792,
                   9291047097803472896,

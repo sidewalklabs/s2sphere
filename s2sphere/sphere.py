@@ -873,12 +873,20 @@ class CellId(object):
     def __hash__(self):
         return hash(self.id())
 
-    def __cmp__(self, other):
-        if not isinstance(other, self.__class__):
-            raise NotImplementedError('Only supports comparison with same '
-                                      'type.')
-        else:
-            return self.id().__cmp__(other.id())
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.id() == other.id()
+
+    def __lt__(self, other):
+        return self.id() < other.id()
+
+    def __le__(self, other):
+        return self.id() <= other.id()
+
+    def __gt__(self, other):
+        return self.id() > other.id()
+
+    def __ge__(self, other):
+        return self.id() >= other.id()
 
     @classmethod
     def from_lat_lon(cls, ll):
@@ -2540,6 +2548,12 @@ class RegionCoverer(object):
         @property
         def num_children(self):
             return len(self.children)
+
+        def __lt__(self, other):
+            if not hasattr(self, 'cell') or \
+               not hasattr(other, 'cell'):
+                raise NotImplementedError()
+            return self.cell.id() < other.cell.id()
 
     def __init__(self):
         self.__min_level = 0
