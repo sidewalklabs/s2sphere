@@ -1,8 +1,5 @@
 language: cpp
 
-git:
-  depth: 10
-
 notifications:
   email: false
 
@@ -35,4 +32,5 @@ before_install:
 - python -V
 
 script:
+- git submodule update --init --recursive
 - cd tests/s2-geometry && ./travis.sh
