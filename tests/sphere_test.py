@@ -1853,11 +1853,13 @@ class TestCrossings(unittest.TestCase):
             Point(-1e-323, 1, 1e-323), Point(1, -1, 1e-323), Point(1, 1, 0),
               -1, False, False)
 
+
 class TestUtils(unittest.TestCase):
     def testDrem(self):
         self.assertAlmostEqual(sphere.drem(6.5, 2.3), -0.4)
         self.assertAlmostEqual(sphere.drem(1.0, 2.0), 1.0)
         self.assertAlmostEqual(sphere.drem(1.0, 3.0), 1.0)
+
 
 class TestCellUnion(unittest.TestCase):
     def testBasic(self):
@@ -1884,7 +1886,7 @@ class TestCellUnion(unittest.TestCase):
         if cell_id == CellId.none():
             for face in range(6):
                 self.add_cells(CellId.from_face_pos_level(face, 0, 0),
-                        False, input, expected)
+                               False, input, expected)
             return
 
         if cell_id.is_leaf():
@@ -1904,10 +1906,10 @@ class TestCellUnion(unittest.TestCase):
 
         num_children = 0
         for child in cell_id.children():
-            range = 4
+            crange = 4
             if selected:
-                range = 12
-            if random.randrange(range) == 0 and num_children < 3:
+                crange = 12
+            if random.randrange(crange) == 0 and num_children < 3:
                 self.add_cells(child, selected, input, expected)
                 num_children += 1
 

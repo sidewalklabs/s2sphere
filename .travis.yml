@@ -33,4 +33,9 @@ before_install:
 
 script:
 - git submodule update --init --recursive
-- cd tests/s2-geometry && ./travis.sh
+- cd tests/s2-geometry && ./travis.sh && cd -
+# dependencies for Python tests
+- pip install --user --upgrade pip
+- pip install --user numpy
+- pip install --user .
+- python tests/sphere_test.py -vv
