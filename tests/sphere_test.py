@@ -50,6 +50,7 @@ class TestAngle(unittest.TestCase):
         self.assertEqual(Angle.from_radians((-math.pi / 2)).degrees, -90.0)
         self.assertEqual(Angle.from_degrees((-45)).radians, -math.pi / 4)
 
+
 class TestLatLon(unittest.TestCase):
 
     def testBasics(self):
@@ -69,15 +70,15 @@ class TestLatLon(unittest.TestCase):
         self.assertTrue(better.is_valid())
         self.assertEqual(Angle.from_degrees(90), better.lat())
         self.assertEqual(Angle.from_degrees(-160).radians,
-                better.lon().radians)
+                         better.lon().radians)
 
-        self.assertTrue((LatLon.from_degrees(10, 20) \
-                + LatLon.from_degrees(20, 30)).approx_equals(
-                    LatLon.from_degrees(30, 50)))
-        self.assertTrue((LatLon.from_degrees(10, 20) \
-                - LatLon.from_degrees(20, 30)).approx_equals(
-                    LatLon.from_degrees(-10, -10)))
-        #self.assertTrue((0.5 * LatLon.from_degrees(10, 20)).approx_equals(
+        self.assertTrue(
+            (LatLon.from_degrees(10, 20) + LatLon.from_degrees(20, 30))
+            .approx_equals(LatLon.from_degrees(30, 50)))
+        self.assertTrue(
+            (LatLon.from_degrees(10, 20) - LatLon.from_degrees(20, 30))
+            .approx_equals(LatLon.from_degrees(-10, -10)))
+        # self.assertTrue((0.5 * LatLon.from_degrees(10, 20)).approx_equals(
         #            LatLon.from_degrees(5, 10)))
 
         invalid = LatLon.invalid()
@@ -102,17 +103,27 @@ class TestLatLon(unittest.TestCase):
                         0.1, -math.pi).to_point()).lon().radians), math.pi)
 
     def testDistance(self):
-        self.assertEqual(0.0, LatLon.from_degrees(90, 0).get_distance(
-            LatLon.from_degrees(90, 0)).radians)
-        self.assertAlmostEqual(77.0,
+        self.assertEqual(
+            0.0,
+            LatLon.from_degrees(90, 0).get_distance(
+                LatLon.from_degrees(90, 0)
+            ).radians)
+        self.assertAlmostEqual(
+            77.0,
             LatLon.from_degrees(-37, 25).get_distance(
-                LatLon.from_degrees(-66, -155)).degrees, delta=1e-13)
-        self.assertAlmostEqual(115.0,
+                LatLon.from_degrees(-66, -155)
+            ).degrees, delta=1e-13)
+        self.assertAlmostEqual(
+            115.0,
             LatLon.from_degrees(0, 165).get_distance(
-                LatLon.from_degrees(0, -80)).degrees, delta=1e-13)
-        self.assertAlmostEqual(180.0,
+                LatLon.from_degrees(0, -80)
+            ).degrees, delta=1e-13)
+        self.assertAlmostEqual(
+            180.0,
             LatLon.from_degrees(47, -127).get_distance(
-                LatLon.from_degrees(-47, 53)).degrees, delta=2e-6)
+                LatLon.from_degrees(-47, 53)
+            ).degrees, delta=2e-6)
+
 
 class TestCellId(unittest.TestCase):
 
@@ -126,8 +137,8 @@ class TestCellId(unittest.TestCase):
         else:
             level = args[0]
         face = random.randrange(CellId.NUM_FACES)
-        pos = random.randrange(0xffffffffffffffff) \
-                & ((1 << (2 * CellId.MAX_LEVEL)) - 1)
+        pos = (random.randrange(0xffffffffffffffff) &
+               ((1 << (2 * CellId.MAX_LEVEL)) - 1))
         return CellId.from_face_pos_level(face, pos, level)
 
     def get_random_point(self):
@@ -155,7 +166,7 @@ class TestCellId(unittest.TestCase):
 
     def testParentChildRelationships(self):
         cell_id = CellId.from_face_pos_level(3, 0x12345678,
-                    CellId.MAX_LEVEL - 4)
+                                             CellId.MAX_LEVEL - 4)
 
         self.assertTrue(cell_id.is_valid())
         self.assertEqual(cell_id.face(), 3)
@@ -164,7 +175,7 @@ class TestCellId(unittest.TestCase):
         self.assertFalse(cell_id.is_leaf())
 
         self.assertEqual(cell_id.child_begin(cell_id.level() + 2).pos(),
-                0x12345610)
+                         0x12345610)
         self.assertEqual(cell_id.child_begin().pos(), 0x12345640)
         self.assertEqual(cell_id.parent().pos(), 0x12345400)
         self.assertEqual(cell_id.parent(cell_id.level() - 2).pos(), 0x12345000)
@@ -173,30 +184,37 @@ class TestCellId(unittest.TestCase):
         self.assertLess(cell_id.child_begin(), cell_id)
         self.assertGreater(cell_id.child_end(), cell_id)
         self.assertEqual(cell_id.child_begin().next().next().next().next(),
-                cell_id.child_end())
+                         cell_id.child_end())
         self.assertEqual(cell_id.child_begin(CellId.MAX_LEVEL),
-                cell_id.range_min())
+                         cell_id.range_min())
         self.assertEqual(cell_id.child_end(CellId.MAX_LEVEL),
-                cell_id.range_max().next())
+                         cell_id.range_max().next())
 
         # Check that cells are represented by the position of their center
         # along the Hilbert curve.
         self.assertEqual(cell_id.range_min().id() + cell_id.range_max().id(),
-                2 * cell_id.id())
-
+                         2 * cell_id.id())
 
     def testWrapping(self):
         self.assertEqual(CellId.begin(0).prev_wrap(), CellId.end(0).prev())
-        self.assertEqual(CellId.begin(CellId.MAX_LEVEL).prev_wrap(),
-                CellId.from_face_pos_level(5,
-                    0xffffffffffffffff >> CellId.FACE_BITS, CellId.MAX_LEVEL))
+        self.assertEqual(
+            CellId.begin(CellId.MAX_LEVEL).prev_wrap(),
+            CellId.from_face_pos_level(
+                5,
+                0xffffffffffffffff >> CellId.FACE_BITS,
+                CellId.MAX_LEVEL
+            ))
 
-        self.assertEqual(CellId.begin(CellId.MAX_LEVEL).advance_wrap(-1),
-                CellId.from_face_pos_level(5,
-                    0xffffffffffffffff >> CellId.FACE_BITS, CellId.MAX_LEVEL))
+        self.assertEqual(
+            CellId.begin(CellId.MAX_LEVEL).advance_wrap(-1),
+            CellId.from_face_pos_level(
+                5,
+                0xffffffffffffffff >> CellId.FACE_BITS,
+                CellId.MAX_LEVEL
+            ))
 
         self.assertEqual(CellId.end(4).advance(-1).advance_wrap(1),
-                CellId.begin(4))
+                         CellId.begin(4))
 
         self.assertEqual(CellId.end(
                     CellId.MAX_LEVEL).advance(-1).advance_wrap(1),
@@ -205,12 +223,12 @@ class TestCellId(unittest.TestCase):
         self.assertEqual(CellId.end(4).prev().next_wrap(), CellId.begin(4))
 
         self.assertEqual(CellId.end(CellId.MAX_LEVEL).prev().next_wrap(),
-                CellId.from_face_pos_level(0, 0, CellId.MAX_LEVEL))
+                         CellId.from_face_pos_level(0, 0, CellId.MAX_LEVEL))
 
     def testAdvance(self):
 
         cell_id = CellId.from_face_pos_level(3, 0x12345678,
-                                                    CellId.MAX_LEVEL - 4)
+                                             CellId.MAX_LEVEL - 4)
 
         self.assertEqual(CellId.begin(0).advance(7), CellId.end(0))
         self.assertEqual(CellId.begin(0).advance(12), CellId.end(0))
@@ -219,31 +237,30 @@ class TestCellId(unittest.TestCase):
 
         num_level_5_cells = 6 << (2 * 5)
         self.assertEqual(CellId.begin(5).advance(500),
-                        CellId.end(5).advance(500 - num_level_5_cells))
+                         CellId.end(5).advance(500 - num_level_5_cells))
         self.assertEqual(cell_id.child_begin(CellId.MAX_LEVEL).advance(256),
-                cell_id.next().child_begin(CellId.MAX_LEVEL))
-        self.assertEqual(CellId.from_face_pos_level(1, 0, CellId.MAX_LEVEL) \
-                    .advance(4 << (2 * CellId.MAX_LEVEL)),
-            CellId.from_face_pos_level(5, 0, CellId.MAX_LEVEL))
+                         cell_id.next().child_begin(CellId.MAX_LEVEL))
+        self.assertEqual(CellId.from_face_pos_level(1, 0, CellId.MAX_LEVEL)
+                         .advance(4 << (2 * CellId.MAX_LEVEL)),
+                         CellId.from_face_pos_level(5, 0, CellId.MAX_LEVEL))
 
         # Check basic properties of advance_wrap().
         self.assertEqual(CellId.begin(0).advance_wrap(7),
-                            CellId.from_face_pos_level(1, 0, 0))
+                         CellId.from_face_pos_level(1, 0, 0))
         self.assertEqual(CellId.begin(0).advance_wrap(12), CellId.begin(0))
 
-
         self.assertEqual(CellId.from_face_pos_level(5, 0, 0).advance_wrap(-7),
-                            CellId.from_face_pos_level(4, 0, 0))
+                         CellId.from_face_pos_level(4, 0, 0))
         self.assertEqual(CellId.begin(0).advance_wrap(-12000000),
-                            CellId.begin(0))
+                         CellId.begin(0))
         self.assertEqual(CellId.begin(5).advance_wrap(6644),
-                            CellId.begin(5).advance_wrap(-11788))
+                         CellId.begin(5).advance_wrap(-11788))
         self.assertEqual(
             cell_id.child_begin(CellId.MAX_LEVEL).advance_wrap(256),
             cell_id.next().child_begin(CellId.MAX_LEVEL))
         self.assertEqual(
-            CellId.from_face_pos_level(5, 0, CellId.MAX_LEVEL) \
-                .advance_wrap(2 << (2 * CellId.MAX_LEVEL)),
+            CellId.from_face_pos_level(5, 0, CellId.MAX_LEVEL)
+            .advance_wrap(2 << (2 * CellId.MAX_LEVEL)),
             CellId.from_face_pos_level(1, 0, CellId.MAX_LEVEL))
 
     def testInverse(self):
@@ -263,7 +280,7 @@ class TestCellId(unittest.TestCase):
             self.assertEqual(CellId.from_token(token), cell_id)
 
     def expand_cells(self, parent, cells, parent_map):
-        max_expand_level = 3
+        # max_expand_level = 3
 
         cells.append(parent)
         if parent.level() == 3:
@@ -282,26 +299,25 @@ class TestCellId(unittest.TestCase):
             cface, ci, cj, corientation = child.to_face_ij_orientation()
             self.assertEqual(cface, face)
             self.assertEqual(corientation,
-                    orientation ^ sphere.POS_TO_ORIENTATION[pos])
+                             orientation ^ sphere.POS_TO_ORIENTATION[pos])
 
             parent_map[child] = parent
             self.expand_cells(child, cells, parent_map)
             child = child.next()
             pos = pos + 1
 
-
     def testContainment(self):
         parent_map = {}
         cells = []
-        for face in xrange(6):
+        for face in range(6):
             self.expand_cells(CellId.from_face_pos_level(face, 0, 0),
-                                        cells, parent_map)
+                              cells, parent_map)
 
-        for i in xrange(len(cells)):
-            for j in xrange(len(cells)):
+        for i, cell_id_i in enumerate(cells):
+            for j, cell_id_j in enumerate(cells):
                 contained = True
-                cell_id = cells[j]
-                while cell_id != cells[i]:
+                cell_id = cell_id_j
+                while cell_id != cell_id_i:
                     next_cell_id = parent_map.get(cell_id)
                     if next_cell_id is None:
                         contained = False
@@ -309,11 +325,11 @@ class TestCellId(unittest.TestCase):
                     cell_id = next_cell_id
 
                 self.assertEqual(cells[i].contains(cells[j]), contained)
-                self.assertEqual(cells[j] >= cells[i].range_min() \
-                        and cells[j] <= cells[i].range_max(), contained)
+                self.assertEqual(cells[j] >= cells[i].range_min() and
+                                 cells[j] <= cells[i].range_max(), contained)
                 self.assertEqual(cells[i].intersects(cells[j]),
-                    cells[i].contains(cells[j]) or cells[j].contains(cells[i]))
-
+                                 cells[i].contains(cells[j]) or
+                                 cells[j].contains(cells[i]))
 
     def testContinuity(self):
         # Make sure that sequentially increasing cell ids form a continuous
@@ -363,10 +379,13 @@ class TestCellId(unittest.TestCase):
         neighbors = CellId.from_point(Point(0, 0, 1)).get_vertex_neighbors(5)
         neighbors.sort()
         for i, neighbor in enumerate(neighbors):
-            self.assertEqual(neighbor,
-                CellId.from_face_ij(2,
-                    (1 << 29) - (i < 2), (1 << 29) - (i == 0 or i == 3)) \
-                        .parent(5))
+            self.assertEqual(
+                neighbor,
+                CellId.from_face_ij(
+                    2,
+                    (1 << 29) - (i < 2), (1 << 29) - (i == 0 or i == 3)
+                ).parent(5)
+            )
 
         # Check the vertex neighbors of the corner of faces 0, 4, and 5.
         cell_id = CellId.from_face_pos_level(0, 0, CellId.MAX_LEVEL)
@@ -404,6 +423,7 @@ class TestCellId(unittest.TestCase):
 
         self.assertEqual(expected, all)
 
+
 class LevelStats(object):
     def __init__(self):
         self.count = 0
@@ -427,6 +447,7 @@ class LevelStats(object):
         self.min_approx_ratio = 100
         self.max_approx_ratio = 0
 
+
 class TestCell(unittest.TestCase):
 
     def setUp(self):
@@ -439,7 +460,7 @@ class TestCell(unittest.TestCase):
     def testFaces(self):
         edge_counts, vertex_counts = defaultdict(int), defaultdict(int)
 
-        for face in xrange(6):
+        for face in range(6):
             cell_id = CellId.from_face_pos_level(face, 0, 0)
             cell = Cell(cell_id)
             self.assertEqual(cell_id, cell.id())
@@ -451,21 +472,29 @@ class TestCell(unittest.TestCase):
             self.assertEqual(face & sphere.SWAP_MASK, cell.orientation())
             self.assertFalse(cell.is_leaf())
 
-            for k in xrange(4):
+            for k in range(4):
                 edge_counts[cell.get_edge_raw(k)] += 1
                 vertex_counts[cell.get_vertex_raw(k)] += 1
                 self.assertEqual(
                     cell.get_vertex_raw(k).dot_prod(cell.get_edge_raw(k)), 0.0)
                 self.assertEqual(
-                    cell.get_vertex_raw((k + 1) & 3).dot_prod(
-                        cell.get_edge_raw(k)), 0.0)
+                    cell
+                    .get_vertex_raw((k + 1) & 3)
+                    .dot_prod(cell.get_edge_raw(k)),
+                    0.0,
+                )
                 # this is assertEqual in C++ code
                 self.assertAlmostEqual(
-                    cell.get_vertex_raw(k).cross_prod(
-                        cell.get_vertex_raw((k + 1) & 3)) \
-                            .normalize().dot_prod(cell.get_edge(k)), 1.0)
+                    cell
+                    .get_vertex_raw(k)
+                    .cross_prod(cell.get_vertex_raw((k + 1) & 3))
+                    .normalize()
+                    .dot_prod(cell.get_edge(k)),
+                    1.0,
+                )
 
-        # Check that edges have multiplicity 2 and vertices have multiplicity 3.
+        # Check that edges have multiplicity 2 and
+        # vertices have multiplicity 3.
         for count in edge_counts.itervalues():
             self.assertEqual(count, 2)
 
@@ -486,7 +515,7 @@ class TestCell(unittest.TestCase):
         min_angle_span = 100
         max_angle_span = 0
 
-        for i in xrange(4):
+        for i in range(4):
             edge = cell.get_vertex_raw(i).angle(
                     cell.get_vertex_raw((i + 1) & 3))
             min_edge = min(edge, min_edge)
@@ -520,15 +549,13 @@ class TestCell(unittest.TestCase):
         s.min_diag = min(min_diag, s.min_diag)
         s.max_diag = max(max_diag, s.max_diag)
         s.avg_diag += 0.5 * (min_diag + max_diag)
-        s.max_diag_aspect = max(max_diag /min_diag, s.max_diag_aspect)
+        s.max_diag_aspect = max(max_diag / min_diag, s.max_diag_aspect)
         s.min_angle_span = min(min_angle_span, s.min_angle_span)
         s.max_angle_span = max(max_angle_span, s.max_angle_span)
         s.avg_angle_span += 0.5 * (min_angle_span + max_angle_span)
         approx_ratio = approx_area / exact_area
         s.min_approx_ratio = min(approx_ratio, s.min_approx_ratio)
         s.max_approx_ratio = max(approx_ratio, s.max_approx_ratio)
-
-
 
     def check_subdivide(self, cell):
         self.gather_stats(cell)
@@ -557,11 +584,11 @@ class TestCell(unittest.TestCase):
             self.assertEqual(direct.orientation(), child.orientation())
             self.assertEqual(direct.get_center_raw(), child.get_center_raw())
 
-            for k in xrange(4):
+            for k in range(4):
                 self.assertEqual(direct.get_vertex_raw(k),
-                                    child.get_vertex_raw(k))
+                                 child.get_vertex_raw(k))
                 self.assertEqual(direct.get_edge_raw(k),
-                                    child.get_edge_raw(k))
+                                 child.get_edge_raw(k))
 
             # Test contains() and may_intersect().
             self.assertTrue(cell.contains(child))
@@ -569,7 +596,7 @@ class TestCell(unittest.TestCase):
             self.assertFalse(child.contains(cell))
             self.assertTrue(cell.contains(child.get_center_raw()))
 
-            for j in xrange(4):
+            for j in range(4):
                 self.assertTrue(cell.contains(child.get_vertex_raw(j)))
                 if i != j:
                     # cannot get to pass test
@@ -590,30 +617,34 @@ class TestCell(unittest.TestCase):
             self.assertTrue(child_rect.contains(children[i].get_center_raw()))
             self.assertTrue(parent_cap.contains(children[i].get_center()))
             self.assertTrue(parent_rect.contains(children[i].get_center_raw()))
-            for j in xrange(4):
-                self.assertTrue(child_cap.contains(children[i].get_vertex(j)))
-                self.assertTrue(child_rect.contains(children[i].get_vertex(j)))
+            for j in range(4):
                 self.assertTrue(
-                        child_rect.contains(children[i].get_vertex_raw(j)))
-                self.assertTrue(parent_cap.contains(children[i].get_vertex(j)))
-                self.assertTrue(parent_rect.contains(children[i].get_vertex(j)))
+                    child_cap.contains(children[i].get_vertex(j)))
                 self.assertTrue(
-                        parent_rect.contains(children[i].get_vertex_raw(j)))
+                    child_rect.contains(children[i].get_vertex(j)))
+                self.assertTrue(
+                    child_rect.contains(children[i].get_vertex_raw(j)))
+                self.assertTrue(
+                    parent_cap.contains(children[i].get_vertex(j)))
+                self.assertTrue(
+                    parent_rect.contains(children[i].get_vertex(j)))
+                self.assertTrue(
+                    parent_rect.contains(children[i].get_vertex_raw(j)))
                 if j != i:
                     # The bounding caps and rectangles should be tight
                     # enough so that they exclude at least two vertices of
                     # each adjacent cell.
                     cap_count = 0
                     rect_count = 0
-                    for k in xrange(4):
+                    for k in range(4):
                         if child_cap.contains(children[j].get_vertex(k)):
                             ++cap_count
                         if child_rect.contains(children[j].get_vertex_raw(k)):
                             ++rect_count
 
                     self.assertLessEqual(cap_count, 2)
-                    if child_rect.lat_lo().radians > -math.pi / 2.0 \
-                          and child_rect.lat_hi().radians < math.pi / 2.0:
+                    if child_rect.lat_lo().radians > -math.pi / 2.0 and \
+                       child_rect.lat_hi().radians < math.pi / 2.0:
                         # Bounding rectangles may be too large at the poles
                         # because the pole itself has an arb fixed longitude.
                         self.assertLessEqual(rect_count, 2)
@@ -622,11 +653,12 @@ class TestCell(unittest.TestCase):
             center = sphere.get_norm(children[i].face())
             edge = center + sphere.get_u_axis(children[i].face())
             corner = edge + sphere.get_v_axis(children[i].face())
-            for j in xrange(4):
+            for j in range(4):
                 p = children[i].get_vertex_raw(j)
                 if p == center or p == edge or p == corner:
                     force_subdivide = True
-            if force_subdivide or cell.level() < 5 or random.randrange(5) == 0:
+            if force_subdivide or cell.level() < 5 or \
+               random.randrange(50) == 0:
                 self.check_subdivide(children[i])
 
         self.assertLessEqual(
@@ -639,10 +671,10 @@ class TestCell(unittest.TestCase):
                 math.fabs(math.log(average_area / cell.average_area())),
                 math.fabs(math.log(1 + 1e-15)))
 
-
     def testSubdivide(self):
-        for face in xrange(6):
+        for face in range(6):
             self.check_subdivide(Cell.from_face_pos_level(face, 0, 0))
+
 
 class TestLineInterval(unittest.TestCase):
 
@@ -662,9 +694,9 @@ class TestLineInterval(unittest.TestCase):
         self.assertEqual(0, negunit.bound(1))
 
         # Keep immutable for now
-        #ten = LineInterval(0, 0)
-        #ten.set_hi(10)
-        #self.assertEqual(10, ten.hi())
+        # ten = LineInterval(0, 0)
+        # ten.set_hi(10)
+        # self.assertEqual(10, ten.hi())
 
         half = LineInterval(0.5, 0.5)
         self.assertFalse(unit.is_empty())
@@ -702,11 +734,12 @@ class TestLineInterval(unittest.TestCase):
         # AddPont() should go here but trying to keep class immutable
 
         # from_point_pair
-        self.assertEqual(LineInterval(4, 4), LineInterval.from_point_pair(4, 4))
+        self.assertEqual(LineInterval(4, 4),
+                         LineInterval.from_point_pair(4, 4))
         self.assertEqual(LineInterval(-2, -1),
-                LineInterval.from_point_pair(-1, -2))
+                         LineInterval.from_point_pair(-1, -2))
         self.assertEqual(LineInterval(-5, 3),
-                LineInterval.from_point_pair(-5, 3))
+                         LineInterval.from_point_pair(-5, 3))
 
         # expanded
         self.assertEqual(empty, empty.expanded(0.45))
@@ -714,9 +747,9 @@ class TestLineInterval(unittest.TestCase):
 
         # union, intersection
         self.assertEqual(LineInterval(99, 100),
-                LineInterval(99, 100).union(empty))
+                         LineInterval(99, 100).union(empty))
         self.assertEqual(LineInterval(99, 100),
-                empty.union(LineInterval(99, 100)))
+                         empty.union(LineInterval(99, 100)))
         self.assertTrue(
                 LineInterval(5, 3).union(LineInterval(0, -2).is_empty()))
         self.assertTrue(
@@ -729,6 +762,7 @@ class TestLineInterval(unittest.TestCase):
         self.assertTrue(negunit.intersection(half).is_empty())
         self.assertTrue(unit.intersection(empty).is_empty())
         self.assertTrue(empty.intersection(unit).is_empty())
+
 
 class TestSphereInterval(unittest.TestCase):
 
@@ -761,9 +795,8 @@ class TestSphereInterval(unittest.TestCase):
         self.mid12 = SphereInterval(math.pi / 2 - 0.01, math.pi / 2 + 0.02)
         self.mid23 = SphereInterval(math.pi - 0.01, -math.pi + 0.02)
         self.mid34 = SphereInterval(-math.pi / 2.0 - 0.01,
-                -math.pi / 2.0 + 0.02)
+                                    -math.pi / 2.0 + 0.02)
         self.mid41 = SphereInterval(-0.01, 0.02)
-
 
     def testConstructorsAndAccessors(self):
         self.assertEqual(self.quad12.lo(), 0)
@@ -784,33 +817,39 @@ class TestSphereInterval(unittest.TestCase):
         self.assertTrue(default_empty.is_empty())
         self.assertEqual(self.empty.lo(), default_empty.lo())
         self.assertEqual(self.empty.hi(), default_empty.hi())
-
-
         # Should check intervals can be modified here
 
     def testSimplePredicates(self):
-
-      # is_valid(), is_empty(), is_full(), is_inverted()
-      self.assertTrue(self.zero.is_valid() and not self.zero.is_empty() \
-          and not self.zero.is_full())
-      self.assertTrue(self.empty.is_valid() and self.empty.is_empty() \
-          and not self.empty.is_full())
-      self.assertTrue(self.empty.is_inverted());
-      self.assertTrue(self.full.is_valid() and not self.full.is_empty() \
-          and self.full.is_full())
-      self.assertTrue(not self.quad12.is_empty() \
-          and not self.quad12.is_full() and not self.quad12.is_inverted())
-      self.assertTrue(not self.quad23.is_empty() \
-          and not self.quad23.is_full() and self.quad23.is_inverted())
-      self.assertTrue(self.pi.is_valid() and not self.pi.is_empty() \
-          and not self.pi.is_inverted())
-      self.assertTrue(self.mipi.is_valid() and not self.mipi.is_empty() \
-          and not self.mipi.is_inverted())
+        # is_valid(), is_empty(), is_full(), is_inverted()
+        self.assertTrue(self.zero.is_valid() and
+                        not self.zero.is_empty() and
+                        not self.zero.is_full())
+        self.assertTrue(self.empty.is_valid() and
+                        self.empty.is_empty() and
+                        not self.empty.is_full())
+        self.assertTrue(self.empty.is_inverted())
+        self.assertTrue(self.full.is_valid() and
+                        not self.full.is_empty() and
+                        self.full.is_full())
+        self.assertTrue(not self.quad12.is_empty() and
+                        not self.quad12.is_full() and
+                        not self.quad12.is_inverted())
+        self.assertTrue(not self.quad23.is_empty() and
+                        not self.quad23.is_full() and
+                        self.quad23.is_inverted())
+        self.assertTrue(self.pi.is_valid() and
+                        not self.pi.is_empty() and
+                        not self.pi.is_inverted())
+        self.assertTrue(self.mipi.is_valid() and
+                        not self.mipi.is_empty() and
+                        not self.mipi.is_inverted())
 
     def testGetCenter(self):
         self.assertEqual(self.quad12.get_center(), math.pi / 2.0)
-        self.assertEqual(SphereInterval(3.1, 2.9).get_center(), 3.0 - math.pi)
-        self.assertEqual(SphereInterval(-2.9, -3.1).get_center(), math.pi - 3.0)
+        self.assertEqual(SphereInterval(3.1, 2.9).get_center(),
+                         3.0 - math.pi)
+        self.assertEqual(SphereInterval(-2.9, -3.1).get_center(),
+                         math.pi - 3.0)
         self.assertEqual(SphereInterval(2.1, -2.1).get_center(), math.pi)
         self.assertEqual(self.pi.get_center(), math.pi)
         self.assertEqual(self.mipi.get_center(), math.pi)
@@ -826,58 +865,59 @@ class TestSphereInterval(unittest.TestCase):
         self.assertLess(self.empty.get_length(), 0)
 
     def testComplement(self):
-
-        self.assertTrue(self.empty.complement().is_full());
-        self.assertTrue(self.full.complement().is_empty());
-        self.assertTrue(self.pi.complement().is_full());
-        self.assertTrue(self.mipi.complement().is_full());
-        self.assertTrue(self.zero.complement().is_full());
-        self.assertTrue(self.quad12.complement().approx_equals(self.quad34));
-        self.assertTrue(self.quad34.complement().approx_equals(self.quad12));
-        self.assertTrue(self.quad123.complement().approx_equals(self.quad4));
+        self.assertTrue(self.empty.complement().is_full())
+        self.assertTrue(self.full.complement().is_empty())
+        self.assertTrue(self.pi.complement().is_full())
+        self.assertTrue(self.mipi.complement().is_full())
+        self.assertTrue(self.zero.complement().is_full())
+        self.assertTrue(self.quad12.complement().approx_equals(self.quad34))
+        self.assertTrue(self.quad34.complement().approx_equals(self.quad12))
+        self.assertTrue(self.quad123.complement().approx_equals(self.quad4))
 
     def testContains(self):
-        self.assertTrue(not self.empty.contains(0) \
-                and not self.empty.contains(math.pi) \
-                and not self.empty.contains(-math.pi))
-        self.assertTrue(not self.empty.interior_contains(math.pi) \
-                        and not self.empty.interior_contains(-math.pi))
-        self.assertTrue(self.full.contains(0) and self.full.contains(math.pi) \
-                and self.full.contains(-math.pi))
-        self.assertTrue(self.full.interior_contains(math.pi) \
-                and self.full.interior_contains(-math.pi))
-        self.assertTrue(self.quad12.contains(0) \
-                and self.quad12.contains(math.pi) \
-                and self.quad12.contains(-math.pi))
-        self.assertTrue(self.quad12.interior_contains(math.pi / 2.0) \
-                and not self.quad12.interior_contains(0))
+        self.assertTrue(not self.empty.contains(0) and
+                        not self.empty.contains(math.pi) and
+                        not self.empty.contains(-math.pi))
+        self.assertTrue(not self.empty.interior_contains(math.pi) and
+                        not self.empty.interior_contains(-math.pi))
+        self.assertTrue(self.full.contains(0) and
+                        self.full.contains(math.pi) and
+                        self.full.contains(-math.pi))
+        self.assertTrue(self.full.interior_contains(math.pi) and
+                        self.full.interior_contains(-math.pi))
+        self.assertTrue(self.quad12.contains(0) and
+                        self.quad12.contains(math.pi) and
+                        self.quad12.contains(-math.pi))
+        self.assertTrue(self.quad12.interior_contains(math.pi / 2.0) and
+                        not self.quad12.interior_contains(0))
         self.assertTrue(not self.quad12.interior_contains(math.pi) and
-                    not self.quad12.interior_contains(-math.pi))
-        self.assertTrue(self.quad23.contains(math.pi / 2.0) \
-                and self.quad23.contains(-math.pi / 2.0))
-        self.assertTrue(self.quad23.contains(math.pi) \
-                and self.quad23.contains(-math.pi))
+                        not self.quad12.interior_contains(-math.pi))
+        self.assertTrue(self.quad23.contains(math.pi / 2.0) and
+                        self.quad23.contains(-math.pi / 2.0))
+        self.assertTrue(self.quad23.contains(math.pi) and
+                        self.quad23.contains(-math.pi))
         self.assertTrue(not self.quad23.contains(0))
-        self.assertTrue(not self.quad23.interior_contains(math.pi / 2.0) and \
-                not self.quad23.interior_contains(-math.pi / 2.0))
-        self.assertTrue(self.quad23.interior_contains(math.pi) \
-                and self.quad23.interior_contains(-math.pi))
+        self.assertTrue(not self.quad23.interior_contains(math.pi / 2.0) and
+                        not self.quad23.interior_contains(-math.pi / 2.0))
+        self.assertTrue(self.quad23.interior_contains(math.pi) and
+                        self.quad23.interior_contains(-math.pi))
         self.assertTrue(not self.quad23.interior_contains(0))
-        self.assertTrue(self.pi.contains(math.pi) \
-                and self.pi.contains(-math.pi) and not self.pi.contains(0))
-        self.assertTrue(not self.pi.interior_contains(math.pi) \
-                and not self.pi.interior_contains(-math.pi))
-        self.assertTrue(self.mipi.contains(math.pi) \
-                and self.mipi.contains(-math.pi) and not self.mipi.contains(0))
-        self.assertTrue(not self.mipi.interior_contains(math.pi) \
-                and not self.mipi.interior_contains(-math.pi))
-        self.assertTrue(self.zero.contains(0) \
-                and not self.zero.interior_contains(0))
+        self.assertTrue(self.pi.contains(math.pi) and
+                        self.pi.contains(-math.pi) and not self.pi.contains(0))
+        self.assertTrue(not self.pi.interior_contains(math.pi) and
+                        not self.pi.interior_contains(-math.pi))
+        self.assertTrue(self.mipi.contains(math.pi) and
+                        self.mipi.contains(-math.pi) and
+                        not self.mipi.contains(0))
+        self.assertTrue(not self.mipi.interior_contains(math.pi) and
+                        not self.mipi.interior_contains(-math.pi))
+        self.assertTrue(self.zero.contains(0) and
+                        not self.zero.interior_contains(0))
 
-    def check_interval_ops(self, x, y, expected_relation,
-                                        expected_union,
-                                        expected_intersection):
-
+    def check_interval_ops(self, x, y,
+                           expected_relation,
+                           expected_union,
+                           expected_intersection):
         self.assertEqual(x.contains(y), expected_relation[0] == 'T')
         self.assertEqual(x.interior_contains(y), expected_relation[1] == 'T')
         self.assertEqual(x.intersects(y), expected_relation[2] == 'T')
@@ -885,193 +925,198 @@ class TestSphereInterval(unittest.TestCase):
 
         self.assertEqual(x.union(y).bounds(), expected_union.bounds())
         self.assertEqual(x.intersection(y).bounds(),
-                expected_intersection.bounds())
+                         expected_intersection.bounds())
 
         self.assertEqual(x.contains(y), x.union(y) == x)
         self.assertEqual(x.intersects(y), not x.intersection(y).is_empty())
 
-        #if y.lo() == y.hi():
+        # if y.lo() == y.hi():
         #     S1Interval r = x
         #     r.AddPoint(y.lo())
         #     self.assertEqual(r.bounds(), expected_union.bounds())
 
-
     def testIntervalOps(self):
 
         self.check_interval_ops(self.empty, self.empty,
-                "TTFF", self.empty, self.empty)
+                                "TTFF", self.empty, self.empty)
         self.check_interval_ops(self.empty, self.full,
-                "FFFF", self.full, self.empty)
+                                "FFFF", self.full, self.empty)
         self.check_interval_ops(self.empty, self.zero,
-                "FFFF", self.zero, self.empty)
+                                "FFFF", self.zero, self.empty)
         self.check_interval_ops(self.empty, self.pi,
-                "FFFF", self.pi, self.empty)
+                                "FFFF", self.pi, self.empty)
         self.check_interval_ops(self.empty, self.mipi,
-                "FFFF", self.mipi, self.empty)
+                                "FFFF", self.mipi, self.empty)
         self.check_interval_ops(self.full, self.empty,
-                "TTFF", self.full, self.empty)
+                                "TTFF", self.full, self.empty)
         self.check_interval_ops(self.full, self.full,
-                "TTTT", self.full, self.full)
+                                "TTTT", self.full, self.full)
         self.check_interval_ops(self.full, self.zero,
-                "TTTT", self.full, self.zero)
+                                "TTTT", self.full, self.zero)
         self.check_interval_ops(self.full, self.pi,
-                "TTTT", self.full, self.pi)
+                                "TTTT", self.full, self.pi)
         self.check_interval_ops(self.full, self.mipi,
-                "TTTT", self.full, self.mipi)
+                                "TTTT", self.full, self.mipi)
         self.check_interval_ops(self.full, self.quad12,
-                "TTTT", self.full, self.quad12)
+                                "TTTT", self.full, self.quad12)
         self.check_interval_ops(self.full, self.quad23,
-                "TTTT", self.full, self.quad23)
+                                "TTTT", self.full, self.quad23)
 
         self.check_interval_ops(self.zero, self.empty,
-                "TTFF", self.zero, self.empty)
+                                "TTFF", self.zero, self.empty)
         self.check_interval_ops(self.zero, self.full,
-                "FFTF", self.full, self.zero)
+                                "FFTF", self.full, self.zero)
         self.check_interval_ops(self.zero, self.zero,
-                "TFTF", self.zero, self.zero)
+                                "TFTF", self.zero, self.zero)
         self.check_interval_ops(self.zero, self.pi,
-                "FFFF", SphereInterval(0, math.pi), self.empty)
+                                "FFFF", SphereInterval(0, math.pi), self.empty)
         self.check_interval_ops(self.zero, self.pi2,
-                "FFFF", self.quad1, self.empty)
+                                "FFFF", self.quad1, self.empty)
         self.check_interval_ops(self.zero, self.mipi,
-                "FFFF", self.quad12, self.empty)
+                                "FFFF", self.quad12, self.empty)
         self.check_interval_ops(self.zero, self.mipi2,
-                "FFFF", self.quad4, self.empty)
+                                "FFFF", self.quad4, self.empty)
         self.check_interval_ops(self.zero, self.quad12,
-                "FFTF", self.quad12, self.zero)
+                                "FFTF", self.quad12, self.zero)
         self.check_interval_ops(self.zero, self.quad23,
-                "FFFF", self.quad123, self.empty)
+                                "FFFF", self.quad123, self.empty)
 
         self.check_interval_ops(self.pi2, self.empty,
-                "TTFF", self.pi2, self.empty)
+                                "TTFF", self.pi2, self.empty)
         self.check_interval_ops(self.pi2, self.full,
-                "FFTF", self.full, self.pi2)
+                                "FFTF", self.full, self.pi2)
         self.check_interval_ops(self.pi2, self.zero,
-                "FFFF", self.quad1, self.empty)
+                                "FFFF", self.quad1, self.empty)
         self.check_interval_ops(self.pi2, self.pi,
-                "FFFF", SphereInterval(math.pi / 2.0, math.pi), self.empty)
+                                "FFFF", SphereInterval(math.pi / 2.0, math.pi),
+                                self.empty)
         self.check_interval_ops(self.pi2, self.pi2,
-                "TFTF", self.pi2, self.pi2)
+                                "TFTF", self.pi2, self.pi2)
         self.check_interval_ops(self.pi2, self.mipi,
-                "FFFF", self.quad2, self.empty)
+                                "FFFF", self.quad2, self.empty)
         self.check_interval_ops(self.pi2, self.mipi2,
-                "FFFF", self.quad23, self.empty)
+                                "FFFF", self.quad23, self.empty)
         self.check_interval_ops(self.pi2, self.quad12,
-                "FFTF", self.quad12, self.pi2)
+                                "FFTF", self.quad12, self.pi2)
         self.check_interval_ops(self.pi2, self.quad23,
-                "FFTF", self.quad23, self.pi2)
+                                "FFTF", self.quad23, self.pi2)
 
         self.check_interval_ops(self.pi, self.empty,
-                "TTFF", self.pi, self.empty)
+                                "TTFF", self.pi, self.empty)
         self.check_interval_ops(self.pi, self.full,
-                "FFTF", self.full, self.pi)
+                                "FFTF", self.full, self.pi)
         self.check_interval_ops(self.pi, self.zero,
-                "FFFF", SphereInterval(math.pi, 0), self.empty)
+                                "FFFF", SphereInterval(math.pi, 0), self.empty)
         self.check_interval_ops(self.pi, self.pi,
-                "TFTF", self.pi, self.pi)
+                                "TFTF", self.pi, self.pi)
         self.check_interval_ops(self.pi, self.pi2,
-                "FFFF", SphereInterval(math.pi / 2.0, math.pi), self.empty)
+                                "FFFF", SphereInterval(math.pi / 2.0, math.pi),
+                                self.empty)
         self.check_interval_ops(self.pi, self.mipi,
-                "TFTF", self.pi, self.pi)
+                                "TFTF", self.pi, self.pi)
         self.check_interval_ops(self.pi, self.mipi2,
-                "FFFF", self.quad3, self.empty)
+                                "FFFF", self.quad3, self.empty)
         self.check_interval_ops(self.pi, self.quad12,
-                "FFTF", SphereInterval(0, math.pi), self.pi)
+                                "FFTF", SphereInterval(0, math.pi), self.pi)
         self.check_interval_ops(self.pi, self.quad23,
-                "FFTF", self.quad23, self.pi)
+                                "FFTF", self.quad23, self.pi)
 
         self.check_interval_ops(self.mipi, self.empty,
-                "TTFF", self.mipi, self.empty)
+                                "TTFF", self.mipi, self.empty)
         self.check_interval_ops(self.mipi, self.full,
-                "FFTF", self.full, self.mipi)
+                                "FFTF", self.full, self.mipi)
         self.check_interval_ops(self.mipi, self.zero,
-                "FFFF", self.quad34, self.empty)
+                                "FFFF", self.quad34, self.empty)
         self.check_interval_ops(self.mipi, self.pi,
-                "TFTF", self.mipi, self.mipi)
+                                "TFTF", self.mipi, self.mipi)
         self.check_interval_ops(self.mipi, self.pi2,
-                "FFFF", self.quad2, self.empty)
+                                "FFFF", self.quad2, self.empty)
         self.check_interval_ops(self.mipi, self.mipi,
-                "TFTF", self.mipi, self.mipi)
+                                "TFTF", self.mipi, self.mipi)
         self.check_interval_ops(self.mipi, self.mipi2,
-                "FFFF", SphereInterval(-math.pi, -math.pi / 2.0), self.empty)
+                                "FFFF", SphereInterval(-math.pi,
+                                                       -math.pi / 2.0),
+                                self.empty)
         self.check_interval_ops(self.mipi, self.quad12,
-                "FFTF", self.quad12, self.mipi)
+                                "FFTF", self.quad12, self.mipi)
         self.check_interval_ops(self.mipi, self.quad23,
-                "FFTF", self.quad23, self.mipi)
+                                "FFTF", self.quad23, self.mipi)
 
         self.check_interval_ops(self.quad12, self.empty,
-                "TTFF", self.quad12, self.empty)
+                                "TTFF", self.quad12, self.empty)
         self.check_interval_ops(self.quad12, self.full,
-                "FFTT", self.full, self.quad12)
+                                "FFTT", self.full, self.quad12)
         self.check_interval_ops(self.quad12, self.zero,
-                "TFTF", self.quad12, self.zero)
+                                "TFTF", self.quad12, self.zero)
         self.check_interval_ops(self.quad12, self.pi,
-                "TFTF", self.quad12, self.pi)
+                                "TFTF", self.quad12, self.pi)
         self.check_interval_ops(self.quad12, self.mipi,
-                "TFTF", self.quad12, self.mipi)
+                                "TFTF", self.quad12, self.mipi)
         self.check_interval_ops(self.quad12, self.quad12,
-                "TFTT", self.quad12, self.quad12)
+                                "TFTT", self.quad12, self.quad12)
         self.check_interval_ops(self.quad12, self.quad23,
-                "FFTT", self.quad123, self.quad2)
+                                "FFTT", self.quad123, self.quad2)
         self.check_interval_ops(self.quad12, self.quad34,
-                "FFTF", self.full, self.quad12)
+                                "FFTF", self.full, self.quad12)
 
         self.check_interval_ops(self.quad23, self.empty,
-                "TTFF", self.quad23, self.empty)
+                                "TTFF", self.quad23, self.empty)
         self.check_interval_ops(self.quad23, self.full,
-                "FFTT", self.full, self.quad23)
+                                "FFTT", self.full, self.quad23)
         self.check_interval_ops(self.quad23, self.zero,
-                "FFFF", self.quad234, self.empty)
+                                "FFFF", self.quad234, self.empty)
         self.check_interval_ops(self.quad23, self.pi,
-                "TTTT", self.quad23, self.pi)
+                                "TTTT", self.quad23, self.pi)
         self.check_interval_ops(self.quad23, self.mipi,
-                "TTTT", self.quad23, self.mipi)
+                                "TTTT", self.quad23, self.mipi)
         self.check_interval_ops(self.quad23, self.quad12,
-                "FFTT", self.quad123, self.quad2)
+                                "FFTT", self.quad123, self.quad2)
         self.check_interval_ops(self.quad23, self.quad23,
-                "TFTT", self.quad23, self.quad23)
+                                "TFTT", self.quad23, self.quad23)
         self.check_interval_ops(self.quad23, self.quad34,
-                "FFTT", self.quad234, SphereInterval(-math.pi, -math.pi / 2.0))
+                                "FFTT", self.quad234,
+                                SphereInterval(-math.pi, -math.pi / 2.0))
 
         self.check_interval_ops(self.quad1, self.quad23,
-            "FFTF", self.quad123, SphereInterval(math.pi / 2.0, math.pi / 2.0))
+                                "FFTF", self.quad123,
+                                SphereInterval(math.pi / 2.0, math.pi / 2.0))
         self.check_interval_ops(self.quad2, self.quad3,
-                "FFTF", self.quad23, self.mipi)
+                                "FFTF", self.quad23, self.mipi)
         self.check_interval_ops(self.quad3, self.quad2,
-                "FFTF", self.quad23, self.pi)
+                                "FFTF", self.quad23, self.pi)
         self.check_interval_ops(self.quad2, self.pi,
-                "TFTF", self.quad2, self.pi)
+                                "TFTF", self.quad2, self.pi)
         self.check_interval_ops(self.quad2, self.mipi,
-                "TFTF", self.quad2, self.mipi)
+                                "TFTF", self.quad2, self.mipi)
         self.check_interval_ops(self.quad3, self.pi,
-                "TFTF", self.quad3, self.pi)
+                                "TFTF", self.quad3, self.pi)
         self.check_interval_ops(self.quad3, self.mipi,
-                "TFTF", self.quad3, self.mipi)
+                                "TFTF", self.quad3, self.mipi)
 
         self.check_interval_ops(self.quad12, self.mid12,
-                "TTTT", self.quad12, self.mid12)
+                                "TTTT", self.quad12, self.mid12)
         self.check_interval_ops(self.mid12, self.quad12,
-                "FFTT", self.quad12, self.mid12)
+                                "FFTT", self.quad12, self.mid12)
 
         quad12eps = SphereInterval(self.quad12.lo(), self.mid23.hi())
         quad2hi = SphereInterval(self.mid23.lo(), self.quad12.hi())
         self.check_interval_ops(self.quad12, self.mid23,
-                "FFTT", quad12eps, quad2hi)
+                                "FFTT", quad12eps, quad2hi)
         self.check_interval_ops(self.mid23, self.quad12,
-                "FFTT", quad12eps, quad2hi)
+                                "FFTT", quad12eps, quad2hi)
 
         quad412eps = SphereInterval(self.mid34.lo(), self.quad12.hi())
         self.check_interval_ops(self.quad12, self.mid34,
-                "FFFF", quad412eps, self.empty)
+                                "FFFF", quad412eps, self.empty)
         self.check_interval_ops(self.mid34, self.quad12,
-                "FFFF", quad412eps, self.empty)
+                                "FFFF", quad412eps, self.empty)
 
         quadeps12 = SphereInterval(self.mid41.lo(), self.quad12.hi())
         quad1lo = SphereInterval(self.quad12.lo(), self.mid41.hi())
         self.check_interval_ops(self.quad12, self.mid41,
-                "FFTT", quadeps12, quad1lo)
+                                "FFTT", quadeps12, quad1lo)
         self.check_interval_ops(self.mid41, self.quad12,
-                "FFTT", quadeps12, quad1lo)
+                                "FFTT", quadeps12, quad1lo)
 
         quad2lo = SphereInterval(self.quad23.lo(), self.mid12.hi())
         quad3hi = SphereInterval(self.mid34.lo(), self.quad23.hi())
@@ -1079,54 +1124,54 @@ class TestSphereInterval(unittest.TestCase):
         quad23eps = SphereInterval(self.quad23.lo(), self.mid34.hi())
         quadeps123 = SphereInterval(self.mid41.lo(), self.quad23.hi())
         self.check_interval_ops(self.quad23, self.mid12,
-                "FFTT", quadeps23, quad2lo)
+                                "FFTT", quadeps23, quad2lo)
         self.check_interval_ops(self.mid12, self.quad23,
-                "FFTT", quadeps23, quad2lo)
+                                "FFTT", quadeps23, quad2lo)
         self.check_interval_ops(self.quad23, self.mid23,
-                "TTTT", self.quad23, self.mid23)
+                                "TTTT", self.quad23, self.mid23)
         self.check_interval_ops(self.mid23, self.quad23,
-                "FFTT", self.quad23, self.mid23)
+                                "FFTT", self.quad23, self.mid23)
         self.check_interval_ops(self.quad23, self.mid34,
-                "FFTT", quad23eps, quad3hi)
+                                "FFTT", quad23eps, quad3hi)
         self.check_interval_ops(self.mid34, self.quad23,
-                "FFTT", quad23eps, quad3hi)
+                                "FFTT", quad23eps, quad3hi)
         self.check_interval_ops(self.quad23, self.mid41,
-                "FFFF", quadeps123, self.empty)
+                                "FFFF", quadeps123, self.empty)
         self.check_interval_ops(self.mid41, self.quad23,
-                "FFFF", quadeps123, self.empty)
+                                "FFFF", quadeps123, self.empty)
 
     def testFromPointPair(self):
         self.assertEqual(SphereInterval.from_point_pair(-math.pi, math.pi),
-                self.pi)
+                         self.pi)
         self.assertEqual(SphereInterval.from_point_pair(math.pi, -math.pi),
-                self.pi)
+                         self.pi)
         self.assertEqual(SphereInterval.from_point_pair(
                 self.mid34.hi(), self.mid34.lo()), self.mid34)
         self.assertEqual(SphereInterval.from_point_pair(
             self.mid23.lo(), self.mid23.hi()), self.mid23)
 
     def testExpanded(self):
-        self.assertEqual(self.empty.expanded(1), self.empty);
-        self.assertEqual(self.full.expanded(1), self.full);
-        self.assertEqual(self.zero.expanded(1), SphereInterval(-1, 1));
+        self.assertEqual(self.empty.expanded(1), self.empty)
+        self.assertEqual(self.full.expanded(1), self.full)
+        self.assertEqual(self.zero.expanded(1), SphereInterval(-1, 1))
         self.assertEqual(self.mipi.expanded(0.01),
-                    SphereInterval(math.pi - 0.01, -math.pi + 0.01));
-        self.assertEqual(self.pi.expanded(27), self.full);
-        self.assertEqual(self.pi.expanded(math.pi / 2.0), self.quad23);
-        self.assertEqual(self.pi2.expanded(math.pi / 2.0), self.quad12);
-        self.assertEqual(self.mipi2.expanded(math.pi / 2.0), self.quad34);
+                         SphereInterval(math.pi - 0.01, -math.pi + 0.01))
+        self.assertEqual(self.pi.expanded(27), self.full)
+        self.assertEqual(self.pi.expanded(math.pi / 2.0), self.quad23)
+        self.assertEqual(self.pi2.expanded(math.pi / 2.0), self.quad12)
+        self.assertEqual(self.mipi2.expanded(math.pi / 2.0), self.quad34)
 
     def testApproxEquals(self):
 
         self.assertTrue(self.empty.approx_equals(self.empty))
-        self.assertTrue(self.zero.approx_equals(self.empty) \
-                and self.empty.approx_equals(self.zero))
-        self.assertTrue(self.pi.approx_equals(self.empty) \
-                and self.empty.approx_equals(self.pi))
-        self.assertTrue(self.mipi.approx_equals(self.empty) \
-                and self.empty.approx_equals(self.mipi))
-        self.assertTrue(self.pi.approx_equals(self.mipi) \
-                and self.mipi.approx_equals(self.pi))
+        self.assertTrue(self.zero.approx_equals(self.empty) and
+                        self.empty.approx_equals(self.zero))
+        self.assertTrue(self.pi.approx_equals(self.empty) and
+                        self.empty.approx_equals(self.pi))
+        self.assertTrue(self.mipi.approx_equals(self.empty) and
+                        self.empty.approx_equals(self.mipi))
+        self.assertTrue(self.pi.approx_equals(self.mipi) and
+                        self.mipi.approx_equals(self.pi))
         self.assertTrue(self.pi.union(self.mipi).approx_equals(self.pi))
         self.assertTrue(self.mipi.union(self.pi).approx_equals(self.pi))
         self.assertTrue(self.pi.union(
@@ -1137,29 +1182,39 @@ class TestSphereInterval(unittest.TestCase):
             self.quad2).approx_equals(self.pi))
 
     def testGetDirectedHausdorffDistance(self):
-        self.assertEqual(0.0,
-                self.empty.get_directed_hausdorff_distance(self.empty))
-        self.assertEqual(0.0,
-                self.empty.get_directed_hausdorff_distance(self.mid12))
-        self.assertEqual(math.pi,
-                self.mid12.get_directed_hausdorff_distance(self.empty))
+        self.assertEqual(
+            0.0,
+            self.empty.get_directed_hausdorff_distance(self.empty))
+        self.assertEqual(
+            0.0,
+            self.empty.get_directed_hausdorff_distance(self.mid12))
+        self.assertEqual(
+            math.pi,
+            self.mid12.get_directed_hausdorff_distance(self.empty))
 
-        self.assertEqual(0.0,
-                self.quad12.get_directed_hausdorff_distance(self.quad123))
+        self.assertEqual(
+            0.0,
+            self.quad12.get_directed_hausdorff_distance(self.quad123))
 
         interval = SphereInterval(3.0, -3.0)
-        self.assertEqual(3.0,
-            SphereInterval(-0.1, 0.2).get_directed_hausdorff_distance(interval))
-        self.assertEqual(3.0 - 0.1,
-            SphereInterval(0.1, 0.2).get_directed_hausdorff_distance(interval))
-        self.assertEqual(3.0 - 0.1,
-            SphereInterval(-0.2,
-                -0.1).get_directed_hausdorff_distance(interval))
+        self.assertEqual(
+            3.0,
+            SphereInterval(-0.1, 0.2)
+            .get_directed_hausdorff_distance(interval))
+        self.assertEqual(
+            3.0 - 0.1,
+            SphereInterval(0.1, 0.2)
+            .get_directed_hausdorff_distance(interval))
+        self.assertEqual(
+            3.0 - 0.1,
+            SphereInterval(-0.2, -0.1)
+            .get_directed_hausdorff_distance(interval))
+
 
 class TestCap(unittest.TestCase):
 
     def setUp(self):
-        #self.eps = 1e-15
+        # self.eps = 1e-15
         self.eps = 1e-14
 
     def get_lat_lon_point(self, lat_degrees, lon_degrees):
@@ -1218,7 +1273,7 @@ class TestCap(unittest.TestCase):
         # amount along a tangent do not need to be renormalized.
         kTinyRad = 1e-10
         tiny = Cap.from_axis_angle(Point(1, 2, 3).normalize(),
-                                          Angle.from_radians(kTinyRad))
+                                   Angle.from_radians(kTinyRad))
         tangent = tiny.axis().cross_prod(Point(3, 2, 1)).normalize()
         self.assertTrue(tiny.contains(tiny.axis() + 0.99 * kTinyRad * tangent))
         self.assertFalse(tiny.contains(tiny.axis() + 1.01 * kTinyRad * tangent))
@@ -1323,7 +1378,7 @@ class TestCap(unittest.TestCase):
     def testCellMethods(self):
         face_radius = math.atan(math.sqrt(2))
 
-        for face in xrange(6):
+        for face in range(6):
             # The cell consisting of the entire face.
             root_cell = Cell.from_face_pos_level(face, 0, 0)
 
@@ -1356,7 +1411,7 @@ class TestCap(unittest.TestCase):
                 id = id.next()
 
             anti_face = (face + 3) % 6  # Opposite face.
-            for cap_face in xrange(6):
+            for cap_face in range(6):
                 # A cap that barely contains all of 'cap_face'.
                 center = sphere.get_norm(cap_face)
                 covering = Cap.from_axis_angle(center,
@@ -1487,13 +1542,13 @@ class TestLatLonRect(unittest.TestCase):
                 LatLon.from_radians(math.pi / 2.0, math.pi))
 
         # Make sure the get_vertex() returns vertices in CCW order.
-        for i in xrange(4):
+        for i in range(4):
             lat = math.pi / 4.0 * (i - 2)
             lon = math.pi / 2.0 * (i - 2) + 0.2
             r = LatLonRect(LineInterval(lat, lat + math.pi / 4.0),
                     SphereInterval(sphere.drem(lon, 2 * math.pi),
                         sphere.drem(lon + math.pi / 2.0, 2 * math.pi)))
-            for k in xrange(4):
+            for k in range(4):
                 self.assertTrue(
                         sphere.simple_ccw(r.get_vertex((k - 1) & 3).to_point(),
                             r.get_vertex(k).to_point(),
@@ -1623,7 +1678,7 @@ class TestLatLonRect(unittest.TestCase):
         # 0 == no intersection, 1 == MayIntersect, 2 == Intersects,
         # 3 == Vertex Containment, 4 == Contains
         vertex_contained = False
-        for i in xrange(4):
+        for i in range(4):
             if r.contains(cell.get_vertex_raw(i)) \
                     or (not r.is_empty() \
                     and cell.contains(r.get_vertex(i).to_point())):
@@ -1827,7 +1882,7 @@ class TestCellUnion(unittest.TestCase):
 
     def add_cells(self, cell_id, selected, input, expected):
         if cell_id == CellId.none():
-            for face in xrange(6):
+            for face in range(6):
                 self.add_cells(CellId.from_face_pos_level(face, 0, 0),
                         False, input, expected)
             return
@@ -2048,7 +2103,7 @@ class TestRegionCoverer(unittest.TestCase):
     # this is from S2Testing.cc and is called CheckCovering
     def check_cell_union_covering(self, region, covering, check_tight, cell_id):
         if not cell_id.is_valid():
-            for face in xrange(6):
+            for face in range(6):
                 self.check_cell_union_covering(
                     region, covering, check_tight,
                         CellId.from_face_pos_level(face, 0, 0))
