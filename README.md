@@ -7,9 +7,17 @@ It basically maps a sphere to a 1D index. This allows you to do scalable proximi
 
 The tests are quite extensive and reflect those in the original S2 Geometry Library.
 
+
+Tests
+=====
+
+Tests also build the original C++ library. Building tests on OSX:
+* `export OPENSSL_ROOT_DIR=$(brew --prefix openssl)`
+* `cmake -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 .`
+
+
 TODO
 ====
 
-* Needs to be packaged properly for use with PIP.
 * A few more S2 features could be added especially those associated with segments of a sphere.
 * I regret some of the naming conventions and wish they were more in line with how the C++ S2 library was originally packaged. For example I think it might be nicer for there to be separate packages called r1, s1 and s2. This would make also make it conform better with the mathematics behind the S2 Geometry Library.
