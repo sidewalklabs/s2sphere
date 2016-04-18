@@ -9,12 +9,13 @@ import numpy as np
 from collections import defaultdict
 from itertools import izip
 
-from qed4.geometry import sphere
-from qed4.geometry.sphere import Angle, CellId, LatLon, Point, Cell
-from qed4.geometry.sphere import LineInterval, SphereInterval, LatLonRect
-from qed4.geometry.sphere import RegionCoverer, CellUnion, Cap
+import s2sphere.sphere as sphere
+from s2sphere.sphere import Angle, CellId, LatLon, Point, Cell
+from s2sphere.sphere import LineInterval, SphereInterval, LatLonRect
+from s2sphere.sphere import RegionCoverer, CellUnion, Cap
 
 
+'''
 INVERSE_ITERATIONS = 200000
 TOKEN_ITERATIONS = 10000
 COVERAGE_ITERATIONS = 1000000
@@ -32,7 +33,6 @@ NORMALIZE_ITERATIONS = 20
 REGION_COVERER_ITERATIONS = 10
 RANDOM_CAPS_ITERATIONS = 10
 SIMPLE_COVERINGS_ITERATIONS = 10
-'''
 
 
 class TestAngle(unittest.TestCase):
@@ -57,7 +57,7 @@ class TestLatLon(unittest.TestCase):
         self.assertEqual(ll_rad.lat().radians, math.pi / 4)
         self.assertEqual(ll_rad.lon().radians, math.pi / 2)
         self.assertTrue(ll_rad.is_valid())
-    
+
         ll_deg = LatLon.from_degrees(45, 90)
         self.assertEqual(ll_rad, ll_deg)
         self.assertFalse(LatLon.from_degrees(-91, 0).is_valid())
@@ -100,7 +100,7 @@ class TestLatLon(unittest.TestCase):
 
         self.assertEqual(abs(LatLon.from_point(LatLon.from_radians(
                         0.1, -math.pi).to_point()).lon().radians), math.pi)
-    
+
     def testDistance(self):
         self.assertEqual(0.0, LatLon.from_degrees(90, 0).get_distance(
             LatLon.from_degrees(90, 0)).radians)
@@ -154,12 +154,12 @@ class TestCellId(unittest.TestCase):
         self.assertEqual(TestCellId.get_cell_id(-90, 0).face(), 5)
 
     def testParentChildRelationships(self):
-        cell_id = CellId.from_face_pos_level(3, 0x12345678, 
+        cell_id = CellId.from_face_pos_level(3, 0x12345678,
                     CellId.MAX_LEVEL - 4)
 
         self.assertTrue(cell_id.is_valid())
         self.assertEqual(cell_id.face(), 3)
-        self.assertEqual(cell_id.pos(), 0x12345700) 
+        self.assertEqual(cell_id.pos(), 0x12345700)
         self.assertEqual(cell_id.level(), CellId.MAX_LEVEL - 4)
         self.assertFalse(cell_id.is_leaf())
 
@@ -188,7 +188,7 @@ class TestCellId(unittest.TestCase):
     def testWrapping(self):
         self.assertEqual(CellId.begin(0).prev_wrap(), CellId.end(0).prev())
         self.assertEqual(CellId.begin(CellId.MAX_LEVEL).prev_wrap(),
-                CellId.from_face_pos_level(5, 
+                CellId.from_face_pos_level(5,
                     0xffffffffffffffff >> CellId.FACE_BITS, CellId.MAX_LEVEL))
 
         self.assertEqual(CellId.begin(CellId.MAX_LEVEL).advance_wrap(-1),
@@ -203,12 +203,12 @@ class TestCellId(unittest.TestCase):
                 CellId.from_face_pos_level(0, 0, CellId.MAX_LEVEL))
 
         self.assertEqual(CellId.end(4).prev().next_wrap(), CellId.begin(4))
-        
+
         self.assertEqual(CellId.end(CellId.MAX_LEVEL).prev().next_wrap(),
                 CellId.from_face_pos_level(0, 0, CellId.MAX_LEVEL))
 
     def testAdvance(self):
-        
+
         cell_id = CellId.from_face_pos_level(3, 0x12345678,
                                                     CellId.MAX_LEVEL - 4)
 
@@ -230,7 +230,7 @@ class TestCellId(unittest.TestCase):
         self.assertEqual(CellId.begin(0).advance_wrap(7),
                             CellId.from_face_pos_level(1, 0, 0))
         self.assertEqual(CellId.begin(0).advance_wrap(12), CellId.begin(0))
-        
+
 
         self.assertEqual(CellId.from_face_pos_level(5, 0, 0).advance_wrap(-7),
                             CellId.from_face_pos_level(4, 0, 0))
@@ -246,7 +246,7 @@ class TestCellId(unittest.TestCase):
                 .advance_wrap(2 << (2 * CellId.MAX_LEVEL)),
             CellId.from_face_pos_level(1, 0, CellId.MAX_LEVEL))
 
-    def testInverse(self): 
+    def testInverse(self):
 
         for i in xrange(INVERSE_ITERATIONS):
             cell_id = TestCellId.get_random_cell_id(CellId.MAX_LEVEL)
@@ -281,14 +281,14 @@ class TestCellId(unittest.TestCase):
             self.assertFalse(child.is_leaf())
             cface, ci, cj, corientation = child.to_face_ij_orientation()
             self.assertEqual(cface, face)
-            self.assertEqual(corientation, 
+            self.assertEqual(corientation,
                     orientation ^ sphere.POS_TO_ORIENTATION[pos])
 
             parent_map[child] = parent
             self.expand_cells(child, cells, parent_map)
             child = child.next()
             pos = pos + 1
-            
+
 
     def testContainment(self):
         parent_map = {}
@@ -363,8 +363,8 @@ class TestCellId(unittest.TestCase):
         neighbors = CellId.from_point(Point(0, 0, 1)).get_vertex_neighbors(5)
         neighbors.sort()
         for i, neighbor in enumerate(neighbors):
-            self.assertEqual(neighbor, 
-                CellId.from_face_ij(2, 
+            self.assertEqual(neighbor,
+                CellId.from_face_ij(2,
                     (1 << 29) - (i < 2), (1 << 29) - (i == 0 or i == 3)) \
                         .parent(5))
 
@@ -393,8 +393,8 @@ class TestCellId(unittest.TestCase):
     def check_all_neighbors(self, cell_id, level):
         self.assertGreaterEqual(level, cell_id.level())
         self.assertLess(level, CellId.MAX_LEVEL)
-        
-        all, expected = set(), set() 
+
+        all, expected = set(), set()
 
         neighbors = cell_id.get_all_neighbors(level)
         all.update(neighbors)
@@ -446,7 +446,7 @@ class TestCell(unittest.TestCase):
             self.assertEqual(face, cell.face())
             self.assertEqual(0, cell.level())
 
-            # Top-level faces have alternating orientations to get RHS 
+            # Top-level faces have alternating orientations to get RHS
             # coordinates.
             self.assertEqual(face & sphere.SWAP_MASK, cell.orientation())
             self.assertFalse(cell.is_leaf())
@@ -543,7 +543,7 @@ class TestCell(unittest.TestCase):
 
         for i, (child, child_id) \
                 in enumerate(izip(children, cell.id().children())):
-            
+
             exact_area += child.exact_area()
             approx_area += child.approx_area()
             average_area += child.average_area()
@@ -558,7 +558,7 @@ class TestCell(unittest.TestCase):
             self.assertEqual(direct.get_center_raw(), child.get_center_raw())
 
             for k in xrange(4):
-                self.assertEqual(direct.get_vertex_raw(k), 
+                self.assertEqual(direct.get_vertex_raw(k),
                                     child.get_vertex_raw(k))
                 self.assertEqual(direct.get_edge_raw(k),
                                     child.get_edge_raw(k))
@@ -568,7 +568,7 @@ class TestCell(unittest.TestCase):
             self.assertTrue(cell.may_intersect(child))
             self.assertFalse(child.contains(cell))
             self.assertTrue(cell.contains(child.get_center_raw()))
-            
+
             for j in xrange(4):
                 self.assertTrue(cell.contains(child.get_vertex_raw(j)))
                 if i != j:
@@ -600,8 +600,8 @@ class TestCell(unittest.TestCase):
                 self.assertTrue(
                         parent_rect.contains(children[i].get_vertex_raw(j)))
                 if j != i:
-                    # The bounding caps and rectangles should be tight 
-                    # enough so that they exclude at least two vertices of 
+                    # The bounding caps and rectangles should be tight
+                    # enough so that they exclude at least two vertices of
                     # each adjacent cell.
                     cap_count = 0
                     rect_count = 0
@@ -610,14 +610,14 @@ class TestCell(unittest.TestCase):
                             ++cap_count
                         if child_rect.contains(children[j].get_vertex_raw(k)):
                             ++rect_count
-                  
+
                     self.assertLessEqual(cap_count, 2)
                     if child_rect.lat_lo().radians > -math.pi / 2.0 \
                           and child_rect.lat_hi().radians < math.pi / 2.0:
-                        # Bounding rectangles may be too large at the poles 
+                        # Bounding rectangles may be too large at the poles
                         # because the pole itself has an arb fixed longitude.
                         self.assertLessEqual(rect_count, 2)
-            
+
             force_subdivide = False
             center = sphere.get_norm(children[i].face())
             edge = center + sphere.get_u_axis(children[i].face())
@@ -628,7 +628,7 @@ class TestCell(unittest.TestCase):
                     force_subdivide = True
             if force_subdivide or cell.level() < 5 or random.randrange(5) == 0:
                 self.check_subdivide(children[i])
-        
+
         self.assertLessEqual(
                 math.fabs(math.log(exact_area / cell.exact_area())),
                 math.fabs(math.log(1 + 1e-6)))
@@ -703,19 +703,19 @@ class TestLineInterval(unittest.TestCase):
 
         # from_point_pair
         self.assertEqual(LineInterval(4, 4), LineInterval.from_point_pair(4, 4))
-        self.assertEqual(LineInterval(-2, -1), 
+        self.assertEqual(LineInterval(-2, -1),
                 LineInterval.from_point_pair(-1, -2))
-        self.assertEqual(LineInterval(-5, 3), 
+        self.assertEqual(LineInterval(-5, 3),
                 LineInterval.from_point_pair(-5, 3))
-        
+
         # expanded
         self.assertEqual(empty, empty.expanded(0.45))
         self.assertEqual(LineInterval(-0.5, 1.5), unit.expanded(0.5))
 
         # union, intersection
-        self.assertEqual(LineInterval(99, 100), 
+        self.assertEqual(LineInterval(99, 100),
                 LineInterval(99, 100).union(empty))
-        self.assertEqual(LineInterval(99, 100), 
+        self.assertEqual(LineInterval(99, 100),
                 empty.union(LineInterval(99, 100)))
         self.assertTrue(
                 LineInterval(5, 3).union(LineInterval(0, -2).is_empty()))
@@ -760,11 +760,11 @@ class TestSphereInterval(unittest.TestCase):
         # the center of each interval is offset slightly CCW from the midpoint.
         self.mid12 = SphereInterval(math.pi / 2 - 0.01, math.pi / 2 + 0.02)
         self.mid23 = SphereInterval(math.pi - 0.01, -math.pi + 0.02)
-        self.mid34 = SphereInterval(-math.pi / 2.0 - 0.01, 
+        self.mid34 = SphereInterval(-math.pi / 2.0 - 0.01,
                 -math.pi / 2.0 + 0.02)
         self.mid41 = SphereInterval(-0.01, 0.02)
 
-    
+
     def testConstructorsAndAccessors(self):
         self.assertEqual(self.quad12.lo(), 0)
         self.assertEqual(self.quad12.hi(), math.pi)
@@ -789,7 +789,7 @@ class TestSphereInterval(unittest.TestCase):
         # Should check intervals can be modified here
 
     def testSimplePredicates(self):
-        
+
       # is_valid(), is_empty(), is_full(), is_inverted()
       self.assertTrue(self.zero.is_valid() and not self.zero.is_empty() \
           and not self.zero.is_full())
@@ -826,7 +826,7 @@ class TestSphereInterval(unittest.TestCase):
         self.assertLess(self.empty.get_length(), 0)
 
     def testComplement(self):
-            
+
         self.assertTrue(self.empty.complement().is_full());
         self.assertTrue(self.full.complement().is_empty());
         self.assertTrue(self.pi.complement().is_full());
@@ -898,116 +898,116 @@ class TestSphereInterval(unittest.TestCase):
 
     def testIntervalOps(self):
 
-        self.check_interval_ops(self.empty, self.empty, 
+        self.check_interval_ops(self.empty, self.empty,
                 "TTFF", self.empty, self.empty)
-        self.check_interval_ops(self.empty, self.full, 
+        self.check_interval_ops(self.empty, self.full,
                 "FFFF", self.full, self.empty)
-        self.check_interval_ops(self.empty, self.zero, 
+        self.check_interval_ops(self.empty, self.zero,
                 "FFFF", self.zero, self.empty)
         self.check_interval_ops(self.empty, self.pi,
                 "FFFF", self.pi, self.empty)
-        self.check_interval_ops(self.empty, self.mipi, 
+        self.check_interval_ops(self.empty, self.mipi,
                 "FFFF", self.mipi, self.empty)
-        self.check_interval_ops(self.full, self.empty, 
+        self.check_interval_ops(self.full, self.empty,
                 "TTFF", self.full, self.empty)
-        self.check_interval_ops(self.full, self.full, 
+        self.check_interval_ops(self.full, self.full,
                 "TTTT", self.full, self.full)
-        self.check_interval_ops(self.full, self.zero, 
+        self.check_interval_ops(self.full, self.zero,
                 "TTTT", self.full, self.zero)
-        self.check_interval_ops(self.full, self.pi, 
+        self.check_interval_ops(self.full, self.pi,
                 "TTTT", self.full, self.pi)
-        self.check_interval_ops(self.full, self.mipi, 
+        self.check_interval_ops(self.full, self.mipi,
                 "TTTT", self.full, self.mipi)
-        self.check_interval_ops(self.full, self.quad12, 
+        self.check_interval_ops(self.full, self.quad12,
                 "TTTT", self.full, self.quad12)
-        self.check_interval_ops(self.full, self.quad23, 
+        self.check_interval_ops(self.full, self.quad23,
                 "TTTT", self.full, self.quad23)
 
-        self.check_interval_ops(self.zero, self.empty, 
+        self.check_interval_ops(self.zero, self.empty,
                 "TTFF", self.zero, self.empty)
-        self.check_interval_ops(self.zero, self.full, 
+        self.check_interval_ops(self.zero, self.full,
                 "FFTF", self.full, self.zero)
-        self.check_interval_ops(self.zero, self.zero, 
+        self.check_interval_ops(self.zero, self.zero,
                 "TFTF", self.zero, self.zero)
         self.check_interval_ops(self.zero, self.pi,
                 "FFFF", SphereInterval(0, math.pi), self.empty)
-        self.check_interval_ops(self.zero, self.pi2, 
+        self.check_interval_ops(self.zero, self.pi2,
                 "FFFF", self.quad1, self.empty)
-        self.check_interval_ops(self.zero, self.mipi, 
+        self.check_interval_ops(self.zero, self.mipi,
                 "FFFF", self.quad12, self.empty)
-        self.check_interval_ops(self.zero, self.mipi2, 
+        self.check_interval_ops(self.zero, self.mipi2,
                 "FFFF", self.quad4, self.empty)
-        self.check_interval_ops(self.zero, self.quad12, 
+        self.check_interval_ops(self.zero, self.quad12,
                 "FFTF", self.quad12, self.zero)
-        self.check_interval_ops(self.zero, self.quad23, 
+        self.check_interval_ops(self.zero, self.quad23,
                 "FFFF", self.quad123, self.empty)
 
         self.check_interval_ops(self.pi2, self.empty,
                 "TTFF", self.pi2, self.empty)
-        self.check_interval_ops(self.pi2, self.full, 
+        self.check_interval_ops(self.pi2, self.full,
                 "FFTF", self.full, self.pi2)
-        self.check_interval_ops(self.pi2, self.zero, 
+        self.check_interval_ops(self.pi2, self.zero,
                 "FFFF", self.quad1, self.empty)
-        self.check_interval_ops(self.pi2, self.pi, 
+        self.check_interval_ops(self.pi2, self.pi,
                 "FFFF", SphereInterval(math.pi / 2.0, math.pi), self.empty)
-        self.check_interval_ops(self.pi2, self.pi2, 
+        self.check_interval_ops(self.pi2, self.pi2,
                 "TFTF", self.pi2, self.pi2)
-        self.check_interval_ops(self.pi2, self.mipi, 
+        self.check_interval_ops(self.pi2, self.mipi,
                 "FFFF", self.quad2, self.empty)
-        self.check_interval_ops(self.pi2, self.mipi2, 
+        self.check_interval_ops(self.pi2, self.mipi2,
                 "FFFF", self.quad23, self.empty)
-        self.check_interval_ops(self.pi2, self.quad12, 
+        self.check_interval_ops(self.pi2, self.quad12,
                 "FFTF", self.quad12, self.pi2)
-        self.check_interval_ops(self.pi2, self.quad23, 
+        self.check_interval_ops(self.pi2, self.quad23,
                 "FFTF", self.quad23, self.pi2)
 
-        self.check_interval_ops(self.pi, self.empty, 
+        self.check_interval_ops(self.pi, self.empty,
                 "TTFF", self.pi, self.empty)
-        self.check_interval_ops(self.pi, self.full, 
+        self.check_interval_ops(self.pi, self.full,
                 "FFTF", self.full, self.pi)
-        self.check_interval_ops(self.pi, self.zero, 
+        self.check_interval_ops(self.pi, self.zero,
                 "FFFF", SphereInterval(math.pi, 0), self.empty)
-        self.check_interval_ops(self.pi, self.pi, 
+        self.check_interval_ops(self.pi, self.pi,
                 "TFTF", self.pi, self.pi)
-        self.check_interval_ops(self.pi, self.pi2, 
+        self.check_interval_ops(self.pi, self.pi2,
                 "FFFF", SphereInterval(math.pi / 2.0, math.pi), self.empty)
-        self.check_interval_ops(self.pi, self.mipi, 
+        self.check_interval_ops(self.pi, self.mipi,
                 "TFTF", self.pi, self.pi)
-        self.check_interval_ops(self.pi, self.mipi2, 
+        self.check_interval_ops(self.pi, self.mipi2,
                 "FFFF", self.quad3, self.empty)
-        self.check_interval_ops(self.pi, self.quad12, 
+        self.check_interval_ops(self.pi, self.quad12,
                 "FFTF", SphereInterval(0, math.pi), self.pi)
-        self.check_interval_ops(self.pi, self.quad23, 
+        self.check_interval_ops(self.pi, self.quad23,
                 "FFTF", self.quad23, self.pi)
 
-        self.check_interval_ops(self.mipi, self.empty, 
+        self.check_interval_ops(self.mipi, self.empty,
                 "TTFF", self.mipi, self.empty)
-        self.check_interval_ops(self.mipi, self.full, 
+        self.check_interval_ops(self.mipi, self.full,
                 "FFTF", self.full, self.mipi)
-        self.check_interval_ops(self.mipi, self.zero, 
+        self.check_interval_ops(self.mipi, self.zero,
                 "FFFF", self.quad34, self.empty)
-        self.check_interval_ops(self.mipi, self.pi, 
+        self.check_interval_ops(self.mipi, self.pi,
                 "TFTF", self.mipi, self.mipi)
-        self.check_interval_ops(self.mipi, self.pi2, 
+        self.check_interval_ops(self.mipi, self.pi2,
                 "FFFF", self.quad2, self.empty)
-        self.check_interval_ops(self.mipi, self.mipi, 
+        self.check_interval_ops(self.mipi, self.mipi,
                 "TFTF", self.mipi, self.mipi)
-        self.check_interval_ops(self.mipi, self.mipi2, 
+        self.check_interval_ops(self.mipi, self.mipi2,
                 "FFFF", SphereInterval(-math.pi, -math.pi / 2.0), self.empty)
-        self.check_interval_ops(self.mipi, self.quad12, 
+        self.check_interval_ops(self.mipi, self.quad12,
                 "FFTF", self.quad12, self.mipi)
         self.check_interval_ops(self.mipi, self.quad23,
                 "FFTF", self.quad23, self.mipi)
 
-        self.check_interval_ops(self.quad12, self.empty, 
+        self.check_interval_ops(self.quad12, self.empty,
                 "TTFF", self.quad12, self.empty)
-        self.check_interval_ops(self.quad12, self.full, 
+        self.check_interval_ops(self.quad12, self.full,
                 "FFTT", self.full, self.quad12)
-        self.check_interval_ops(self.quad12, self.zero, 
+        self.check_interval_ops(self.quad12, self.zero,
                 "TFTF", self.quad12, self.zero)
-        self.check_interval_ops(self.quad12, self.pi, 
+        self.check_interval_ops(self.quad12, self.pi,
                 "TFTF", self.quad12, self.pi)
-        self.check_interval_ops(self.quad12, self.mipi, 
+        self.check_interval_ops(self.quad12, self.mipi,
                 "TFTF", self.quad12, self.mipi)
         self.check_interval_ops(self.quad12, self.quad12,
                 "TFTT", self.quad12, self.quad12)
@@ -1055,7 +1055,7 @@ class TestSphereInterval(unittest.TestCase):
 
         quad12eps = SphereInterval(self.quad12.lo(), self.mid23.hi())
         quad2hi = SphereInterval(self.mid23.lo(), self.quad12.hi())
-        self.check_interval_ops(self.quad12, self.mid23, 
+        self.check_interval_ops(self.quad12, self.mid23,
                 "FFTT", quad12eps, quad2hi)
         self.check_interval_ops(self.mid23, self.quad12,
                 "FFTT", quad12eps, quad2hi)
@@ -1068,9 +1068,9 @@ class TestSphereInterval(unittest.TestCase):
 
         quadeps12 = SphereInterval(self.mid41.lo(), self.quad12.hi())
         quad1lo = SphereInterval(self.quad12.lo(), self.mid41.hi())
-        self.check_interval_ops(self.quad12, self.mid41, 
+        self.check_interval_ops(self.quad12, self.mid41,
                 "FFTT", quadeps12, quad1lo)
-        self.check_interval_ops(self.mid41, self.quad12, 
+        self.check_interval_ops(self.mid41, self.quad12,
                 "FFTT", quadeps12, quad1lo)
 
         quad2lo = SphereInterval(self.quad23.lo(), self.mid12.hi())
@@ -1092,13 +1092,13 @@ class TestSphereInterval(unittest.TestCase):
                 "FFTT", quad23eps, quad3hi)
         self.check_interval_ops(self.quad23, self.mid41,
                 "FFFF", quadeps123, self.empty)
-        self.check_interval_ops(self.mid41, self.quad23, 
+        self.check_interval_ops(self.mid41, self.quad23,
                 "FFFF", quadeps123, self.empty)
 
     def testFromPointPair(self):
         self.assertEqual(SphereInterval.from_point_pair(-math.pi, math.pi),
                 self.pi)
-        self.assertEqual(SphereInterval.from_point_pair(math.pi, -math.pi), 
+        self.assertEqual(SphereInterval.from_point_pair(math.pi, -math.pi),
                 self.pi)
         self.assertEqual(SphereInterval.from_point_pair(
                 self.mid34.hi(), self.mid34.lo()), self.mid34)
@@ -1109,14 +1109,14 @@ class TestSphereInterval(unittest.TestCase):
         self.assertEqual(self.empty.expanded(1), self.empty);
         self.assertEqual(self.full.expanded(1), self.full);
         self.assertEqual(self.zero.expanded(1), SphereInterval(-1, 1));
-        self.assertEqual(self.mipi.expanded(0.01), 
+        self.assertEqual(self.mipi.expanded(0.01),
                     SphereInterval(math.pi - 0.01, -math.pi + 0.01));
         self.assertEqual(self.pi.expanded(27), self.full);
         self.assertEqual(self.pi.expanded(math.pi / 2.0), self.quad23);
         self.assertEqual(self.pi2.expanded(math.pi / 2.0), self.quad12);
-        self.assertEqual(self.mipi2.expanded(math.pi / 2.0), self.quad34); 
+        self.assertEqual(self.mipi2.expanded(math.pi / 2.0), self.quad34);
 
-    def testApproxEquals(self): 
+    def testApproxEquals(self):
 
         self.assertTrue(self.empty.approx_equals(self.empty))
         self.assertTrue(self.zero.approx_equals(self.empty) \
@@ -1153,7 +1153,7 @@ class TestSphereInterval(unittest.TestCase):
         self.assertEqual(3.0 - 0.1,
             SphereInterval(0.1, 0.2).get_directed_hausdorff_distance(interval))
         self.assertEqual(3.0 - 0.1,
-            SphereInterval(-0.2, 
+            SphereInterval(-0.2,
                 -0.1).get_directed_hausdorff_distance(interval))
 
 class TestCap(unittest.TestCase):
@@ -1322,7 +1322,7 @@ class TestCap(unittest.TestCase):
 
     def testCellMethods(self):
         face_radius = math.atan(math.sqrt(2))
-        
+
         for face in xrange(6):
             # The cell consisting of the entire face.
             root_cell = Cell.from_face_pos_level(face, 0, 0)
@@ -1339,9 +1339,9 @@ class TestCap(unittest.TestCase):
             self.assertTrue(Cap.full().contains(root_cell))
             self.assertFalse(Cap.empty().may_intersect(root_cell))
 
-            # Check intersections with the bounding caps of the leaf cells 
-            # that are adjacent to 'corner_cell' along the Hilbert curve.  
-            # Because this corner is at (u=1,v=1), the curve stays locally 
+            # Check intersections with the bounding caps of the leaf cells
+            # that are adjacent to 'corner_cell' along the Hilbert curve.
+            # Because this corner is at (u=1,v=1), the curve stays locally
             # within the same cube face.
             first = corner_cell.id().advance(-3)
             last = corner_cell.id().advance(4)
@@ -1352,23 +1352,23 @@ class TestCap(unittest.TestCase):
                           cell.get_cap_bound().contains(corner_cell))
                 self.assertEqual(id.parent().contains(corner_cell.id()),
                           cell.get_cap_bound().may_intersect(corner_cell))
-            
+
                 id = id.next()
 
             anti_face = (face + 3) % 6  # Opposite face.
             for cap_face in xrange(6):
                 # A cap that barely contains all of 'cap_face'.
                 center = sphere.get_norm(cap_face)
-                covering = Cap.from_axis_angle(center, 
+                covering = Cap.from_axis_angle(center,
                     Angle.from_radians(face_radius + self.eps))
                 self.assertEqual(cap_face == face, covering.contains(root_cell))
-                self.assertEqual(cap_face != anti_face, 
+                self.assertEqual(cap_face != anti_face,
                     covering.may_intersect(root_cell))
                 self.assertEqual(center.dot_prod(edge_cell.get_center()) > 0.1,
                     covering.contains(edge_cell))
                 self.assertEqual(covering.may_intersect(edge_cell),
                     covering.contains(edge_cell))
-                self.assertEqual(cap_face == face, 
+                self.assertEqual(cap_face == face,
                     covering.contains(corner_cell))
                 self.assertEqual(center.dot_prod(
                     corner_cell.get_center()) > 0,
@@ -1378,7 +1378,7 @@ class TestCap(unittest.TestCase):
                 bulging = Cap.from_axis_angle(
                     center, Angle.from_radians(math.pi / 4.0 + self.eps))
                 self.assertFalse(bulging.contains(root_cell))
-                self.assertEqual(cap_face != anti_face, 
+                self.assertEqual(cap_face != anti_face,
                         bulging.may_intersect(root_cell))
                 self.assertEqual(cap_face == face, bulging.contains(edge_cell))
                 self.assertEqual(center.dot_prod(edge_cell.get_center()) > 0.1,
@@ -1388,7 +1388,7 @@ class TestCap(unittest.TestCase):
 
                 # A singleton cap.
                 singleton = Cap.from_axis_angle(center, Angle.from_radians(0))
-                self.assertEqual(cap_face == face, 
+                self.assertEqual(cap_face == face,
                         singleton.may_intersect(root_cell))
                 self.assertFalse(singleton.may_intersect(edge_cell))
                 self.assertFalse(singleton.may_intersect(corner_cell))
@@ -1405,11 +1405,11 @@ class TestCap(unittest.TestCase):
 
 
 class TestLatLonRect(unittest.TestCase):
-    
+
     def rect_from_degrees(self, lat_lo, lon_lo, lat_hi, lon_hi):
         return LatLonRect(LatLon.from_degrees(lat_lo, lon_lo),
                 LatLon.from_degrees(lat_hi, lon_hi))
-    
+
     def testEmptyAndFull(self):
         empty = LatLonRect.empty()
         full = LatLonRect.full()
@@ -1425,7 +1425,7 @@ class TestLatLonRect(unittest.TestCase):
         self.assertTrue(default_empty.is_empty())
         self.assertEqual(empty.lat().bounds(), default_empty.lat().bounds())
         self.assertEqual(empty.lon().bounds(), default_empty.lon().bounds())
-              
+
 
     def testAccessors(self):
         d1 = self.rect_from_degrees(-90, 0, -45, 180)
@@ -1467,9 +1467,9 @@ class TestLatLonRect(unittest.TestCase):
     def testGetCenterSize(self):
         r1 = LatLonRect(LineInterval(0, math.pi / 2.0),
             SphereInterval(-math.pi, 0))
-        self.assertEqual(r1.get_center(), 
+        self.assertEqual(r1.get_center(),
             LatLon.from_radians(math.pi / 4.0, -math.pi / 2.0))
-        self.assertEqual(r1.get_size(), 
+        self.assertEqual(r1.get_size(),
             LatLon.from_radians(math.pi / 2.0, math.pi))
         self.assertLess(
             LatLonRect.empty().get_size().lat().radians, 0)
@@ -1481,9 +1481,9 @@ class TestLatLonRect(unittest.TestCase):
                         SphereInterval(-math.pi, 0))
         self.assertEqual(r1.get_vertex(0), LatLon.from_radians(0, math.pi))
         self.assertEqual(r1.get_vertex(1), LatLon.from_radians(0, 0))
-        self.assertEqual(r1.get_vertex(2), 
+        self.assertEqual(r1.get_vertex(2),
                 LatLon.from_radians(math.pi / 2.0, 0))
-        self.assertEqual(r1.get_vertex(3), 
+        self.assertEqual(r1.get_vertex(3),
                 LatLon.from_radians(math.pi / 2.0, math.pi))
 
         # Make sure the get_vertex() returns vertices in CCW order.
@@ -1500,7 +1500,7 @@ class TestLatLonRect(unittest.TestCase):
                             r.get_vertex((k + 1) & 3).to_point()))
 
     def testContains(self):
-        
+
         eq_m180 = LatLon.from_radians(0, -math.pi);
         north_pole = LatLon.from_radians(math.pi / 2.0, 0);
         r1 = LatLonRect(eq_m180, north_pole);
@@ -1522,7 +1522,7 @@ class TestLatLonRect(unittest.TestCase):
         self.assertEqual(x.contains(y), expected_relation[0] == 'T')
         self.assertEqual(x.interior_contains(y), expected_relation[1] == 'T')
         self.assertEqual(x.intersects(y), expected_relation[2] == 'T')
-        self.assertEqual(x.interior_intersects(y), 
+        self.assertEqual(x.interior_intersects(y),
               expected_relation[3] == 'T')
 
         self.assertEqual(x.contains(y), x.union(y) == x)
@@ -1533,30 +1533,30 @@ class TestLatLonRect(unittest.TestCase):
 
     def testIntervalOps(self):
         r1 = self.rect_from_degrees(0, -180, 90, 0)
-        
+
         # Test operations where one rectangle consists of a single point.
         r1_mid = self.rect_from_degrees(45, -90, 45, -90)
         self.check_interval_ops(r1, r1_mid, "TTTT", r1, r1_mid)
-        
+
         req_m180 = self.rect_from_degrees(0, -180, 0, -180)
         self.check_interval_ops(r1, req_m180, "TFTF", r1, req_m180)
-        
+
         rnorth_pole = self.rect_from_degrees(90, 0, 90, 0)
         self.check_interval_ops(r1, rnorth_pole, "TFTF", r1, rnorth_pole)
-        
-        self.check_interval_ops(r1, 
+
+        self.check_interval_ops(r1,
                         self.rect_from_degrees(-10, -1, 1, 20), "FFTT",
                         self.rect_from_degrees(-10, 180, 90, 20),
                         self.rect_from_degrees(0, -1, 1, 0))
-        self.check_interval_ops(r1, 
+        self.check_interval_ops(r1,
                         self.rect_from_degrees(-10, -1, 0, 20), "FFTF",
                         self.rect_from_degrees(-10, 180, 90, 20),
                         self.rect_from_degrees(0, -1, 0, 0))
-        self.check_interval_ops(r1, 
+        self.check_interval_ops(r1,
                         self.rect_from_degrees(-10, 0, 1, 20), "FFTF",
                         self.rect_from_degrees(-10, 180, 90, 20),
                         self.rect_from_degrees(0, 0, 1, 0))
-        
+
         self.check_interval_ops(self.rect_from_degrees(-15, -160, -15, -150),
                         self.rect_from_degrees(20, 145, 25, 155), "FFFF",
                         self.rect_from_degrees(-15, 145, 25, -150),
@@ -1565,12 +1565,12 @@ class TestLatLonRect(unittest.TestCase):
                         self.rect_from_degrees(60, 175, 80, 5), "FFTT",
                         self.rect_from_degrees(60, -180, 90, 180),
                         self.rect_from_degrees(70, 175, 80, 5))
-        
+
         # Check that the intersection of two rectangles that overlap in latitude
         # but not longitude is valid, and vice versa.
         self.check_interval_ops(self.rect_from_degrees(12, 30, 60, 60),
                         self.rect_from_degrees(0, 0, 30, 18), "FFFF",
-                        self.rect_from_degrees(0, 0, 60, 60), 
+                        self.rect_from_degrees(0, 0, 60, 60),
                         LatLonRect.empty())
         self.check_interval_ops(self.rect_from_degrees(0, 0, 18, 42),
                         self.rect_from_degrees(30, 12, 42, 60), "FFFF",
@@ -1591,11 +1591,11 @@ class TestLatLonRect(unittest.TestCase):
             approx_equals(self.rect_from_degrees(-90, -180, 40, 180)))
 
     def testConvolveWithCap(self):
-        self.assertTrue(self.rect_from_degrees(0, 170, 0, -170) 
+        self.assertTrue(self.rect_from_degrees(0, 170, 0, -170)
                 .convolve_with_cap(Angle.from_degrees(15))
                     .approx_equals(self.rect_from_degrees(-15, 155, 15, -155)))
 
-        self.assertTrue(self.rect_from_degrees(60, 150, 80, 10) 
+        self.assertTrue(self.rect_from_degrees(60, 150, 80, 10)
                 .convolve_with_cap(Angle.from_degrees(15))
                     .approx_equals(self.rect_from_degrees(45, -180, 90, 180)))
 
@@ -1638,11 +1638,11 @@ class TestLatLonRect(unittest.TestCase):
         # Contains(S2Cell), MayIntersect(S2Cell), Intersects(S2Cell)
 
         # Special cases.
-        self.check_cell_ops(LatLonRect.empty(), 
+        self.check_cell_ops(LatLonRect.empty(),
             Cell.from_face_pos_level(3, 0, 0), 0)
-        self.check_cell_ops(LatLonRect.full(), 
+        self.check_cell_ops(LatLonRect.full(),
             Cell.from_face_pos_level(2, 0, 0), 4)
-        self.check_cell_ops(LatLonRect.full(), 
+        self.check_cell_ops(LatLonRect.full(),
             Cell.from_face_pos_level(5, 0, 25), 4)
 
         # This rectangle includes the first quadrant of face 0.  It's expanded
@@ -1706,7 +1706,7 @@ class TestCrossings(unittest.TestCase):
             self.assertLessEqual(actual, 0)
         else:
             self.assertEqual(expected, actual)
-   
+
     def check_crossing(self, a, b, c, d, robust, edge_or_vertex, simple):
 
         a = a.normalize()
@@ -1733,7 +1733,7 @@ class TestCrossings(unittest.TestCase):
         self.check_crossing(a, a, c, d, self.degen, 0, False)
         self.check_crossing(a, b, c, c, self.degen, 0, False)
         self.check_crossing(a, b, a, b, 0, 1, False)
-        self.check_crossing(c, d, a, b, 
+        self.check_crossing(c, d, a, b,
             robust, edge_or_vertex ^ (robust == 0), simple)
 
     def testCrossings(self):
@@ -1765,7 +1765,7 @@ class TestCrossings(unittest.TestCase):
         self.check_crossings(Point(2, 3, 4), Point(-1, 2, 5),
                       Point(7, -2, 3), Point(2, 3, 4), 0, False, True)
 
-        # Two edges that barely cross each other near the middle of one edge. 
+        # Two edges that barely cross each other near the middle of one edge.
         # The
         # edge AB is approximately in the x=y plane, while CD is approximately
         # perpendicular to it and ends exactly at the x=y plane.
@@ -1776,8 +1776,8 @@ class TestCrossings(unittest.TestCase):
         self.check_crossings(Point(1, 1, 1), Point(1, np.nextafter(1, 2), -1),
                       Point(1, -1, 0), Point(1, 1, 0), -1, False, False)
 
-        # Two edges that barely cross each other near the end of both edges. 
-        # This example cannot be handled using regular double-precision 
+        # Two edges that barely cross each other near the end of both edges.
+        # This example cannot be handled using regular double-precision
         # arithmetic due to floating-point underflow.
         self.check_crossings(Point(0, 0, 1), Point(2, -1e-323, 1),
                       Point(1, -1, 1), Point(1e-323, 0, 1), 1, True, False)
@@ -1789,12 +1789,12 @@ class TestCrossings(unittest.TestCase):
         # Two edges that barely cross each other near the middle of one edge.
         # Computing the exact determinant of some of the triangles in this test
         # requires more than 2000 bits of precision.
-        self.check_crossings(Point(1, -1e-323, -1e-323), 
-            Point(1e-323, 1, 1e-323), Point(1, -1, 1e-323), Point(1, 1, 0), 
+        self.check_crossings(Point(1, -1e-323, -1e-323),
+            Point(1e-323, 1, 1e-323), Point(1, -1, 1e-323), Point(1, 1, 0),
             1, True, False)
 
         # In this version, the edges are separated by a dist of about 1e-640.
-        self.check_crossings(Point(1, 1e-323, -1e-323), 
+        self.check_crossings(Point(1, 1e-323, -1e-323),
             Point(-1e-323, 1, 1e-323), Point(1, -1, 1e-323), Point(1, 1, 0),
               -1, False, False)
 
@@ -1837,7 +1837,7 @@ class TestCellUnion(unittest.TestCase):
             input.append(cell_id)
             return
 
-        if not selected and random.randrange( 
+        if not selected and random.randrange(
                 CellId.MAX_LEVEL - cell_id.level()) == 0:
             expected.append(cell_id)
             selected = True
@@ -1863,7 +1863,7 @@ class TestCellUnion(unittest.TestCase):
         for i in xrange(NORMALIZE_ITERATIONS):
             input, expected = [], []
             self.add_cells(CellId.none(), False, input, expected)
-            
+
             cellunion = CellUnion(input)
             self.assertEqual(len(expected), cellunion.num_cells())
 
@@ -1969,7 +1969,7 @@ class TestCellUnion(unittest.TestCase):
                 self.assertEqual(intersects, cellunion.intersects(test[j]))
 
     def testEmpty(self):
-        
+
         empty_cell_union = CellUnion()
         face1_id = CellId.from_face_pos_level(1, 0, 0)
 
@@ -2001,7 +2001,7 @@ class TestCellUnion(unittest.TestCase):
         self.assertEqual(0, intersection.num_cells())
 
         # GetDifference(...)
-        difference = CellUnion.get_difference(empty_cell_union, 
+        difference = CellUnion.get_difference(empty_cell_union,
                 empty_cell_union)
         self.assertEqual(0, difference.num_cells())
 
@@ -2023,7 +2023,7 @@ class TestRegionCoverer(unittest.TestCase):
             coverer = RegionCoverer()
             coverer.max_cells = 1
             cell_id = TestCellId.get_random_cell_id()
-        
+
         #cell_id = CellId(7981803829394669568)
             covering = coverer.get_covering(Cell(cell_id))
             self.assertEqual(1, len(covering))
@@ -2050,7 +2050,7 @@ class TestRegionCoverer(unittest.TestCase):
         if not cell_id.is_valid():
             for face in xrange(6):
                 self.check_cell_union_covering(
-                    region, covering, check_tight, 
+                    region, covering, check_tight,
                         CellId.from_face_pos_level(face, 0, 0))
             return
         if not region.may_intersect(Cell(cell_id)):
@@ -2086,7 +2086,7 @@ class TestRegionCoverer(unittest.TestCase):
 
 
 
-    def testRandomCaps(self): 
+    def testRandomCaps(self):
         for i in xrange(RANDOM_CAPS_ITERATIONS):
              coverer = RegionCoverer()
 
@@ -2104,7 +2104,7 @@ class TestRegionCoverer(unittest.TestCase):
 
              cap = self.get_random_cap(
                  0.1 * CellId.avg_area().get_value(CellId.MAX_LEVEL), max_area)
-             covering = coverer.get_covering(cap) 
+             covering = coverer.get_covering(cap)
              self.check_covering(coverer, cap, covering, False)
              interior = coverer.get_interior_covering(cap)
              self.check_covering(coverer, cap, interior, True)
@@ -2134,7 +2134,7 @@ class TestRegionCoverer(unittest.TestCase):
                 0.1 * CellId.avg_area().get_value(CellId.MAX_LEVEL), max_area)
             covering = RegionCoverer.get_simple_covering(cap, cap.axis(), level)
             self.check_covering(coverer, cap, covering, False)
-             
+
 
 if __name__ == '__main__':
     unittest.main()
