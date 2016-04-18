@@ -1225,11 +1225,12 @@ class CellId(object):
                 self.from_face_ij_same(
                     face, i - size, j, i - size >= 0).parent(level))
 
-    ''' Return the neighbors of closest vertex to this cell at the given level.
+    def get_vertex_neighbors(self, level):
+        '''
+        Return the neighbors of closest vertex to this cell at the given level.
         Normally there are four neighbors, but the closest vertex may only have
         three neighbors if it is one of the 8 cube vertices.
-    '''
-    def get_vertex_neighbors(self, level):
+        '''
         # "level" must be strictly less than this cell's level so that we can
         # determine which vertex this cell is closest to.
         assert level < self.level()

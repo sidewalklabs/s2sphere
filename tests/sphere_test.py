@@ -9,10 +9,10 @@ import numpy as np
 from collections import defaultdict
 from itertools import izip
 
-import s2sphere.sphere as sphere
-from s2sphere.sphere import Angle, CellId, LatLon, Point, Cell
-from s2sphere.sphere import LineInterval, SphereInterval, LatLonRect
-from s2sphere.sphere import RegionCoverer, CellUnion, Cap
+import s2sphere
+from s2sphere import Angle, CellId, LatLon, Point, Cell
+from s2sphere import LineInterval, SphereInterval, LatLonRect
+from s2sphere import RegionCoverer, CellUnion, Cap
 
 
 '''
@@ -299,7 +299,7 @@ class TestCellId(unittest.TestCase):
             cface, ci, cj, corientation = child.to_face_ij_orientation()
             self.assertEqual(cface, face)
             self.assertEqual(corientation,
-                             orientation ^ sphere.POS_TO_ORIENTATION[pos])
+                             orientation ^ s2sphere.POS_TO_ORIENTATION[pos])
 
             parent_map[child] = parent
             self.expand_cells(child, cells, parent_map)
@@ -352,7 +352,7 @@ class TestCellId(unittest.TestCase):
 
             # Check that the ToPointRaw() returns the center of each cell
             # in (s,t) coordinates.
-            face, u, v = sphere.xyz_to_face_uv(cell_id.to_point_raw())
+            face, u, v = s2sphere.xyz_to_face_uv(cell_id.to_point_raw())
             self.assertAlmostEqual(
                     CellId.uv_to_st(u) % (0.5 * cell_size), 0, delta=1-15)
             self.assertAlmostEqual(
@@ -469,7 +469,7 @@ class TestCell(unittest.TestCase):
 
             # Top-level faces have alternating orientations to get RHS
             # coordinates.
-            self.assertEqual(face & sphere.SWAP_MASK, cell.orientation())
+            self.assertEqual(face & s2sphere.SWAP_MASK, cell.orientation())
             self.assertFalse(cell.is_leaf())
 
             for k in range(4):
@@ -650,9 +650,9 @@ class TestCell(unittest.TestCase):
                         self.assertLessEqual(rect_count, 2)
 
             force_subdivide = False
-            center = sphere.get_norm(children[i].face())
-            edge = center + sphere.get_u_axis(children[i].face())
-            corner = edge + sphere.get_v_axis(children[i].face())
+            center = s2sphere.get_norm(children[i].face())
+            edge = center + s2sphere.get_u_axis(children[i].face())
+            corner = edge + s2sphere.get_v_axis(children[i].face())
             for j in range(4):
                 p = children[i].get_vertex_raw(j)
                 if p == center or p == edge or p == corner:
@@ -1384,11 +1384,11 @@ class TestCap(unittest.TestCase):
 
             # A leaf cell at the midpoint of the v=1 edge.
             edge_cell = Cell.from_point(
-                    sphere.face_uv_to_xyz(face, 0, 1 - self.eps))
+                    s2sphere.face_uv_to_xyz(face, 0, 1 - self.eps))
 
             # A leaf cell at the u=1, v=1 corner.
             corner_cell = Cell.from_point(
-                sphere.face_uv_to_xyz(face, 1 - self.eps, 1 - self.eps))
+                s2sphere.face_uv_to_xyz(face, 1 - self.eps, 1 - self.eps))
 
             # Quick check for full and empty caps.
             self.assertTrue(Cap.full().contains(root_cell))
@@ -1413,7 +1413,7 @@ class TestCap(unittest.TestCase):
             anti_face = (face + 3) % 6  # Opposite face.
             for cap_face in range(6):
                 # A cap that barely contains all of 'cap_face'.
-                center = sphere.get_norm(cap_face)
+                center = s2sphere.get_norm(cap_face)
                 covering = Cap.from_axis_angle(center,
                     Angle.from_radians(face_radius + self.eps))
                 self.assertEqual(cap_face == face, covering.contains(root_cell))
@@ -1546,11 +1546,11 @@ class TestLatLonRect(unittest.TestCase):
             lat = math.pi / 4.0 * (i - 2)
             lon = math.pi / 2.0 * (i - 2) + 0.2
             r = LatLonRect(LineInterval(lat, lat + math.pi / 4.0),
-                    SphereInterval(sphere.drem(lon, 2 * math.pi),
-                        sphere.drem(lon + math.pi / 2.0, 2 * math.pi)))
+                    SphereInterval(s2sphere.drem(lon, 2 * math.pi),
+                        s2sphere.drem(lon + math.pi / 2.0, 2 * math.pi)))
             for k in range(4):
                 self.assertTrue(
-                        sphere.simple_ccw(r.get_vertex((k - 1) & 3).to_point(),
+                        s2sphere.simple_ccw(r.get_vertex((k - 1) & 3).to_point(),
                             r.get_vertex(k).to_point(),
                             r.get_vertex((k + 1) & 3).to_point()))
 
@@ -1770,7 +1770,7 @@ class TestCrossings(unittest.TestCase):
         d = d.normalize()
         #CompareResult(S2EdgeUtil::RobustCrossing(a, b, c, d), robust)
         if simple:
-          self.assertEqual(robust > 0, sphere.simple_crossing(a, b, c, d))
+          self.assertEqual(robust > 0, s2sphere.simple_crossing(a, b, c, d))
         #S2EdgeUtil::EdgeCrosser crosser(&a, &b, &c)
         #CompareResult(crosser.RobustCrossing(&d), robust)
         #CompareResult(crosser.RobustCrossing(&c), robust)
@@ -1808,7 +1808,7 @@ class TestCrossings(unittest.TestCase):
                       Point(0, 1, 1), Point(0, 0, 1), -1, False, True)
 
         # Two edges that cross where one vertex is S2::Origin().
-        self.check_crossings(Point(1, 0, 0), sphere.origin(),
+        self.check_crossings(Point(1, 0, 0), s2sphere.origin(),
                       Point(1, -0.1, 1), Point(1, 1, -0.1), 1, True, True)
 
         # Two edges that cross antipodal points where one vertex is S2::Origin().
@@ -1856,8 +1856,8 @@ class TestCrossings(unittest.TestCase):
 
 class TestUtils(unittest.TestCase):
     def testDrem(self):
-        self.assertAlmostEqual(sphere.drem(6.5, 2.3), -0.4)
-        self.assertAlmostEqual(sphere.drem(1.0, 2.0), 1.0)
+        self.assertAlmostEqual(s2sphere.drem(6.5, 2.3), -0.4)
+        self.assertAlmostEqual(s2sphere.drem(1.0, 2.0), 1.0)
         self.assertAlmostEqual(sphere.drem(1.0, 3.0), 1.0)
 
 
