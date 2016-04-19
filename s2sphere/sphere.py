@@ -596,35 +596,29 @@ class LatLonRect(object):
             r = r.union(vertex_cap.get_rect_bound())
         return r
 
-    def contains(self, *args):
-        if isinstance(args[0], Point):
-            point = args[0]
-            return self.contains(LatLon.from_point(point))
-        elif isinstance(args[0], LatLon):
-            ll = args[0]
-            assert ll.is_valid()
-            return (self.lat().contains(ll.lat().radians) and
-                    self.lon().contains(ll.lon().radians))
-        elif isinstance(args[0], self.__class__):
-            other = args[0]
+    def contains(self, other):
+        if isinstance(other, Point):
+            return self.contains(LatLon.from_point(other))
+        elif isinstance(other, LatLon):
+            assert other.is_valid()
+            return (self.lat().contains(other.lat().radians) and
+                    self.lon().contains(other.lon().radians))
+        elif isinstance(other, self.__class__):
             return (self.lat().contains(other.lat()) and
                     self.lon().contains(other.lon()))
-        elif isinstance(args[0], Cell):
-            cell = args[0]
-            return self.contains(cell.get_rect_bound())
+        elif isinstance(other, Cell):
+            return self.contains(other.get_rect_bound())
         else:
             raise NotImplementedError()
 
-    def interior_contains(self, *args):
-        if isinstance(args[0], Point):
-            self.interior_contains(LatLon(args[0]))
-        elif isinstance(args[0], LatLon):
-            ll = args[0]
-            assert ll.is_valid()
-            return (self.lat().interior_contains(ll.lat().radians) and
-                    self.lon().interior_contains(ll.lon().radians))
-        elif isinstance(args[0], self.__class__):
-            other = args[0]
+    def interior_contains(self, other):
+        if isinstance(other, Point):
+            self.interior_contains(LatLon(other))
+        elif isinstance(other, LatLon):
+            assert other.is_valid()
+            return (self.lat().interior_contains(other.lat().radians) and
+                    self.lon().interior_contains(other.lon().radians))
+        elif isinstance(other, self.__class__):
             return (self.lat().interior_contains(other.lat()) and
                     self.lon().interior_contains(other.lon()))
         else:
@@ -866,14 +860,8 @@ class CellId(object):
 
     WRAP_OFFSET = NUM_FACES << POS_BITS
 
-    def __init__(self, *args, **kwargs):
-        if len(args) == 0:
-            self.__id = int(0)
-        elif len(args) == 1:
-            # modulus to ensure wrap around
-            self.__id = int(args[0]) % 0xffffffffffffffff
-        else:
-            raise ValueError()
+    def __init__(self, id_=0):
+        self.__id = id_ % 0xffffffffffffffff
 
     def __repr__(self):
         return 'CellId: {}'.format(self.id())

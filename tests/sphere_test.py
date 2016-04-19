@@ -8,6 +8,8 @@ import numpy as np
 
 from collections import defaultdict
 from itertools import izip
+from pstats import Stats
+import cProfile
 
 import s2sphere
 from s2sphere import Angle, CellId, LatLon, Point, Cell
@@ -33,6 +35,8 @@ NORMALIZE_ITERATIONS = 20
 REGION_COVERER_ITERATIONS = 10
 RANDOM_CAPS_ITERATIONS = 10
 SIMPLE_COVERINGS_ITERATIONS = 10
+
+PROFILE = False
 
 
 class TestAngle(unittest.TestCase):
@@ -129,6 +133,17 @@ class TestCellId(unittest.TestCase):
 
     def setUp(self):
         random.seed(20)
+
+        if PROFILE:
+            self.pr = cProfile.Profile()
+            self.pr.enable()
+
+    def tearDown(self):
+        if hasattr(self, 'pr'):
+            p = Stats(self.pr)
+            p.strip_dirs()
+            p.sort_stats('cumtime')
+            p.print_stats()
 
     @staticmethod
     def get_random_cell_id(*args):
@@ -454,7 +469,17 @@ class TestCell(unittest.TestCase):
         random.seed(20)
         self.level_stats = [LevelStats()] * (CellId.MAX_LEVEL + 1)
 
+        if PROFILE:
+            self.pr = cProfile.Profile()
+            self.pr.enable()
+
     def tearDown(self):
+        if hasattr(self, 'pr'):
+            p = Stats(self.pr)
+            p.strip_dirs()
+            p.sort_stats('cumtime')
+            p.print_stats()
+
         del self.level_stats
 
     def testFaces(self):

@@ -39,8 +39,14 @@ which prints this list:
     [9291041754864156672, 9291043953887412224, 9291044503643226112, 9291045878032760832, 9291047252422295552, 9291047802178109440, 9291051650468806656, 9291052200224620544]
 
 
-Tests
-=====
+Developing
+==========
+
+To develop, clone the repository and include git submodules recursively:
+
+.. code-block:: sh
+
+    git clone --recursive https://github.com/sidewalklabs/sphere
 
 Tests require ``pip install numpy`` and a build of the original C++ library:
 
@@ -62,7 +68,7 @@ Tests require ``pip install numpy`` and a build of the original C++ library:
     python -v -c 'import s2'
 
 
-On OSX, this requires extra setup:
+OSX requires extra setup:
 
 - point to Brew's OpenSSL installation: ``export OPENSSL_ROOT_DIR=$(brew --prefix openssl)``
 - tell the Python cmake which Python libraries to use: ``cmake -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 .``
