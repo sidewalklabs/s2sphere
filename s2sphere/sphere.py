@@ -5,6 +5,7 @@ from future.builtins import range
 import bisect
 import math
 import decimal
+import functools
 import heapq
 
 
@@ -18,6 +19,9 @@ class Angle(object):
     def __eq__(self, other):
         return isinstance(other, self.__class__) \
                 and self.__radians == other.__radians
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __add__(self, other):
         return self.__class__.from_radians(self.__radians + other.__radians)
@@ -57,7 +61,7 @@ class Point(object):
         return isinstance(other, self.__class__) \
                 and self.__point == other.__point
 
-    def __ne_(self, other):
+    def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
@@ -165,6 +169,9 @@ class LatLon(object):
 
     def __eq__(self, other):
         return isinstance(other, LatLon) and self.__coords == other.__coords
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __hash__(self):
         return hash(self.__coords)
@@ -840,6 +847,7 @@ _init_lookup_cell(0, 0, 0, INVERT_MASK, 0, INVERT_MASK)
 _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 
 
+@functools.total_ordering
 class CellId(object):
     # projection types
     LINEAR_PROJECTION = 0
@@ -876,17 +884,11 @@ class CellId(object):
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.id() == other.id()
 
+    def __ne__(self, other):
+        return not isinstance(other, self.__class__) or self.id() != other.id()
+
     def __lt__(self, other):
         return self.id() < other.id()
-
-    def __le__(self, other):
-        return self.id() <= other.id()
-
-    def __gt__(self, other):
-        return self.id() > other.id()
-
-    def __ge__(self, other):
-        return self.id() >= other.id()
 
     @classmethod
     def from_lat_lon(cls, ll):
@@ -1734,6 +1736,9 @@ class LineInterval(Interval):
                 ((self.lo() == other.lo() and self.hi() == other.hi()) or
                 (self.is_empty() and other.is_empty())))
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __hash__(self):
         return hash(self.__bounds)
 
@@ -1825,6 +1830,9 @@ class SphereInterval(Interval):
     def __eq__(self, other):
         return isinstance(other, self.__class__) \
                 and self.lo() == other.lo() and self.hi() == other.hi()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     @classmethod
     def from_point_pair(cls, a, b):
@@ -2301,6 +2309,9 @@ class CellUnion(object):
     def __eq__(self, other):
         return isinstance(other, self.__class__) \
                 and self.__cell_ids == other.__cell_ids
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __hash__(self):
         return hash(self.__cell_ids)
