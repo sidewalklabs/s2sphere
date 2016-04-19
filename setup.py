@@ -13,7 +13,7 @@ setup(
     name='s2sphere',
     version=VERSION,
     description='Python implementation of the amazing S2 Geometry Library',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     author='Jonathan Gillham',
     author_email='',
     url='http://github.com/qedus/sphere',
