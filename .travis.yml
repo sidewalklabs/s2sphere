@@ -47,10 +47,10 @@ script:
 # dependencies for Python tests
 - pip install --user --upgrade pip
 - pip install --user numpy
-- pip install --user nose .
-- nosetests -vv
+- "pip install --user .[tests]"
+- nosetests-2.7 -vv
 # py3
 - pip3 install --user --upgrade pip
 - pip3 install --user numpy
-- pip3 install --user nose .
+- "pip3 install --user .[tests]"
 - nosetests-3.4 -vv --exclude=compare_implementations_test

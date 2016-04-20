@@ -19,6 +19,12 @@ setup(
     url='http://github.com/qedus/sphere',
     packages=['s2sphere'],
     install_requires=['future'],
+    extras_require={
+        'tests': [
+            'nose>=1.3.4',
+            'numpy>=1.11.0'
+        ]
+    },
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
