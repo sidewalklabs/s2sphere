@@ -8,6 +8,7 @@ addons:
     packages:
       - libssl-dev
       - python-dev
+      - python3-pip
       - scons
       - swig
 
@@ -20,6 +21,15 @@ matrix:
       dist: trusty
     - os: osx
       compiler: clang
+    # - os: linux
+    #   compiler: gcc
+    #   dist: trusty
+    #   env:
+    #     py3: true
+    # - os: osx
+    #   compiler: clang
+    #   env:
+    #     py3: true
 
 before_install:
 - |
@@ -37,5 +47,10 @@ script:
 # dependencies for Python tests
 - pip install --user --upgrade pip
 - pip install --user numpy
-- pip install --user .
-- python tests/sphere_test.py -vv
+- pip install --user nose .
+- nosetests -vv
+# py3
+- pip3 install --user --upgrade pip
+- pip3 install --user numpy
+- pip3 install --user nose .
+- nosetests-3.4 -vv --exclude=compare_implementations_test
