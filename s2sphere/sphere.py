@@ -9,7 +9,16 @@ import functools
 import heapq
 
 
+@functools.total_ordering
 class Angle(object):
+    '''This class represents a one-dimensional angle (as opposed to a
+    two-dimensional solid angle).  It has methods for converting angles to
+    or from radians and degrees.
+
+    :param float radians:
+        angle in radians
+
+    '''
 
     def __init__(self, radians=0):
         if not isinstance(radians, (float, int)):
@@ -23,6 +32,9 @@ class Angle(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __lt__(self, other):
+        return self.__radians < other.__radians
+
     def __add__(self, other):
         return self.__class__.from_radians(self.__radians + other.__radians)
 
@@ -31,6 +43,12 @@ class Angle(object):
 
     @classmethod
     def from_degrees(cls, degrees):
+        '''class generator
+
+        :param float degrees:
+            degrees
+
+        '''
         return cls(math.radians(degrees))
 
     @classmethod
@@ -843,6 +861,8 @@ _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 
 @functools.total_ordering
 class CellId(object):
+    '''S2 cell id'''
+
     # projection types
     LINEAR_PROJECTION = 0
     TAN_PROJECTION = 1
@@ -1599,18 +1619,21 @@ def origin():
 
 
 def robust_cross_prod(a, b):
-    '''
-    The direction of a.CrossProd(b) becomes unstable as (a + b) or (a - b)
-    approaches zero.  This leads to situations where a.CrossProd(b) is not
-    very orthogonal to "a" and/or "b".  We could fix this using Gram-Schmidt,
-    but we also want b.RobustCrossProd(a) == -a.RobustCrossProd(b).
+    '''A numerically more robust cross product.
 
-    The easiest fix is to just compute the cross product of (b+a) and (b-a).
-    Mathematically, this cross product is exactly twice the cross product of
-    "a" and "b", but it has the numerical advantage that (b+a) and (b-a)
-    are always perpendicular (since "a" and "b" are unit length).  This
-    yields a result that is nearly orthogonal to both "a" and "b" even if
-    these two values differ only in the lowest bit of one component.
+    The direction of :math:`a \\times b` becomes unstable as :math:`(a + b)` or
+    :math:`(a - b)` approaches zero.  This leads to situations where
+    :math:`a \\times b` is not very orthogonal to :math:`a` and/or :math:`b`.
+    We could fix this using Gram-Schmidt, but we also want
+    :math:`b \\times a = - a \\times b`.
+
+    The easiest fix is to just compute the cross product of :math:`(b+a)` and
+    :math:`(b-a)`. Mathematically, this cross product is exactly twice the
+    cross product of :math:`a` and :math:`b`, but it has the numerical
+    advantage that :math:`(b+a)` and :math:`(b-a)` are always perpendicular
+    (since :math:`a` and :math:`b` are unit length).  This
+    yields a result that is nearly orthogonal to both :math:`a` and :math:`b`
+    even if these two values differ only in the lowest bit of one component.
     '''
     assert is_unit_length(a)
     assert is_unit_length(b)
