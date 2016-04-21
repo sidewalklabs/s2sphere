@@ -1,0 +1,3 @@
+[submodule "tests/s2-geometry"]
+	path = tests/s2-geometry
+	url = https://github.com/micolous/s2-geometry-library.git

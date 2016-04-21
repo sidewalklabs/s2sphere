@@ -1,0 +1,69 @@
+language: cpp
+
+notifications:
+  email: false
+
+addons:
+  apt:
+    packages:
+      - libssl-dev
+      - python-dev
+      - python3-pip
+      - scons
+      - swig
+
+sudo: required
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      dist: trusty
+      env:
+        py3: "true"
+    - os: osx
+      compiler: clang
+
+before_install:
+- |
+  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+    brew update
+    brew install swig
+    brew outdated openssl || brew upgrade openssl
+    brew outdated cmake || brew upgrade cmake
+  fi
+- python -V
+
+script:
+- git submodule update --init --recursive
+- cd tests/s2-geometry && ./travis.sh && cd -
+# dependencies for Python tests
+- |
+  if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
+    # We really want to use the system version of Python.  Travis'
+    # has broken distutils paths, and assumes a virtualenv.
+    export PATH="/usr/bin:${PATH}"
+  fi
+  if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
+    # add binaries installed with pip's --user option into PATH
+    ls ${HOME}/Library/Python
+    export PATH="${HOME}/Library/Python/2.7/bin:${HOME}/Library/Python/3.4/bin:${PATH}"
+  fi
+  which python2.7
+  python2.7 -V
+  echo "$PATH"
+- pip install --user --upgrade pip
+- pip install --user numpy nose
+- "pip install --user ."
+- python2.7 tests/compare_implementations_test.py -vv
+- nosetests-2.7 -vv --exclude=compare_implementations_test
+# py3
+- |
+  if [[ "${py3}" == "true" ]]; then
+    pip3 install --user --upgrade pip
+    pip3 install --user numpy nose
+    pip3 install --user .
+
+    echo "Python 3 tests:"
+    nosetests-3.4 -vv --exclude=compare_implementations_test
+  fi

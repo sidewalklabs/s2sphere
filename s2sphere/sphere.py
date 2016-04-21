@@ -5,6 +5,7 @@ from future.builtins import range
 import bisect
 import math
 import decimal
+import functools
 import heapq
 
 
@@ -18,6 +19,9 @@ class Angle(object):
     def __eq__(self, other):
         return isinstance(other, self.__class__) \
                 and self.__radians == other.__radians
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __add__(self, other):
         return self.__class__.from_radians(self.__radians + other.__radians)
@@ -57,7 +61,7 @@ class Point(object):
         return isinstance(other, self.__class__) \
                 and self.__point == other.__point
 
-    def __ne_(self, other):
+    def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
@@ -165,6 +169,9 @@ class LatLon(object):
 
     def __eq__(self, other):
         return isinstance(other, LatLon) and self.__coords == other.__coords
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __hash__(self):
         return hash(self.__coords)
@@ -589,35 +596,29 @@ class LatLonRect(object):
             r = r.union(vertex_cap.get_rect_bound())
         return r
 
-    def contains(self, *args):
-        if isinstance(args[0], Point):
-            point = args[0]
-            return self.contains(LatLon.from_point(point))
-        elif isinstance(args[0], LatLon):
-            ll = args[0]
-            assert ll.is_valid()
-            return (self.lat().contains(ll.lat().radians) and
-                    self.lon().contains(ll.lon().radians))
-        elif isinstance(args[0], self.__class__):
-            other = args[0]
+    def contains(self, other):
+        if isinstance(other, Point):
+            return self.contains(LatLon.from_point(other))
+        elif isinstance(other, LatLon):
+            assert other.is_valid()
+            return (self.lat().contains(other.lat().radians) and
+                    self.lon().contains(other.lon().radians))
+        elif isinstance(other, self.__class__):
             return (self.lat().contains(other.lat()) and
                     self.lon().contains(other.lon()))
-        elif isinstance(args[0], Cell):
-            cell = args[0]
-            return self.contains(cell.get_rect_bound())
+        elif isinstance(other, Cell):
+            return self.contains(other.get_rect_bound())
         else:
             raise NotImplementedError()
 
-    def interior_contains(self, *args):
-        if isinstance(args[0], Point):
-            self.interior_contains(LatLon(args[0]))
-        elif isinstance(args[0], LatLon):
-            ll = args[0]
-            assert ll.is_valid()
-            return (self.lat().interior_contains(ll.lat().radians) and
-                    self.lon().interior_contains(ll.lon().radians))
-        elif isinstance(args[0], self.__class__):
-            other = args[0]
+    def interior_contains(self, other):
+        if isinstance(other, Point):
+            self.interior_contains(LatLon(other))
+        elif isinstance(other, LatLon):
+            assert other.is_valid()
+            return (self.lat().interior_contains(other.lat().radians) and
+                    self.lon().interior_contains(other.lon().radians))
+        elif isinstance(other, self.__class__):
             return (self.lat().interior_contains(other.lat()) and
                     self.lon().interior_contains(other.lon()))
         else:
@@ -840,6 +841,7 @@ _init_lookup_cell(0, 0, 0, INVERT_MASK, 0, INVERT_MASK)
 _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 
 
+@functools.total_ordering
 class CellId(object):
     # projection types
     LINEAR_PROJECTION = 0
@@ -858,14 +860,8 @@ class CellId(object):
 
     WRAP_OFFSET = NUM_FACES << POS_BITS
 
-    def __init__(self, *args, **kwargs):
-        if len(args) == 0:
-            self.__id = int(0)
-        elif len(args) == 1:
-            # modulus to ensure wrap around
-            self.__id = int(args[0]) % 0xffffffffffffffff
-        else:
-            raise ValueError()
+    def __init__(self, id_=0):
+        self.__id = id_ % 0xffffffffffffffff
 
     def __repr__(self):
         return 'CellId: {}'.format(self.id())
@@ -873,12 +869,14 @@ class CellId(object):
     def __hash__(self):
         return hash(self.id())
 
-    def __cmp__(self, other):
-        if not isinstance(other, self.__class__):
-            raise NotImplementedError('Only supports comparison with same '
-                                      'type.')
-        else:
-            return self.id().__cmp__(other.id())
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.id() == other.id()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        return self.id() < other.id()
 
     @classmethod
     def from_lat_lon(cls, ll):
@@ -987,8 +985,8 @@ class CellId(object):
         return self.__id
 
     def is_valid(self):
-        return (self.face() < self.__class__.NUM_FACES) \
-                and (self.lsb() & 0x1555555555555555) != 0
+        return ((self.face() < self.__class__.NUM_FACES) and
+                (self.lsb() & 0x1555555555555555) != 0)
 
     def lsb(self):
         return self.id() & -self.id()
@@ -1225,11 +1223,13 @@ class CellId(object):
                 self.from_face_ij_same(
                     face, i - size, j, i - size >= 0).parent(level))
 
-    ''' Return the neighbors of closest vertex to this cell at the given level.
+    def get_vertex_neighbors(self, level):
+        '''Return the neighbors of closest vertex to this cell at the
+        given level.
+
         Normally there are four neighbors, but the closest vertex may only have
         three neighbors if it is one of the 8 cube vertices.
-    '''
-    def get_vertex_neighbors(self, level):
+        '''
         # "level" must be strictly less than this cell's level so that we can
         # determine which vertex this cell is closest to.
         assert level < self.level()
@@ -1725,6 +1725,9 @@ class LineInterval(Interval):
                 ((self.lo() == other.lo() and self.hi() == other.hi()) or
                 (self.is_empty() and other.is_empty())))
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __hash__(self):
         return hash(self.__bounds)
 
@@ -1816,6 +1819,9 @@ class SphereInterval(Interval):
     def __eq__(self, other):
         return isinstance(other, self.__class__) \
                 and self.lo() == other.lo() and self.hi() == other.hi()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     @classmethod
     def from_point_pair(cls, a, b):
@@ -2293,6 +2299,9 @@ class CellUnion(object):
         return isinstance(other, self.__class__) \
                 and self.__cell_ids == other.__cell_ids
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __hash__(self):
         return hash(self.__cell_ids)
 
@@ -2539,6 +2548,12 @@ class RegionCoverer(object):
         @property
         def num_children(self):
             return len(self.children)
+
+        def __lt__(self, other):
+            if not hasattr(self, 'cell') or \
+               not hasattr(other, 'cell'):
+                raise NotImplementedError()
+            return self.cell.id() < other.cell.id()
 
     def __init__(self):
         self.__min_level = 0
