@@ -873,7 +873,7 @@ class CellId(object):
         return isinstance(other, self.__class__) and self.id() == other.id()
 
     def __ne__(self, other):
-        return not isinstance(other, self.__class__) or self.id() != other.id()
+        return not self.__eq__(other)
 
     def __lt__(self, other):
         return self.id() < other.id()
@@ -1224,8 +1224,9 @@ class CellId(object):
                     face, i - size, j, i - size >= 0).parent(level))
 
     def get_vertex_neighbors(self, level):
-        '''
-        Return the neighbors of closest vertex to this cell at the given level.
+        '''Return the neighbors of closest vertex to this cell at the
+        given level.
+
         Normally there are four neighbors, but the closest vertex may only have
         three neighbors if it is one of the 8 cube vertices.
         '''

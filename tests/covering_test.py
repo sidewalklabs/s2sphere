@@ -17,9 +17,7 @@ class CoveringTest(unittest.TestCase):
                   9291047802178109440,
                   9291051650468806656,
                   9291052200224620544]
-        print('  result: {}'.format(ids))
-        print('expected: {}'.format(target))
-        assert ids == target
+        self.assertEquals(ids, target)
 
 
 if __name__ == '__main__':

@@ -27,6 +27,8 @@ from s2sphere import LineInterval, SphereInterval, LatLonRect
 from s2sphere import RegionCoverer, CellUnion, Cap
 
 
+# Some tests are based on spot checking random cell ids. The following list
+# of 'ITERATIONS' defines how many spot checks are done per test.
 '''
 INVERSE_ITERATIONS = 200000
 TOKEN_ITERATIONS = 10000
@@ -145,12 +147,12 @@ class TestCellId(unittest.TestCase):
         random.seed(20)
 
         if PROFILE:
-            self.pr = cProfile.Profile()
-            self.pr.enable()
+            self.profile = cProfile.Profile()
+            self.profile.enable()
 
     def tearDown(self):
         if hasattr(self, 'pr'):
-            p = Stats(self.pr)
+            p = Stats(self.profile)
             p.strip_dirs()
             p.sort_stats('cumtime')
             p.print_stats()
@@ -289,7 +291,6 @@ class TestCellId(unittest.TestCase):
             CellId.from_face_pos_level(1, 0, CellId.MAX_LEVEL))
 
     def testInverse(self):
-
         for i in xrange(INVERSE_ITERATIONS):
             cell_id = TestCellId.get_random_cell_id(CellId.MAX_LEVEL)
             self.assertTrue(cell_id.is_leaf())
@@ -305,10 +306,8 @@ class TestCellId(unittest.TestCase):
             self.assertEqual(CellId.from_token(token), cell_id)
 
     def expand_cells(self, parent, cells, parent_map):
-        # max_expand_level = 3
-
         cells.append(parent)
-        if parent.level() == 3:
+        if parent.level() == 3:  # max level for expand
             return
 
         face, i, j, orientation = parent.to_face_ij_orientation()
@@ -480,12 +479,12 @@ class TestCell(unittest.TestCase):
         self.level_stats = [LevelStats()] * (CellId.MAX_LEVEL + 1)
 
         if PROFILE:
-            self.pr = cProfile.Profile()
-            self.pr.enable()
+            self.profile = cProfile.Profile()
+            self.profile.enable()
 
     def tearDown(self):
         if hasattr(self, 'pr'):
-            p = Stats(self.pr)
+            p = Stats(self.profile)
             p.strip_dirs()
             p.sort_stats('cumtime')
             p.print_stats()
@@ -2094,7 +2093,6 @@ class TestCellUnion(unittest.TestCase):
         self.assertEqual(0, empty_cell_union.num_cells())
 
         # Denormalize(...)
-        # output = empty_cell_union.denormalize(0, 2)
         self.assertEqual(0, empty_cell_union.num_cells())
 
         # Contains(...)
