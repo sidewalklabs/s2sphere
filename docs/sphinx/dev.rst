@@ -29,7 +29,6 @@ Tests require ``pip install numpy`` and a build of the original C++ library:
     # verify Python bindings
     python -v -c 'import s2'
 
-
 OSX requires extra setup:
 
 .. code-block:: sh
@@ -39,3 +38,27 @@ OSX requires extra setup:
 
     # tell the Python cmake which libraries to use
     cmake -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 .
+
+Then install this module with the dependencies needed for running tests and
+generating docs:
+
+.. code-block:: sh
+
+    pip install -e .[tests,docs]
+
+
+Documentation
+-------------
+
+.. code-block:: sh
+
+    cd docs/sphinx
+    make html
+
+
+Tests
+-----
+
+.. code-block:: sh
+
+    nosetests -vv
