@@ -23,6 +23,10 @@ setup(
         'tests': [
             'nose>=1.3.4',
             'numpy>=1.11.0'
+        ],
+        'docs': [
+            'Sphinx>=1.4.1',
+            'sphinx-rtd-theme>=0.1.9'
         ]
     },
     license='MIT',

@@ -9,7 +9,15 @@ import functools
 import heapq
 
 
+@functools.total_ordering
 class Angle(object):
+    '''An object that represents an angle with convenience methods for
+    converting between degrees and radians.
+
+    :param float radians:
+        angle in radians
+
+    '''
 
     def __init__(self, radians=0):
         if not isinstance(radians, (float, int)):
@@ -23,6 +31,9 @@ class Angle(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __lt__(self, other):
+        return self.__radians < other.__radians
+
     def __add__(self, other):
         return self.__class__.from_radians(self.__radians + other.__radians)
 
@@ -31,6 +42,12 @@ class Angle(object):
 
     @classmethod
     def from_degrees(cls, degrees):
+        '''class generator
+
+        :param float degrees:
+            degrees
+
+        '''
         return cls(math.radians(degrees))
 
     @classmethod
@@ -843,6 +860,8 @@ _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 
 @functools.total_ordering
 class CellId(object):
+    '''S2 cell id'''
+
     # projection types
     LINEAR_PROJECTION = 0
     TAN_PROJECTION = 1
