@@ -21,6 +21,8 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+venv/
+venv3/
 
 # Installer logs
 pip-log.txt
@@ -50,5 +52,5 @@ coverage.xml
 *.pot
 
 # Sphinx documentation
-docs/_build/
+docs/sphinx/_build/
 
