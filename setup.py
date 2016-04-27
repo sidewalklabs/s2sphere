@@ -12,11 +12,11 @@ with open('s2sphere/__init__.py', 'r') as f:
 setup(
     name='s2sphere',
     version=VERSION,
-    description='Python implementation of the amazing S2 Geometry Library',
+    description='Python implementation of the S2 Geometry Library',
     long_description=open('README.rst').read(),
-    author='Jonathan Gillham',
-    author_email='',
-    url='http://github.com/qedus/sphere',
+    author='Jonathan Gillham and contributors',
+    author_email='sven@sidewalklabs.com',
+    url='http://s2sphere.readthedocs.org',
     packages=['s2sphere'],
     install_requires=['future'],
     extras_require={
@@ -32,7 +32,8 @@ setup(
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
-        'Programming Language :: Python :: 33',
-        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 2.7',
     ],
 )
