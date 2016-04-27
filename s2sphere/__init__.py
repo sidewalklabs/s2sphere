@@ -3,4 +3,4 @@
 from __future__ import absolute_import
 from .sphere import *
 
-__version__ = '0.1.2'
+__version__ = '0.1.4'

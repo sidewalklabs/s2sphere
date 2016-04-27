@@ -7,31 +7,36 @@
 s2sphere
 ========
 
-.. image:: https://travis-ci.org/sidewalklabs/sphere.svg?branch=modularize
-    :target: https://travis-ci.org/sidewalklabs/sphere
+.. image:: https://travis-ci.org/sidewalklabs/s2sphere.svg?branch=master
+    :target: https://travis-ci.org/sidewalklabs/s2sphere
 
-Python implementation of a part of the C++ `S2 Geometry Library <https://code.google.com/p/s2-geometry-library/>`_. The S2 Geometry Library is explained in more detail `here <https://docs.google.com/presentation/d/1Hl4KapfAENAOf4gv-pSngKwvS_jwNVHRPZTTDzXXn6Q/view>`_. Install with:
+Python implementation of a part of the C++ `S2 geometry library <https://code.google.com/p/s2-geometry-library/>`_. Install with:
 
 .. code-block:: sh
 
-    pip install s2sphere  # not yet
-    pip install https://github.com/sidewalklabs/sphere/archive/modularize.zip
+    pip install s2sphere
 
-It maps a sphere to a 1D index. This enables scalable proximity searches on distributed indices such as with MongoDB and App Engine Datastore. The test cases of this package are quite extensive and reflect those in the original S2 Geometry Library.
+The S2 geometry library is explained in more detail in
+`this presentation by Octavian Procopiuc <https://docs.google.com/presentation/d/1Hl4KapfAENAOf4gv-pSngKwvS_jwNVHRPZTTDzXXn6Q/view>`_.
+It maps a sphere to a 1D index. This enables scalable proximity searches using
+distributed indices such as with MongoDB and App Engine Datastore. The test
+cases of this package are extensive and reflect those in the original S2
+geometry library.
 
-Documentation: http://s2sphere.readthedocs.org
-
+Links: `Documentation <http://s2sphere.readthedocs.org>`_,
+`GitHub <https://github.com/sidewalklabs/s2sphere>`_,
+`Issue Tracker <https://github.com/sidewalklabs/s2sphere/issues>`_
 
 
 Contents
 --------
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   quickstart
-   api
-   dev
+    quickstart
+    api
+    dev
 
 * :ref:`genindex`
 
