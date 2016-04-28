@@ -13,6 +13,6 @@ Install with:
     pip install s2sphere
 
 
-Links: `Documentation <http://s2sphere.readthedocs.org>`_,
+Links: `Documentation <http://s2sphere.readthedocs.io>`_,
 `GitHub <https://github.com/sidewalklabs/s2sphere>`_,
 `Issue Tracker <https://github.com/sidewalklabs/s2sphere/issues>`_
