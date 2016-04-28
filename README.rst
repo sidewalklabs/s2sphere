@@ -1,6 +1,8 @@
 s2sphere
 ========
 
+.. image:: https://badge.fury.io/py/s2sphere.svg
+    :target: https://pypi.python.org/pypi/s2sphere/
 .. image:: https://travis-ci.org/sidewalklabs/s2sphere.svg?branch=master
     :target: https://travis-ci.org/sidewalklabs/s2sphere
 
