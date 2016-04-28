@@ -16,7 +16,7 @@ setup(
     long_description=open('README.rst').read(),
     author='Jonathan Gillham and contributors',
     author_email='sven@sidewalklabs.com',
-    url='http://s2sphere.readthedocs.org',
+    url='http://s2sphere.readthedocs.io',
     packages=['s2sphere'],
     install_requires=['future'],
     extras_require={
