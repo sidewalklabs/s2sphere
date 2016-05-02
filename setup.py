@@ -21,6 +21,8 @@ setup(
     install_requires=['future'],
     extras_require={
         'tests': [
+            'flake8>=2.5.4',
+            'hacking>=0.11.0',
             'nose>=1.3.4',
             'numpy>=1.11.0'
         ],

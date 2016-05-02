@@ -8,7 +8,7 @@ To develop, clone the repository and include git submodules recursively:
 
 .. code-block:: sh
 
-    git clone --recursive https://github.com/sidewalklabs/sphere
+    git clone --recursive https://github.com/sidewalklabs/s2sphere
 
 Tests require ``pip install numpy`` and a build of the original C++ library:
 
@@ -44,7 +44,12 @@ generating docs:
 
 .. code-block:: sh
 
+    # install
     pip install -e .[tests,docs]
+
+    # run tests without C lib
+    flake8
+    nosetests -vv --exclude=compare_implementations_test
 
 
 Documentation
