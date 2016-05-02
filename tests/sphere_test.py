@@ -1809,7 +1809,7 @@ class TestLatLonRect(unittest.TestCase):
         # This is the leaf cell at the top right hand corner of face 0.
         # It has two angles of 60 degrees and two of 120 degrees.
         cell0tr = Cell.from_point(Point(1 + 1e-12, 1, 1))
-        # bound0tr = cell0tr.get_rect_bound()
+        cell0tr.get_rect_bound()
         v0 = LatLon.from_point(cell0tr.get_vertex_raw(0))
         self.check_cell_ops(self.rect_from_degrees(v0.lat().degrees - 1e-8,
                             v0.lon().degrees - 1e-8,
