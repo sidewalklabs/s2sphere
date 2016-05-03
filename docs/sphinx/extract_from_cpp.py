@@ -1,5 +1,6 @@
 import argparse
 import glob
+import re
 
 
 COMMENT_TAGS = ('//', '/*', ' *')
@@ -10,6 +11,20 @@ class_template = """
 
 {description}
 """
+
+method_template = """
+.. cpp:function:: {name}
+
+{description}
+"""
+
+
+function_re = re.compile(
+    '([A-Z][a-zA-Z0-9]+|int|double|bool|void|const)[\*&]{0,2} '
+    '[a-z_A-Z0-9]+\(.*\).*[;\{]')
+function_re_partial = re.compile(
+    '([A-Z][a-zA-Z0-9]+|int|double|bool|void|const)[\*&]{0,2} '
+    '[a-z_A-Z0-9]+\(')
 
 
 def extract(files, outfile='cpp.rst'):
@@ -36,11 +51,36 @@ extracted from its source code and included here for reference.
 def extract_file(in_file, out_file):
     indent = 0
     cached_lines = []
+    partial_function = ''
+    is_private = False
     for line in in_file:
-        if line.startswith('class') and cached_lines:
+        while (len(line) > 1 and indent and
+               not line.startswith(' ' * indent) and
+               'public:' not in line and
+               'private:' not in line and
+               'protected:' not in line):
+            indent -= 2
+            is_private = False
+        line = line[indent:]
+        if line.startswith(('rivate:', 'rotected:')):
+            is_private = True
+        if line.startswith('ublic:'):
+            is_private = False
+        if is_private:
+            continue
+
+        if line.strip().startswith(COMMENT_TAGS):
+            cached_lines.append(line)
+            continue
+
+        if partial_function:
+            print('function name: {}'.format(partial_function + line.strip()))
+
+        if line.startswith('class') and '{' in line:
             name = line[6:]
+            if '{' in name:
+                name, _, _ = name.partition('{')
             name = name.replace(';', '')
-            name = name.replace('{', '')
             name = name.strip()
             formatter = Formatter(indent)
             txt = class_template.format(
@@ -49,13 +89,45 @@ def extract_file(in_file, out_file):
             )
             out_file.write(' ' * indent +
                            txt.replace('\n', '\n' + ' ' * indent))
-        elif line.startswith('template') and cached_lines:
-            pass
+            indent += 2
+        elif line.startswith('template') and '(' in line:
+            name = line
+            if '{' in name:
+                name, _, _ = name.partition('{')
+            name = name.replace(';', '')
+            name = name.replace('> class ', '> ')
+            name = name.strip()
+            formatter = Formatter(indent)
+            txt = class_template.format(
+                name=name,
+                description=formatter.comment(cached_lines),
+            )
+            out_file.write(' ' * indent +
+                           txt.replace('\n', '\n' + ' ' * indent))
+            indent += 2
+        elif function_re.search(partial_function + line.strip()) is not None:
+            name = partial_function + line.strip()
+            if '//' in name:
+                name, _, comment = name.partition('//')
+                cached_lines.append('// ' + comment)
+            if '{' in name:
+                name, _, _ = name.partition('{')
+            name = name.replace(';', '')
+            name = name.strip()
+            formatter = Formatter(indent)
+            txt = method_template.format(
+                name=name,
+                description=formatter.comment(cached_lines),
+            )
+            out_file.write(' ' * indent +
+                           txt.replace('\n', '\n' + ' ' * indent))
+        elif function_re_partial.search(line) is not None:
+            partial_function = line.replace('\n', ' ')
+            continue
 
-        if line and not line.startswith(COMMENT_TAGS):
+        partial_function = ''
+        if line:
             cached_lines = []
-        if line.startswith(COMMENT_TAGS):
-            cached_lines.append(line)
 
 
 class Formatter(object):
@@ -83,12 +155,16 @@ class Formatter(object):
 
             # whitelist lists
             if inside_list:
-                if l.startswith(' ') or len(l) <= 1 or '. ' in l[:5]:
+                if l.startswith(' ') or len(l) <= 1 or \
+                   '. ' in l[:5] or ') ' in l[:5]:
                     continue
                 else:
                     inside_list = False
-            if l.startswith((' -', '-', ' 1.', '1.')):
+                    processed.insert(-1, '\n')
+            if l.startswith((' -', '-', ' 1.', '1.', ' (1)', '(1)')):
                 inside_list = True
+                if len(processed) > 1 and len(processed[-2]) > 1:
+                    processed.insert(-1, '\n')
                 continue
 
             if inside_block:
@@ -96,10 +172,12 @@ class Formatter(object):
                     pass
                 else:
                     inside_block = False
-            elif l.startswith('  ') or (l.endswith(';\n') and
-                                        processed[-3].endswith(':\n')):
+                    processed.insert(-1, '\n')
+            elif (l.startswith('  ') or (l.endswith(';\n') and
+                                         processed[-3].endswith(':\n')) or
+                  (l.startswith(' ') and l.endswith(';\n'))):
                 inside_block = True
-                if len(processed[-2]) > 1:
+                if len(processed) > 1 and len(processed[-2]) > 1:
                     processed.insert(-1, '\n')
                 processed.insert(-1, '.. code-block:: cpp\n')
                 processed.insert(-1, '\n')
@@ -110,8 +188,12 @@ class Formatter(object):
 
         return processed
 
+    def remove_rst_formatting(self, lines):
+        return [l for l in lines if not all(c == '-' for c in l[:-1])]
+
     def comment(self, lines):
         processed = [self.strip(l) for l in lines]
+        processed = self.remove_rst_formatting(processed)
         processed = self.detect_block(processed)
         return ''.join((' ' * 2) + l for l in processed)
 
