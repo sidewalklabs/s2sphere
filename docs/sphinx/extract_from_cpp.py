@@ -108,12 +108,13 @@ def extract_file(in_file, out_file):
             out_file.write(' ' * indent +
                            txt.replace('\n', '\n' + ' ' * indent))
             indent += 2
-        elif line.startswith('template') and '(' in line:
+        elif line.startswith('template') and ('(' in line or '{' in line):
             name = line
             if '{' in name:
                 name, _, _ = name.partition('{')
             name = name.replace(';', '')
             name = name.replace('> class ', '> ')
+            name = name.replace('> struct ', '> ')
             name = name.strip()
             formatter = Formatter(indent)
             txt = class_template.format(

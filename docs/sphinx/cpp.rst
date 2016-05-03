@@ -442,6 +442,10 @@ extracted from its source code and included here for reference.
   arithmetic expressions (e.g. (1-x)*p1 + x*p2).
 
 
+.. cpp:class:: template<> hash<S2Point>
+
+
+
 .. cpp:class:: S2
 
   The S2 class is simply a namespace for constants and static utility
@@ -772,55 +776,59 @@ extracted from its source code and included here for reference.
   
   
     
-  .. cpp:function:: double deriv() const
+  .. cpp:class:: template <int dim> Metric
   
-    .. code-block:: cpp
+    S2Cell Metrics 
+    The following are various constants that describe the shapes and sizes of
+    cells.  They are useful for deciding which cell level to use in order to
+    satisfy a given condition (e.g. that cell vertices must be no further
+    than "x" apart).  All of the raw constants are differential quantities;
+    you can use the GetValue(level) method to compute the corresponding length
+    or area on the unit sphere for cells at a given level.  The minimum and
+    maximum bounds are valid for cells at all levels, but they may be
+    somewhat conservative for very large cells (e.g. face cells).
+    Defines a cell metric of the given dimension (1 == length, 2 == area).
+  
+      
+    .. cpp:function:: double deriv() const
     
       The "deriv" value of a metric is a derivative, and must be multiplied by
       a length or area in (s,t)-space to get a useful value.
-  
     
-  .. cpp:function:: double GetValue(int level) const
-  
-    .. code-block:: cpp
+        
+    .. cpp:function:: double GetValue(int level) const
     
       Return the value of a metric for cells at the given level. The value is
       either a length or an area on the unit sphere, depending on the
       particular metric.
-  
     
-  .. cpp:function:: int GetClosestLevel(double value) const
-  
-    .. code-block:: cpp
+        
+    .. cpp:function:: int GetClosestLevel(double value) const
     
       Return the level at which the metric has approximately the given
       value.  For example, S2::kAvgEdge.GetClosestLevel(0.1) returns the
       level at which the average cell edge length is approximately 0.1.
       The return value is always a valid level.
-  
     
-  .. cpp:function:: int GetMinLevel(double value) const
-  
-    .. code-block:: cpp
+        
+    .. cpp:function:: int GetMinLevel(double value) const
     
       Return the minimum level such that the metric is at most the given
       value, or S2CellId::kMaxLevel if there is no such level.  For example,
       S2::kMaxDiag.GetMinLevel(0.1) returns the minimum level such that all
       cell diagonal lengths are 0.1 or smaller.  The return value is always a
       valid level.
-  
     
-  .. cpp:function:: int GetMaxLevel(double value) const
-  
-    .. code-block:: cpp
+        
+    .. cpp:function:: int GetMaxLevel(double value) const
     
       Return the maximum level such that the metric is at least the given
       value, or zero if there is no such level.  For example,
       S2::kMinWidth.GetMaxLevel(0.1) returns the maximum level such that all
       cells have a minimum width of 0.1 or larger.  The return value is
       always a valid level.
-  
     
+      
   .. cpp:type:: Metric<1> LengthMetric
   
   
@@ -1480,6 +1488,10 @@ extracted from its source code and included here for reference.
     also return the Hilbert curve orientation for the current cell.
   
   
+.. cpp:class:: template<> hash<S2CellId>
+
+
+
 .. cpp:class:: S2CellUnion : public S2Region
 
   An S2CellUnion is a region consisting of cells of various sizes.  Typically

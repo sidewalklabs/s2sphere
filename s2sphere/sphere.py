@@ -66,6 +66,11 @@ class Angle(object):
 
 
 class Point(object):
+    '''A point in 3d Euclidean space.
+
+    "Normalized" points are points on the unit sphere.
+    This mimics the behavior of the original :cpp:type:`S2Point`.
+    '''
 
     def __init__(self, x, y, z):
         self.__point = (x, y, z)
@@ -157,6 +162,10 @@ class Point(object):
 
 
 class LatLon(object):
+    '''A point on a sphere in latitute-longitude coordinates.
+
+    The corresponds to the original :cpp:class:`S2LatLng`.
+    '''
 
     @classmethod
     def from_degrees(cls, lat, lon):
@@ -269,6 +278,10 @@ class LatLon(object):
 
 
 class Cap(object):
+    '''A spherical cap, which is a portion of a sphere cut off by a plane.
+
+    This mimics the original :cpp:class:`S2Cap` class.
+    '''
 
     ROUND_UP = 1.0 + 1.0 / (1 << 52)
 
@@ -483,6 +496,10 @@ class Cap(object):
 
 
 class LatLonRect(object):
+    '''A rectangle in latitude-longitude space.
+
+    This class mimics the original :cpp:class:`S2LatLngRect` class.
+    '''
 
     def __init__(self, *args):
         if len(args) == 0:
@@ -860,7 +877,10 @@ _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 
 @functools.total_ordering
 class CellId(object):
-    '''S2 cell id'''
+    '''S2 cell id
+
+    Mimics the original :cpp:class:`S2CellId` class.
+    '''
 
     # projection types
     LINEAR_PROJECTION = 0
@@ -1428,6 +1448,11 @@ class CellId(object):
 
 
 class Metric(object):
+    '''Metric
+
+    Mimics the original :cpp:class:`S2::Metric` class.
+    '''
+
     def __init__(self, deriv, dim):
         self.__deriv = deriv
         self.__dim = dim
@@ -1456,23 +1481,30 @@ class Metric(object):
 
 
 class LengthMetric(Metric):
+    '''Length metric. A 1D specialization of :class:`s2sphere.Metric`.
+
+    Mimics the original :cpp:class:`S2::LengthMetric`.
+    '''
     def __init__(self, deriv):
         super(LengthMetric, self).__init__(deriv, 1)
 
 
 class AreaMetric(Metric):
+    '''Area metric. A 2D specialization of :class:`s2sphere.Metric`.
+
+    Mimics the original :cpp:class:`S2::AreaMetric`.
+    '''
     def __init__(self, deriv):
         super(AreaMetric, self).__init__(deriv, 2)
 
 
-# like fmod but rounds to nearest integer instead of floor
 def drem(x, y):
+    '''Like fmod but rounds to nearest integer instead of floor.'''
     xd = decimal.Decimal(x)
     yd = decimal.Decimal(y)
     return float(xd.remainder_near(yd))
 
 
-# functions originally in S2 source file
 def valid_face_xyz_to_uv(face, p):
     assert p.dot_prod(face_uv_to_xyz(face, 0, 0)) > 0
     if face == 0:
@@ -1498,6 +1530,10 @@ def xyz_to_face_uv(p):
 
 
 def face_xyz_to_uv(face, p):
+    '''XYZ to UV
+
+    see :cpp:func:`S2::FaceXYZtoUV`
+    '''
     if face < 3:
         if p[face] <= 0:
             return False, 0, 0
