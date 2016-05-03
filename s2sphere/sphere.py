@@ -14,6 +14,7 @@ class Angle(object):
     '''A one-dimensional angle (as opposed to a two-dimensional solid angle).
 
     It has methods for converting angles to or from radians and degrees.
+    This mimics the behavior of the original :cpp:class:`S1Angle` class.
 
     :param float radians:
         angle in radians

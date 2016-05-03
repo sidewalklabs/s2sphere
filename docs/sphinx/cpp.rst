@@ -433,6 +433,15 @@ extracted from its source code and included here for reference.
     intervals is at most the given tolerance.
   
   
+.. cpp:type:: Vector3_d S2Point
+
+  An S2Point represents a point on the unit sphere as a 3D vector.  Usually
+  points are normalized to be unit length, but some methods do not require
+  this.  See util/math/vector3-inl.h for the methods available.  Among other
+  things, there are overloaded operators that make it convenient to write
+  arithmetic expressions (e.g. (1-x)*p1 + x*p2).
+
+
 .. cpp:class:: S2
 
   The S2 class is simply a namespace for constants and static utility
@@ -810,6 +819,14 @@ extracted from its source code and included here for reference.
       S2::kMinWidth.GetMaxLevel(0.1) returns the maximum level such that all
       cells have a minimum width of 0.1 or larger.  The return value is
       always a valid level.
+  
+    
+  .. cpp:type:: Metric<1> LengthMetric
+  
+  
+    
+  .. cpp:type:: Metric<2> AreaMetric
+  
   
   
 .. cpp:class:: S2Cap : public S2Region
@@ -3237,6 +3254,11 @@ extracted from its source code and included here for reference.
     This method does not take ownership of the polygon.
   
     
+  .. cpp:type:: vector<pair<S2Point, S2Point> > EdgeList
+  
+    This type is used to return any edges that could not be assembled.
+  
+    
   .. cpp:function:: bool AssembleLoops(vector<S2Loop*>* loops, EdgeList* unused_edges)
   
     Assembles the given edges into as many non-crossing loops as possible.
@@ -3466,6 +3488,11 @@ extracted from its source code and included here for reference.
   
   
   
+.. cpp:type:: Vector2_d R2Point
+
+  TODO: Create an r2.h and move this definition into it.
+
+
 .. cpp:class:: S2R2Rect : public S2Region
 
   This class is a stopgap measure that allows some of the S2 spherical

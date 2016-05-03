@@ -18,6 +18,12 @@ method_template = """
 {description}
 """
 
+type_template = """
+.. cpp:type:: {name}
+
+{description}
+"""
+
 
 function_re = re.compile(
     '([A-Z][a-zA-Z0-9]+|int|double|bool|void|const)[\*&]{0,2} '
@@ -84,6 +90,18 @@ def extract_file(in_file, out_file):
             name = name.strip()
             formatter = Formatter(indent)
             txt = class_template.format(
+                name=name,
+                description=formatter.comment(cached_lines),
+            )
+            out_file.write(' ' * indent +
+                           txt.replace('\n', '\n' + ' ' * indent))
+            indent += 2
+        elif line.startswith('typedef') and line.endswith(';\n'):
+            name = line[8:]
+            name = name.replace(';', '')
+            name = name.strip()
+            formatter = Formatter(indent)
+            txt = type_template.format(
                 name=name,
                 description=formatter.comment(cached_lines),
             )
