@@ -3,17 +3,17 @@ from future.builtins import int
 from future.builtins import range
 
 import bisect
-import math
 import decimal
 import functools
 import heapq
+import math
 
 
 @functools.total_ordering
 class Angle(object):
-    '''This class represents a one-dimensional angle (as opposed to a
-    two-dimensional solid angle).  It has methods for converting angles to
-    or from radians and degrees.
+    '''A one-dimensional angle (as opposed to a two-dimensional solid angle).
+
+    It has methods for converting angles to or from radians and degrees.
 
     :param float radians:
         angle in radians
@@ -26,8 +26,8 @@ class Angle(object):
         self.__radians = radians
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) \
-                and self.__radians == other.__radians
+        return (isinstance(other, self.__class__) and
+                self.__radians == other.__radians)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -76,8 +76,8 @@ class Point(object):
         return self.__class__(-self[0], -self[1], -self[2])
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) \
-                and self.__point == other.__point
+        return (isinstance(other, self.__class__) and
+                self.__point == other.__point)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -229,8 +229,8 @@ class LatLon(object):
         return Angle.from_radians(self.__coords[1])
 
     def is_valid(self):
-        return abs(self.lat().radians) <= (math.pi / 2) \
-                and abs(self.lon().radians) <= math.pi
+        return (abs(self.lat().radians) <= (math.pi / 2) and
+                abs(self.lon().radians) <= math.pi)
 
     def to_point(self):
         phi = self.lat().radians
@@ -498,8 +498,8 @@ class LatLonRect(object):
             raise NotImplementedError()
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) \
-                and self.lat() == other.lat() and self.lon() == other.lon()
+        return (isinstance(other, self.__class__) and
+                self.lat() == other.lat() and self.lon() == other.lon())
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -575,10 +575,10 @@ class LatLonRect(object):
         return self.lat() == self.__class__.full_lat() and self.lon().is_full()
 
     def is_valid(self):
-        return math.fabs(self.lat().lo()) <= math.pi / 2.0 \
-                and math.fabs(self.lat().hi()) <= math.pi / 2.0 \
-                and self.lon().is_valid() \
-                and self.lat().is_empty() == self.lon().is_empty()
+        return (math.fabs(self.lat().lo()) <= math.pi / 2.0 and
+                math.fabs(self.lat().hi()) <= math.pi / 2.0 and
+                self.lon().is_valid() and
+                self.lat().is_empty() == self.lon().is_empty())
 
     @classmethod
     def empty(cls):
@@ -601,8 +601,8 @@ class LatLonRect(object):
         return self.lat().is_empty()
 
     def is_point(self):
-        return self.lat().lo() == self.lat().hi() \
-                and self.lon().lo() == self.lon().hi()
+        return (self.lat().lo() == self.lat().hi() and
+                self.lon().lo() == self.lon().hi())
 
     def convolve_with_cap(self, angle):
         cap = Cap.from_axis_angle(Point(1, 0, 0), angle)
@@ -673,8 +673,9 @@ class LatLonRect(object):
 
             for i in range(4):
                 edge_lon = SphereInterval.from_point_pair(
-                        cell_ll[i].lon().radians,
-                        cell_ll[(i + 1) & 3].lon().radians)
+                    cell_ll[i].lon().radians,
+                    cell_ll[(i + 1) & 3].lon().radians,
+                )
                 if not self.lon().intersects(edge_lon):
                     continue
 
@@ -683,24 +684,20 @@ class LatLonRect(object):
                 if edge_lon.contains(self.lon().lo()):
                     if self.__class__.intersects_lon_edge(
                             a, b,
-                            self.lat(), self.lon().lo(),
-                            ):
+                            self.lat(), self.lon().lo()):
                         return True
                 if edge_lon.contains(self.lon().hi()):
                     if self.__class__.intersects_lon_edge(
                             a, b,
-                            self.lat(), self.lon().hi(),
-                            ):
+                            self.lat(), self.lon().hi()):
                         return True
                 if self.__class__.intersects_lat_edge(
                         a, b,
-                        self.lat().lo(), self.lon(),
-                        ):
+                        self.lat().lo(), self.lon()):
                     return True
                 if self.__class__.intersects_lat_edge(
                         a, b,
-                        self.lat().hi(), self.lon(),
-                        ):
+                        self.lat().hi(), self.lon()):
                     return True
             return False
         else:
@@ -738,8 +735,9 @@ class LatLonRect(object):
         theta = math.atan2(sin_theta, cos_theta)
 
         ab_theta = SphereInterval.from_point_pair(
-                math.atan2(a.dot_prod(y), a.dot_prod(x)),
-                math.atan2(b.dot_prod(y), b.dot_prod(x)))
+            math.atan2(a.dot_prod(y), a.dot_prod(x)),
+            math.atan2(b.dot_prod(y), b.dot_prod(x)),
+        )
 
         if ab_theta.contains(theta):
             isect = x * cos_theta + y * sin_theta
@@ -791,8 +789,8 @@ class LatLonRect(object):
         )
 
     def approx_equals(self, other, max_error=1e-15):
-        return self.lat().approx_equals(other.lat(), max_error) \
-                and self.lon().approx_equals(other.lon(), max_error)
+        return (self.lat().approx_equals(other.lat(), max_error) and
+                self.lon().approx_equals(other.lon(), max_error))
 
     def get_cap_bound(self):
         if self.is_empty():
@@ -1160,8 +1158,8 @@ class CellId(object):
             if steps < min_steps:
                 steps = min_steps
         else:
-            max_steps = (self.__class__.WRAP_OFFSET + self.lsb() - self.id()) \
-                    >> step_shift
+            max_steps = (self.__class__.WRAP_OFFSET +
+                         self.lsb() - self.id()) >> step_shift
             if steps > max_steps:
                 steps = max_steps
 
@@ -1232,20 +1230,19 @@ class CellId(object):
         size = self.get_size_ij(level)
         face, i, j, orientation = self.to_face_ij_orientation()
 
-        return (self.from_face_ij_same(
-                    face, i, j - size, j - size >= 0).parent(level),
-                self.from_face_ij_same(
-                    face, i + size, j,
-                    i + size < self.__class__.MAX_SIZE).parent(level),
-                self.from_face_ij_same(
-                    face, i, j + size,
-                    j + size < self.__class__.MAX_SIZE).parent(level),
-                self.from_face_ij_same(
-                    face, i - size, j, i - size >= 0).parent(level))
+        return (self.from_face_ij_same(face, i, j - size, j - size >= 0)
+                .parent(level),
+                self.from_face_ij_same(face, i + size, j,
+                                       i + size < self.__class__.MAX_SIZE
+                                       ).parent(level),
+                self.from_face_ij_same(face, i, j + size,
+                                       j + size < self.__class__.MAX_SIZE
+                                       ).parent(level),
+                self.from_face_ij_same(face, i - size, j, i - size >= 0)
+                .parent(level))
 
     def get_vertex_neighbors(self, level):
-        '''Return the neighbors of closest vertex to this cell at the
-        given level.
+        '''Return the neighbors of closest vertex to this cell.
 
         Normally there are four neighbors, but the closest vertex may only have
         three neighbors if it is one of the 8 cube vertices.
@@ -1719,7 +1716,7 @@ class Interval(object):
 
     def __repr__(self):
         return '{}: ({}, {})'.format(
-                self.__class__.__name__, self.__bounds[0], self.__bounds[1])
+            self.__class__.__name__, self.__bounds[0], self.__bounds[1])
 
     def lo(self):
         return self.__bounds[0]
@@ -1784,8 +1781,8 @@ class LineInterval(Interval):
             return self.lo() <= other.hi() and self.lo() <= self.hi()
 
     def interior_intersects(self, other):
-        return other.lo() < self.hi() and self.lo() < other.hi() \
-                and self.lo() < self.hi() and other.lo() <= other.hi()
+        return (other.lo() < self.hi() and self.lo() < other.hi() and
+                self.lo() < self.hi() and other.lo() <= other.hi())
 
     def union(self, other):
         if self.is_empty():
@@ -1840,8 +1837,8 @@ class SphereInterval(Interval):
         assert self.is_valid()
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) \
-                and self.lo() == other.lo() and self.hi() == other.hi()
+        return (isinstance(other, self.__class__) and
+                self.lo() == other.lo() and self.hi() == other.hi())
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1874,10 +1871,10 @@ class SphereInterval(Interval):
         return (self.hi() - self.lo()) == (2 * math.pi)
 
     def is_valid(self):
-        return math.fabs(self.lo()) <= math.pi \
-                and math.fabs(self.hi()) <= math.pi \
-                and not (self.lo() == -math.pi and self.hi() != math.pi) \
-                and not (self.hi() == -math.pi and self.lo() != math.pi)
+        return (math.fabs(self.lo()) <= math.pi and
+                math.fabs(self.hi()) <= math.pi and
+                not (self.lo() == -math.pi and self.hi() != math.pi) and
+                not (self.hi() == -math.pi and self.lo() != math.pi))
 
     def is_inverted(self):
         return self.lo() > self.hi()
@@ -1925,8 +1922,8 @@ class SphereInterval(Interval):
 
     def fast_contains(self, other):
         if self.is_inverted():
-            return (other >= self.lo() or other <= self.hi()) \
-                    and not self.is_empty()
+            return ((other >= self.lo() or other <= self.hi()) and
+                    not self.is_empty())
         else:
             return other >= self.lo() and other <= self.hi()
 
@@ -1969,15 +1966,15 @@ class SphereInterval(Interval):
             if self.is_inverted():
                 return other > self.lo() or other < self.hi()
             else:
-                return (other > self.lo() and other < self.hi()) \
-                        or self.is_full()
+                return ((other > self.lo() and other < self.hi()) or
+                        self.is_full())
 
     def intersects(self, other):
         if self.is_empty() or other.is_empty():
             return False
         if self.is_inverted():
-            return other.is_inverted() or other.lo() <= self.hi() \
-                    or other.hi() >= self.lo()
+            return (other.is_inverted() or other.lo() <= self.hi() or
+                    other.hi() >= self.lo())
         else:
             if other.is_inverted():
                 return other.lo() <= self.hi() or other.hi() >= self.lo()
@@ -1987,8 +1984,8 @@ class SphereInterval(Interval):
         if self.is_empty() or other.is_empty() or self.lo() == self.hi():
             return False
         if self.is_inverted():
-            return other.is_inverted() or other.lo() < self.hi() \
-                    or other.hi() > self.lo()
+            return (other.is_inverted() or other.lo() < self.hi() or
+                    other.hi() > self.lo())
         else:
             if other.is_inverted():
                 return other.lo() < self.hi() or other.hi() > self.lo()
@@ -2104,9 +2101,9 @@ class Cell(object):
                 ij_lo = ij[d] & -cell_size
                 ij_hi = ij_lo + cell_size
                 self.__uv[d][0] = CellId.st_to_uv(
-                        (1.0 / CellId.MAX_SIZE) * ij_lo)
+                    (1.0 / CellId.MAX_SIZE) * ij_lo)
                 self.__uv[d][1] = CellId.st_to_uv(
-                        (1.0 / CellId.MAX_SIZE) * ij_hi)
+                    (1.0 / CellId.MAX_SIZE) * ij_hi)
 
     @classmethod
     def from_lat_lon(cls, lat_lon):
@@ -2118,8 +2115,8 @@ class Cell(object):
 
     def __repr__(self):
         return '{}: face {}, level {}, orientation {}, id {}'.format(
-                self.__class__.__name__, self.__face, self.__level,
-                self.orientation(), self.__cell_id.id())
+            self.__class__.__name__, self.__face, self.__level,
+            self.orientation(), self.__cell_id.id())
 
     @classmethod
     def from_face_pos_level(cls, face, pos, level):
@@ -2189,8 +2186,8 @@ class Cell(object):
                      .cross_prod(self.get_vertex(3) - self.get_vertex(1))
                      .norm())
 
-        return flat_area * 2 / (1 + math.sqrt(1 - min(
-                    (1.0 / math.pi) * flat_area, 1.0)))
+        return (flat_area * 2 /
+                (1 + math.sqrt(1 - min((1.0 / math.pi) * flat_area, 1.0))))
 
     def subdivide(self):
         uv_mid = self.__cell_id.get_center_uv()
@@ -2246,7 +2243,7 @@ class Cell(object):
         u = 0.5 * (self.__uv[0][0] + self.__uv[0][1])
         v = 0.5 * (self.__uv[1][0] + self.__uv[1][1])
         cap = Cap.from_axis_height(
-                face_uv_to_xyz(self.__face, u, v).normalize(), 0)
+            face_uv_to_xyz(self.__face, u, v).normalize(), 0)
         for k in range(4):
             cap.add_point(self.get_vertex(k))
         return cap
@@ -2281,28 +2278,28 @@ class Cell(object):
 
         if self.__face == 0:
             return LatLonRect(
-                    LineInterval(-math.pi / 4.0, math.pi / 4.0),
-                    SphereInterval(-math.pi / 4.0, math.pi / 4.0))
+                LineInterval(-math.pi / 4.0, math.pi / 4.0),
+                SphereInterval(-math.pi / 4.0, math.pi / 4.0))
         elif self.__face == 1:
             return LatLonRect(
-                    LineInterval(-math.pi / 4.0, math.pi / 4.0),
-                    SphereInterval(math.pi / 4.0, 3.0 * math.pi / 4.0))
+                LineInterval(-math.pi / 4.0, math.pi / 4.0),
+                SphereInterval(math.pi / 4.0, 3.0 * math.pi / 4.0))
         elif self.__face == 2:
             return LatLonRect(
-                    LineInterval(pole_min_lat, math.pi / 2.0),
-                    SphereInterval(-math.pi, math.pi))
+                LineInterval(pole_min_lat, math.pi / 2.0),
+                SphereInterval(-math.pi, math.pi))
         elif self.__face == 3:
             return LatLonRect(
-                    LineInterval(-math.pi / 4.0, math.pi / 4.0),
-                    SphereInterval(3.0 * math.pi / 4.0, -3.0 * math.pi / 4.0))
+                LineInterval(-math.pi / 4.0, math.pi / 4.0),
+                SphereInterval(3.0 * math.pi / 4.0, -3.0 * math.pi / 4.0))
         elif self.__face == 4:
             return LatLonRect(
-                    LineInterval(-math.pi / 4.0, math.pi / 4.0),
-                    SphereInterval(-3.0 * math.pi / 4.0, -math.pi / 4.0))
+                LineInterval(-math.pi / 4.0, math.pi / 4.0),
+                SphereInterval(-3.0 * math.pi / 4.0, -math.pi / 4.0))
         else:
             return LatLonRect(
-                    LineInterval(-math.pi / 2.0, -pole_min_lat),
-                    SphereInterval(-math.pi, math.pi))
+                LineInterval(-math.pi / 2.0, -pole_min_lat),
+                SphereInterval(-math.pi, math.pi))
 
 
 class CellUnion(object):
@@ -2319,8 +2316,8 @@ class CellUnion(object):
                 self.normalize()
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) \
-                and self.__cell_ids == other.__cell_ids
+        return (isinstance(other, self.__class__) and
+                self.__cell_ids == other.__cell_ids)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -2417,8 +2414,7 @@ class CellUnion(object):
             for cell_id in self.__cell_ids:
                 min_level = min(min_level, cell_id.level())
 
-            radius_level = CellId.min_width().get_max_level(
-                                    min_radius.radians)
+            radius_level = CellId.min_width().get_max_level(min_radius.radians)
             if radius_level == 0 \
                     and min_radius.radians > CellId.min_width().get_value(0):
                 self.expand(0)
@@ -2503,8 +2499,8 @@ class CellUnion(object):
             level = cell_id.level()
             new_level = max(min_level, level)
             if level_mod > 1:
-                new_level += (CellId.MAX_LEVEL - (new_level - min_level)) \
-                                % level_mod
+                new_level += ((CellId.MAX_LEVEL - (new_level - min_level)) %
+                              level_mod)
                 new_level = min(CellId.MAX_LEVEL, new_level)
             if new_level == level:
                 cell_ids.append(cell_id)

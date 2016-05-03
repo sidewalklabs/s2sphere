@@ -1,8 +1,8 @@
 from __future__ import print_function, unicode_literals, division
 
-import unittest
 import math
 import random
+import unittest
 
 import numpy as np
 
@@ -18,8 +18,8 @@ try:
 except NameError:
     xrange = range
 
-from pstats import Stats
 import cProfile
+from pstats import Stats
 
 import s2sphere
 from s2sphere import Angle, CellId, LatLon, Point, Cell
@@ -107,16 +107,16 @@ class TestLatLon(unittest.TestCase):
 
     def testConversion(self):
         self.assertEqual(LatLon.from_point(LatLon.from_degrees(
-                        90.0, 65.0).to_point()).lat().degrees, 90.0)
+            90.0, 65.0).to_point()).lat().degrees, 90.0)
 
         self.assertEqual(LatLon.from_point(LatLon.from_radians(
-                    -math.pi / 2, 1).to_point()).lat().radians, -math.pi / 2)
+            -math.pi / 2, 1).to_point()).lat().radians, -math.pi / 2)
 
         self.assertEqual(abs(LatLon.from_point(LatLon.from_degrees(
-                        12.2, 180.0).to_point()).lon().degrees), 180.0)
+            12.2, 180.0).to_point()).lon().degrees), 180.0)
 
         self.assertEqual(abs(LatLon.from_point(LatLon.from_radians(
-                        0.1, -math.pi).to_point()).lon().radians), math.pi)
+            0.1, -math.pi).to_point()).lon().radians), math.pi)
 
     def testDistance(self):
         self.assertEqual(
@@ -244,8 +244,8 @@ class TestCellId(unittest.TestCase):
                          CellId.begin(4))
 
         self.assertEqual(CellId.end(
-                    CellId.MAX_LEVEL).advance(-1).advance_wrap(1),
-                CellId.from_face_pos_level(0, 0, CellId.MAX_LEVEL))
+            CellId.MAX_LEVEL).advance(-1).advance_wrap(1),
+            CellId.from_face_pos_level(0, 0, CellId.MAX_LEVEL))
 
         self.assertEqual(CellId.end(4).prev().next_wrap(), CellId.begin(4))
 
@@ -378,9 +378,9 @@ class TestCellId(unittest.TestCase):
             # in (s,t) coordinates.
             face, u, v = s2sphere.xyz_to_face_uv(cell_id.to_point_raw())
             self.assertAlmostEqual(
-                    CellId.uv_to_st(u) % (0.5 * cell_size), 0, delta=1-15)
+                CellId.uv_to_st(u) % (0.5 * cell_size), 0, delta=1e-15)
             self.assertAlmostEqual(
-                    CellId.uv_to_st(v) % (0.5 * cell_size), 0, delta=1-15)
+                CellId.uv_to_st(v) % (0.5 * cell_size), 0, delta=1e-15)
 
             cell_id = cell_id.next()
 
@@ -551,7 +551,7 @@ class TestCell(unittest.TestCase):
 
         for i in range(4):
             edge = cell.get_vertex_raw(i).angle(
-                    cell.get_vertex_raw((i + 1) & 3))
+                cell.get_vertex_raw((i + 1) & 3))
             min_edge = min(edge, min_edge)
             max_edge = max(edge, max_edge)
             # this could be wrong
@@ -565,7 +565,7 @@ class TestCell(unittest.TestCase):
                 min_diag = min(diag, min_diag)
                 max_diag = max(diag, max_diag)
                 angle_span = cell.get_edge_raw(i).angle(
-                        -cell.get_edge_raw(i ^ 2))
+                    -cell.get_edge_raw(i ^ 2))
                 min_angle_span = min(angle_span, min_angle_span)
                 max_angle_span = max(angle_span, max_angle_span)
 
@@ -610,7 +610,7 @@ class TestCell(unittest.TestCase):
             average_area += child.average_area()
             self.assertEqual(child.id(), child_id)
             self.assertLess(
-                    child.get_center().angle(child_id.to_point()), 1e-15)
+                child.get_center().angle(child_id.to_point()), 1e-15)
 
             direct = Cell(child_id)
             self.assertEqual(direct.face(), child.face())
@@ -635,7 +635,7 @@ class TestCell(unittest.TestCase):
                 if i != j:
                     # cannot get to pass test
                     self.assertFalse(
-                           child.contains(children[j].get_center_raw()))
+                        child.contains(children[j].get_center_raw()))
                     self.assertFalse(child.may_intersect(children[j]))
 
             # Test get_cap_bound and get_rect_bound
@@ -696,14 +696,14 @@ class TestCell(unittest.TestCase):
                 self.check_subdivide(children[i])
 
         self.assertLessEqual(
-                math.fabs(math.log(exact_area / cell.exact_area())),
-                math.fabs(math.log(1 + 1e-6)))
+            math.fabs(math.log(exact_area / cell.exact_area())),
+            math.fabs(math.log(1 + 1e-6)))
         self.assertLessEqual(
-                math.fabs(math.log(approx_area / cell.approx_area())),
-                math.fabs(math.log(1.03)))
+            math.fabs(math.log(approx_area / cell.approx_area())),
+            math.fabs(math.log(1.03)))
         self.assertLessEqual(
-                math.fabs(math.log(average_area / cell.average_area())),
-                math.fabs(math.log(1 + 1e-15)))
+            math.fabs(math.log(average_area / cell.average_area())),
+            math.fabs(math.log(1 + 1e-15)))
 
     def testSubdivide(self):
         for face in range(6):
@@ -785,9 +785,9 @@ class TestLineInterval(unittest.TestCase):
         self.assertEqual(LineInterval(99, 100),
                          empty.union(LineInterval(99, 100)))
         self.assertTrue(
-                LineInterval(5, 3).union(LineInterval(0, -2).is_empty()))
+            LineInterval(5, 3).union(LineInterval(0, -2).is_empty()))
         self.assertTrue(
-                LineInterval(0, -2).union(LineInterval(5, 3)).is_empty())
+            LineInterval(0, -2).union(LineInterval(5, 3)).is_empty())
         self.assertEqual(unit, unit.union(unit))
         self.assertEqual(LineInterval(-1, 1), unit.union(negunit))
         self.assertEqual(LineInterval(-1, 1), negunit.union(unit))
@@ -1180,7 +1180,7 @@ class TestSphereInterval(unittest.TestCase):
         self.assertEqual(SphereInterval.from_point_pair(math.pi, -math.pi),
                          self.pi)
         self.assertEqual(SphereInterval.from_point_pair(
-                self.mid34.hi(), self.mid34.lo()), self.mid34)
+            self.mid34.hi(), self.mid34.lo()), self.mid34)
         self.assertEqual(SphereInterval.from_point_pair(
             self.mid23.lo(), self.mid23.hi()), self.mid23)
 
@@ -1309,8 +1309,10 @@ class TestCap(unittest.TestCase):
         tiny = Cap.from_axis_angle(Point(1, 2, 3).normalize(),
                                    Angle.from_radians(kTinyRad))
         tangent = tiny.axis().cross_prod(Point(3, 2, 1)).normalize()
-        self.assertTrue(tiny.contains(tiny.axis() + 0.99 * kTinyRad * tangent))
-        self.assertFalse(tiny.contains(tiny.axis() + 1.01 * kTinyRad * tangent))
+        self.assertTrue(tiny.contains(
+            tiny.axis() + 0.99 * kTinyRad * tangent))
+        self.assertFalse(tiny.contains(
+            tiny.axis() + 1.01 * kTinyRad * tangent))
 
         # Basic tests on a hemispherical cap.
         hemi = Cap.from_axis_height(Point(1, 0, 1).normalize(), 1)
@@ -1318,13 +1320,14 @@ class TestCap(unittest.TestCase):
         self.assertEqual(1, hemi.complement().height())
         self.assertTrue(hemi.contains(Point(1, 0, 0)))
         self.assertFalse(hemi.complement().contains(Point(1, 0, 0)))
-        self.assertTrue(hemi.contains(Point(1, 0, -(1-self.eps)).normalize()))
+        self.assertTrue(hemi.contains(
+            Point(1, 0, -(1 - self.eps)).normalize()))
         self.assertFalse(hemi.interior_contains(
-            Point(1, 0, -(1+self.eps)).normalize()))
+            Point(1, 0, -(1 + self.eps)).normalize()))
 
         # A concave cap.
         concave = Cap.from_axis_angle(self.get_lat_lon_point(80, 10),
-                                             Angle.from_degrees(150))
+                                      Angle.from_degrees(150))
         self.assertTrue(
             concave.contains(self.get_lat_lon_point(-70 * (1 - self.eps), 10)))
         self.assertFalse(
@@ -1349,9 +1352,9 @@ class TestCap(unittest.TestCase):
         self.assertFalse(xaxis.interior_intersects(empty))
         self.assertTrue(hemi.contains(tiny))
         self.assertTrue(hemi.contains(Cap.from_axis_angle(Point(1, 0, 0),
-                                 Angle.from_radians(math.pi / 4.0 - self.eps))))
+                        Angle.from_radians(math.pi / 4.0 - self.eps))))
         self.assertFalse(hemi.contains(Cap.from_axis_angle(Point(1, 0, 0),
-                                  Angle.from_radians(math.pi / 4.0 + self.eps))))
+                         Angle.from_radians(math.pi / 4.0 + self.eps))))
         self.assertTrue(concave.contains(hemi))
         self.assertTrue(concave.interior_intersects(hemi.complement()))
         self.assertFalse(concave.contains(
@@ -1369,34 +1372,39 @@ class TestCap(unittest.TestCase):
 
         # Cap that includes the south pole.
         rect = Cap.from_axis_angle(self.get_lat_lon_point(-45, 57),
-                                         Angle.from_degrees(50)).get_rect_bound()
+                                   Angle.from_degrees(50)
+                                   ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, -90, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 5, delta=degree_eps)
         self.assertTrue(rect.lon().is_full())
 
         # Cap that is tangent to the north pole.
         rect = Cap.from_axis_angle(Point(1, 0, 1).normalize(),
-                    Angle.from_radians(math.pi / 4.0 + 1e-16)).get_rect_bound()
+                                   Angle.from_radians(math.pi / 4.0 + 1e-16)
+                                   ).get_rect_bound()
         self.assertAlmostEqual(rect.lat().lo(), 0, delta=self.eps)
         self.assertAlmostEqual(rect.lat().hi(), math.pi / 2.0, delta=self.eps)
         self.assertTrue(rect.lon().is_full())
 
         rect = Cap.from_axis_angle(Point(1, 0, 1).normalize(),
-                                    Angle.from_degrees(45 + 5e-15)).get_rect_bound()
+                                   Angle.from_degrees(45 + 5e-15),
+                                   ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, 0, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 90, delta=degree_eps)
         self.assertTrue(rect.lon().is_full())
 
         # The eastern hemisphere.
         rect = Cap.from_axis_angle(Point(0, 1, 0),
-                        Angle.from_radians(math.pi / 2.0 + 2e-16)).get_rect_bound()
+                                   Angle.from_radians(math.pi / 2.0 + 2e-16)
+                                   ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, -90, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 90, delta=degree_eps)
         self.assertTrue(rect.lon().is_full())
 
         # A cap centered on the equator.
         rect = Cap.from_axis_angle(self.get_lat_lon_point(0, 50),
-                                    Angle.from_degrees(20)).get_rect_bound()
+                                   Angle.from_degrees(20)
+                                   ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, -20, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 20, delta=degree_eps)
         self.assertAlmostEqual(rect.lon_lo().degrees, 30, delta=degree_eps)
@@ -1404,7 +1412,8 @@ class TestCap(unittest.TestCase):
 
         # A cap centered on the north pole.
         rect = Cap.from_axis_angle(self.get_lat_lon_point(90, 123),
-                                    Angle.from_degrees(10)).get_rect_bound()
+                                   Angle.from_degrees(10)
+                                   ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, 80, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 90, delta=degree_eps)
         self.assertTrue(rect.lon().is_full())
@@ -1418,7 +1427,7 @@ class TestCap(unittest.TestCase):
 
             # A leaf cell at the midpoint of the v=1 edge.
             edge_cell = Cell.from_point(
-                    s2sphere.face_uv_to_xyz(face, 0, 1 - self.eps))
+                s2sphere.face_uv_to_xyz(face, 0, 1 - self.eps))
 
             # A leaf cell at the u=1, v=1 corner.
             corner_cell = Cell.from_point(
@@ -1438,9 +1447,10 @@ class TestCap(unittest.TestCase):
             while id < last:
                 cell = Cell(id)
                 self.assertEqual(id == corner_cell.id(),
-                          cell.get_cap_bound().contains(corner_cell))
+                                 cell.get_cap_bound().contains(corner_cell))
                 self.assertEqual(id.parent().contains(corner_cell.id()),
-                          cell.get_cap_bound().may_intersect(corner_cell))
+                                 cell.get_cap_bound()
+                                 .may_intersect(corner_cell))
 
                 id = id.next()
 
@@ -1448,37 +1458,40 @@ class TestCap(unittest.TestCase):
             for cap_face in range(6):
                 # A cap that barely contains all of 'cap_face'.
                 center = s2sphere.get_norm(cap_face)
-                covering = Cap.from_axis_angle(center,
-                    Angle.from_radians(face_radius + self.eps))
-                self.assertEqual(cap_face == face, covering.contains(root_cell))
-                self.assertEqual(cap_face != anti_face,
-                    covering.may_intersect(root_cell))
-                self.assertEqual(center.dot_prod(edge_cell.get_center()) > 0.1,
-                    covering.contains(edge_cell))
-                self.assertEqual(covering.may_intersect(edge_cell),
-                    covering.contains(edge_cell))
+                covering = Cap.from_axis_angle(
+                    center,
+                    Angle.from_radians(face_radius + self.eps),
+                )
                 self.assertEqual(cap_face == face,
-                    covering.contains(corner_cell))
+                                 covering.contains(root_cell))
+                self.assertEqual(cap_face != anti_face,
+                                 covering.may_intersect(root_cell))
+                self.assertEqual(center.dot_prod(edge_cell.get_center()) > 0.1,
+                                 covering.contains(edge_cell))
+                self.assertEqual(covering.may_intersect(edge_cell),
+                                 covering.contains(edge_cell))
+                self.assertEqual(cap_face == face,
+                                 covering.contains(corner_cell))
                 self.assertEqual(center.dot_prod(
                     corner_cell.get_center()) > 0,
-                          covering.may_intersect(corner_cell))
+                    covering.may_intersect(corner_cell))
 
                 # A cap that barely intersects the edges of 'cap_face'.
                 bulging = Cap.from_axis_angle(
                     center, Angle.from_radians(math.pi / 4.0 + self.eps))
                 self.assertFalse(bulging.contains(root_cell))
                 self.assertEqual(cap_face != anti_face,
-                        bulging.may_intersect(root_cell))
+                                 bulging.may_intersect(root_cell))
                 self.assertEqual(cap_face == face, bulging.contains(edge_cell))
                 self.assertEqual(center.dot_prod(edge_cell.get_center()) > 0.1,
-                          bulging.may_intersect(edge_cell))
+                                 bulging.may_intersect(edge_cell))
                 self.assertFalse(bulging.contains(corner_cell))
                 self.assertFalse(bulging.may_intersect(corner_cell))
 
                 # A singleton cap.
                 singleton = Cap.from_axis_angle(center, Angle.from_radians(0))
                 self.assertEqual(cap_face == face,
-                        singleton.may_intersect(root_cell))
+                                 singleton.may_intersect(root_cell))
                 self.assertFalse(singleton.may_intersect(edge_cell))
                 self.assertFalse(singleton.may_intersect(corner_cell))
 
@@ -1487,17 +1500,21 @@ class TestCap(unittest.TestCase):
         self.assertTrue(Cap.full().expanded(Angle.from_radians(2)).is_full())
         cap50 = Cap.from_axis_angle(Point(1, 0, 0), Angle.from_degrees(50))
         cap51 = Cap.from_axis_angle(Point(1, 0, 0), Angle.from_degrees(51))
-        self.assertTrue(cap50.expanded(Angle.from_radians(0)).approx_equals(cap50))
-        self.assertTrue(cap50.expanded(Angle.from_degrees(1)).approx_equals(cap51))
-        self.assertFalse(cap50.expanded(Angle.from_degrees(129.99)).is_full())
-        self.assertTrue(cap50.expanded(Angle.from_degrees(130.01)).is_full())
+        self.assertTrue(
+            cap50.expanded(Angle.from_radians(0)).approx_equals(cap50))
+        self.assertTrue(
+            cap50.expanded(Angle.from_degrees(1)).approx_equals(cap51))
+        self.assertFalse(
+            cap50.expanded(Angle.from_degrees(129.99)).is_full())
+        self.assertTrue(
+            cap50.expanded(Angle.from_degrees(130.01)).is_full())
 
 
 class TestLatLonRect(unittest.TestCase):
 
     def rect_from_degrees(self, lat_lo, lon_lo, lat_hi, lon_hi):
         return LatLonRect(LatLon.from_degrees(lat_lo, lon_lo),
-                LatLon.from_degrees(lat_hi, lon_hi))
+                          LatLon.from_degrees(lat_hi, lon_hi))
 
     def testEmptyAndFull(self):
         empty = LatLonRect.empty()
@@ -1687,8 +1704,8 @@ class TestLatLonRect(unittest.TestCase):
         self.assertTrue(self.rect_from_degrees(70, 150, 80, 170)
                         .expanded(LatLon.from_degrees(20, 30))
                         .approx_equals(
-                            self.rect_from_degrees(50, 120, 90, -160)
-                        ))
+                            self.rect_from_degrees(50, 120, 90, -160))
+                        )
         self.assertTrue(LatLonRect.empty().expanded(
             LatLon.from_degrees(20, 30)).is_empty())
         self.assertTrue(LatLonRect.full().expanded(
@@ -1697,39 +1714,43 @@ class TestLatLonRect(unittest.TestCase):
         self.assertTrue(self.rect_from_degrees(-90, 170, 10, 20)
                         .expanded(LatLon.from_degrees(30, 80))
                         .approx_equals(
-                            self.rect_from_degrees(-90, -180, 40, 180)
-                        ))
+                            self.rect_from_degrees(-90, -180, 40, 180))
+                        )
 
     def testConvolveWithCap(self):
         self.assertTrue(self.rect_from_degrees(0, 170, 0, -170)
                         .convolve_with_cap(Angle.from_degrees(15))
                         .approx_equals(
-                            self.rect_from_degrees(-15, 155, 15, -155)
-                        ))
+                            self.rect_from_degrees(-15, 155, 15, -155))
+                        )
 
         self.assertTrue(self.rect_from_degrees(60, 150, 80, 10)
                         .convolve_with_cap(Angle.from_degrees(15))
                         .approx_equals(
-                            self.rect_from_degrees(45, -180, 90, 180)
-                        ))
+                            self.rect_from_degrees(45, -180, 90, 180))
+                        )
 
     def testGetCapBound(self):
 
         # Bounding cap at center is smaller:
         self.assertTrue(
-                self.rect_from_degrees(-45, -45, 45, 45).get_cap_bound().
-                    approx_equals(Cap.from_axis_height(Point(1, 0, 0), 0.5)))
+            self.rect_from_degrees(-45, -45, 45, 45)
+            .get_cap_bound()
+            .approx_equals(Cap.from_axis_height(Point(1, 0, 0), 0.5)))
 
         # Bounding cap at north pole is smaller:
-        self.assertTrue(self.rect_from_degrees(88, -80, 89, 80).get_cap_bound().
-                    approx_equals(Cap.from_axis_angle(Point(0, 0, 1),
-                                                      Angle.from_degrees(2))))
+        self.assertTrue(
+            self.rect_from_degrees(88, -80, 89, 80)
+            .get_cap_bound()
+            .approx_equals(Cap.from_axis_angle(Point(0, 0, 1),
+                           Angle.from_degrees(2))))
 
         # Longitude span > 180 degrees:
         self.assertTrue(
-                self.rect_from_degrees(-30, -150, -10, 50).get_cap_bound().
-                    approx_equals(Cap.from_axis_angle(Point(0, 0, -1),
-                                                      Angle.from_degrees(80))))
+            self.rect_from_degrees(-30, -150, -10, 50)
+            .get_cap_bound()
+            .approx_equals(Cap.from_axis_angle(Point(0, 0, -1),
+                           Angle.from_degrees(80))))
 
     def check_cell_ops(self, r, cell, level):
         # Test the relationship between the given rectangle and cell:
@@ -1737,25 +1758,28 @@ class TestLatLonRect(unittest.TestCase):
         # 3 == Vertex Containment, 4 == Contains
         vertex_contained = False
         for i in range(4):
-            if r.contains(cell.get_vertex_raw(i)) \
-                    or (not r.is_empty() \
-                    and cell.contains(r.get_vertex(i).to_point())):
+            if r.contains(cell.get_vertex_raw(i)) or \
+                    (not r.is_empty() and
+                     cell.contains(r.get_vertex(i).to_point())):
                 vertex_contained = True
-        self.assertEqual(r.may_intersect(cell), level >=1)
-        self.assertEqual(r.intersects(cell), level >=2)
-        self.assertEqual(vertex_contained, level >=3)
-        self.assertEqual(r.contains(cell), level >=4)
+        self.assertEqual(r.may_intersect(cell), level >= 1)
+        self.assertEqual(r.intersects(cell), level >= 2)
+        self.assertEqual(vertex_contained, level >= 3)
+        self.assertEqual(r.contains(cell), level >= 4)
 
     def testCellOps(self):
 
         # Contains(S2Cell), MayIntersect(S2Cell), Intersects(S2Cell)
 
         # Special cases.
-        self.check_cell_ops(LatLonRect.empty(),
+        self.check_cell_ops(
+            LatLonRect.empty(),
             Cell.from_face_pos_level(3, 0, 0), 0)
-        self.check_cell_ops(LatLonRect.full(),
+        self.check_cell_ops(
+            LatLonRect.full(),
             Cell.from_face_pos_level(2, 0, 0), 4)
-        self.check_cell_ops(LatLonRect.full(),
+        self.check_cell_ops(
+            LatLonRect.full(),
             Cell.from_face_pos_level(5, 0, 25), 4)
 
         # This rectangle includes the first quadrant of face 0.  It's expanded
@@ -1773,41 +1797,42 @@ class TestLatLonRect(unittest.TestCase):
 
         # Rectangle consisting of a single point.
         self.check_cell_ops(self.rect_from_degrees(4, 4, 4, 4),
-                    Cell.from_face_pos_level(0, 0, 0), 3)
+                            Cell.from_face_pos_level(0, 0, 0), 3)
 
         # Rectangles that intersect the bounding rectangle of a face
         # but not the face itself.
         self.check_cell_ops(self.rect_from_degrees(41, -87, 42, -79),
-                    Cell.from_face_pos_level(2, 0, 0), 1)
+                            Cell.from_face_pos_level(2, 0, 0), 1)
         self.check_cell_ops(self.rect_from_degrees(-41, 160, -40, -160),
-                    Cell.from_face_pos_level(5, 0, 0), 1)
+                            Cell.from_face_pos_level(5, 0, 0), 1)
 
         # This is the leaf cell at the top right hand corner of face 0.
         # It has two angles of 60 degrees and two of 120 degrees.
         cell0tr = Cell.from_point(Point(1 + 1e-12, 1, 1))
-        bound0tr = cell0tr.get_rect_bound()
+        cell0tr.get_rect_bound()
         v0 = LatLon.from_point(cell0tr.get_vertex_raw(0))
         self.check_cell_ops(self.rect_from_degrees(v0.lat().degrees - 1e-8,
-                                    v0.lon().degrees - 1e-8,
-                                    v0.lat().degrees - 2e-10,
-                                    v0.lon().degrees + 1e-10),
-                                    cell0tr, 1)
+                            v0.lon().degrees - 1e-8,
+                            v0.lat().degrees - 2e-10,
+                            v0.lon().degrees + 1e-10),
+                            cell0tr, 1)
 
         # Rectangles that intersect a face but where no vertex of one region
         # is contained by the other region.  The first one passes through
         # a corner of one of the face cells.
         self.check_cell_ops(self.rect_from_degrees(-37, -70, -36, -20),
-                    Cell.from_face_pos_level(5, 0, 0), 2)
+                            Cell.from_face_pos_level(5, 0, 0), 2)
 
         # These two intersect like a diamond and a square.
         cell202 = Cell.from_face_pos_level(2, 0, 2)
         bound202 = cell202.get_rect_bound()
         self.check_cell_ops(
-                self.rect_from_degrees(bound202.lo().lat().degrees + 3,
-                                    bound202.lo().lon().degrees + 3,
-                                    bound202.hi().lat().degrees - 3,
-                                    bound202.hi().lon().degrees - 3),
-                                    cell202, 2)
+            self.rect_from_degrees(bound202.lo().lat().degrees + 3,
+                                   bound202.lo().lon().degrees + 3,
+                                   bound202.hi().lat().degrees - 3,
+                                   bound202.hi().lon().degrees - 3),
+            cell202, 2)
+
 
 class TestCrossings(unittest.TestCase):
 
@@ -1855,61 +1880,77 @@ class TestCrossings(unittest.TestCase):
 
         # Two regular edges that cross.
         self.check_crossings(Point(1, 2, 1), Point(1, -3, 0.5),
-                      Point(1, -0.5, -3), Point(0.1, 0.5, 3), 1, True, True)
+                             Point(1, -0.5, -3), Point(0.1, 0.5, 3),
+                             1, True, True)
 
         # Two regular edges that cross antipodal points.
         self.check_crossings(Point(1, 2, 1), Point(1, -3, 0.5),
-                      Point(-1, 0.5, 3), Point(-0.1, -0.5, -3), -1, False, True)
+                             Point(-1, 0.5, 3), Point(-0.1, -0.5, -3),
+                             -1, False, True)
 
         # Two edges on the same great circle.
         self.check_crossings(Point(0, 0, -1), Point(0, 1, 0),
-                      Point(0, 1, 1), Point(0, 0, 1), -1, False, True)
+                             Point(0, 1, 1), Point(0, 0, 1),
+                             -1, False, True)
 
         # Two edges that cross where one vertex is S2::Origin().
         self.check_crossings(Point(1, 0, 0), s2sphere.origin(),
-                      Point(1, -0.1, 1), Point(1, 1, -0.1), 1, True, True)
+                             Point(1, -0.1, 1), Point(1, 1, -0.1),
+                             1, True, True)
 
-        # Two edges that cross antipodal points where one vertex is S2::Origin().
+        # Two edges that cross antipodal points where one vertex is
+        # S2::Origin().
         self.check_crossings(Point(1, 0, 0), Point(0, 1, 0),
-                      Point(0, 0, -1), Point(-1, -1, 1), -1, False, True)
+                             Point(0, 0, -1), Point(-1, -1, 1),
+                             -1, False, True)
 
         # Two edges that share an endpoint.  The Ortho() direction is (-4,0,2),
         # and edge CD is further CCW around (2,3,4) than AB.
         self.check_crossings(Point(2, 3, 4), Point(-1, 2, 5),
-                      Point(7, -2, 3), Point(2, 3, 4), 0, False, True)
+                             Point(7, -2, 3), Point(2, 3, 4),
+                             0, False, True)
 
         # Two edges that barely cross each other near the middle of one edge.
         # The
         # edge AB is approximately in the x=y plane, while CD is approximately
         # perpendicular to it and ends exactly at the x=y plane.
         self.check_crossings(Point(1, 1, 1), Point(1, np.nextafter(1, 0), -1),
-                      Point(11, -12, -1), Point(10, 10, 1), 1, True, False)
+                             Point(11, -12, -1), Point(10, 10, 1),
+                             1, True, False)
 
-        # In this version, the edges are separated by a distance of about 1e-15.
+        # In this version, the edges are separated by a distance of
+        # about 1e-15.
         self.check_crossings(Point(1, 1, 1), Point(1, np.nextafter(1, 2), -1),
-                      Point(1, -1, 0), Point(1, 1, 0), -1, False, False)
+                             Point(1, -1, 0), Point(1, 1, 0),
+                             -1, False, False)
 
         # Two edges that barely cross each other near the end of both edges.
         # This example cannot be handled using regular double-precision
         # arithmetic due to floating-point underflow.
         self.check_crossings(Point(0, 0, 1), Point(2, -1e-323, 1),
-                      Point(1, -1, 1), Point(1e-323, 0, 1), 1, True, False)
+                             Point(1, -1, 1), Point(1e-323, 0, 1),
+                             1, True, False)
 
         # In this version, the edges are separated by a dist of about 1e-640.
         self.check_crossings(Point(0, 0, 1), Point(2, 1e-323, 1),
-                      Point(1, -1, 1), Point(1e-323, 0, 1), -1, False, False)
+                             Point(1, -1, 1), Point(1e-323, 0, 1),
+                             -1, False, False)
 
         # Two edges that barely cross each other near the middle of one edge.
         # Computing the exact determinant of some of the triangles in this test
         # requires more than 2000 bits of precision.
         self.check_crossings(Point(1, -1e-323, -1e-323),
-            Point(1e-323, 1, 1e-323), Point(1, -1, 1e-323), Point(1, 1, 0),
-            1, True, False)
+                             Point(1e-323, 1, 1e-323),
+                             Point(1, -1, 1e-323),
+                             Point(1, 1, 0),
+                             1, True, False)
 
         # In this version, the edges are separated by a dist of about 1e-640.
         self.check_crossings(Point(1, 1e-323, -1e-323),
-            Point(-1e-323, 1, 1e-323), Point(1, -1, 1e-323), Point(1, 1, 0),
-              -1, False, False)
+                             Point(-1e-323, 1, 1e-323),
+                             Point(1, -1, 1e-323),
+                             Point(1, 1, 0),
+                             -1, False, False)
 
 
 class TestUtils(unittest.TestCase):
@@ -2002,17 +2043,17 @@ class TestCellUnion(unittest.TestCase):
 
                 if not input_j.is_leaf():
                     self.assertTrue(cellunion.contains(
-                                        input_j.child_begin()))
+                                    input_j.child_begin()))
                     self.assertTrue(cellunion.intersects(
-                                        input_j.child_begin()))
+                                    input_j.child_begin()))
                     self.assertTrue(cellunion.contains(
-                                        input_j.child_end().prev()))
+                                    input_j.child_end().prev()))
                     self.assertTrue(cellunion.intersects(
-                                        input_j.child_end().prev()))
+                                    input_j.child_end().prev()))
                     self.assertTrue(cellunion.contains(
-                                        input_j.child_begin(CellId.MAX_LEVEL)))
+                                    input_j.child_begin(CellId.MAX_LEVEL)))
                     self.assertTrue(cellunion.intersects(
-                                        input_j.child_begin(CellId.MAX_LEVEL)))
+                                    input_j.child_begin(CellId.MAX_LEVEL)))
 
             for expected_j in expected:
                 if not expected_j.is_face():
@@ -2176,7 +2217,7 @@ class TestRegionCoverer(unittest.TestCase):
             self.assertFalse(cell_id.is_leaf())
             for child in cell_id.children():
                 self.check_cell_union_covering(
-                        region, covering, check_tight, child)
+                    region, covering, check_tight, child)
 
     def check_covering(self, coverer, region, covering, interior):
         min_level_cells = defaultdict(int)
@@ -2186,7 +2227,7 @@ class TestRegionCoverer(unittest.TestCase):
             self.assertGreaterEqual(level, coverer.min_level)
             self.assertLessEqual(level, coverer.max_level)
             self.assertEqual(
-                    (level - coverer.min_level) % coverer.level_mod, 0)
+                (level - coverer.min_level) % coverer.level_mod, 0)
             min_level_cells[covering[i].parent(coverer.min_level)] += 1
         if len(covering) > coverer.max_cells:
             for count in min_level_cells.values():
@@ -2230,7 +2271,7 @@ class TestRegionCoverer(unittest.TestCase):
 
             cells = CellUnion(covering)
             denormalized = cells.denormalize(
-                       coverer.min_level, coverer.level_mod)
+                coverer.min_level, coverer.level_mod)
             self.check_covering(coverer, cap, denormalized, False)
 
     def testSimpleCoverings(self):
@@ -2241,7 +2282,7 @@ class TestRegionCoverer(unittest.TestCase):
             coverer.min_level = level
             coverer.max_level = level
             max_area = min(
-                    4 * math.pi, 1000 * CellId.avg_area().get_value(level))
+                4 * math.pi, 1000 * CellId.avg_area().get_value(level))
             cap = self.get_random_cap(
                 0.1 * CellId.avg_area().get_value(CellId.MAX_LEVEL), max_area)
             covering = RegionCoverer.get_simple_covering(cap, cap.axis(),

@@ -53,8 +53,9 @@ script:
   python2.7 -V
   echo "$PATH"
 - pip install --user --upgrade pip
-- pip install --user numpy nose
+- pip install --user numpy nose flake8 hacking
 - "pip install --user ."
+- flake8
 - python2.7 tests/compare_implementations_test.py -vv
 - nosetests-2.7 -vv --exclude=compare_implementations_test
 # py3

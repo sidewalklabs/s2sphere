@@ -14,7 +14,7 @@ class TestCellId(unittest.TestCase):
             s2sphere.LatLon.from_degrees(lat, lon)
         )
         cpp_cellid = s2.S2CellId.FromLatLng(
-          s2.S2LatLng.FromDegrees(lat, lon)
+            s2.S2LatLng.FromDegrees(lat, lon)
         )
         self.assertEqual(py_cellid.id(), cpp_cellid.id())
 
