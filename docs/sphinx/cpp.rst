@@ -16,6 +16,7 @@ extracted from its source code and included here for reference.
   An R1Interval represents a closed, bounded interval on the real line.
   It is capable of representing the empty interval (containing no points)
   and zero-length intervals (containing a single point).
+  
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
@@ -162,9 +163,11 @@ extracted from its source code and included here for reference.
   two-dimensional solid angle).  It has methods for converting angles to
   or from radians, degrees, and the E5/E6/E7 representations (i.e. degrees
   multiplied by 1e5/1e6/1e7 and rounded to the nearest integer).
+  
   This class has built-in support for the E5, E6, and E7
   representations.  An E5 is the measure of an angle in degrees,
   multiplied by 10**5.
+  
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
@@ -194,6 +197,7 @@ extracted from its source code and included here for reference.
   .. cpp:function:: inline static S1Angle UnsignedE6(uint32 e6)
   
     Convenience functions -- to use when args have been fixed32s in protos.
+    
     The arguments are static_cast into int32, so very large unsigned values
     are treated as negative numbers.
   
@@ -231,16 +235,19 @@ extracted from its source code and included here for reference.
   as a 1-dimensional sphere).  It is capable of representing the empty
   interval (containing no points), the full interval (containing all
   points), and zero-length intervals (containing a single point).
+  
   Points are represented by the angle they make with the positive x-axis in
   the range [-Pi, Pi].  An interval is represented by its lower and upper
   bounds (both inclusive, since the interval is closed).  The lower bound may
   be greater than the upper bound, in which case the interval is "inverted"
   (i.e. it passes through the point (-1, 0)).
+  
   Note that the point (-1, 0) has two valid representations, Pi and -Pi.
   The normalized representation of this point internally is Pi, so that
   endpoints of normal intervals are in the range (-Pi, Pi].  However, we
   take advantage of the point -Pi to construct two special intervals:
   the Full() interval is [-Pi, Pi], and the Empty() interval is [Pi, -Pi].
+  
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
@@ -289,6 +296,7 @@ extracted from its source code and included here for reference.
     the resulting S1Interval is valid.  This implies you cannot call this
     method on an Empty() or Full() interval, since these intervals do not
     have any endpoints.
+    
     Do not use these methods if you want to replace both endpoints of the
     interval; use a constructor instead.  For example:
     
@@ -452,20 +460,25 @@ extracted from its source code and included here for reference.
   intersection tests.  The name "S2" is derived from the mathematical symbol
   for the two-dimensional unit sphere (note that the "2" refers to the
   dimension of the surface, not the space it is embedded in).
+  
   This class also defines a framework for decomposing the unit sphere into a
   hierarchy of "cells".  Each cell is a quadrilateral bounded by four
   geodesics.  The top level of the hierarchy is obtained by projecting the
   six faces of a cube onto the unit sphere, and lower levels are obtained by
   subdividing each cell into four children recursively.
+  
   This class specifies the details of how the cube faces are projected onto
   the unit sphere.  This includes getting the face ordering and orientation
   correct so that sequentially increasing cell ids follow a continuous
   space-filling curve over the entire sphere, and defining the
   transformation from cell-space to cube-space in order to make the cells
   more uniform in size.
+  
   This file also contains documentation of the various coordinate systems
   and conventions used.
+  
   This class is not thread-safe for loops and objects that use loops.
+  
 
   
   .. cpp:function:: inline static S2Point Origin()
@@ -473,6 +486,7 @@ extracted from its source code and included here for reference.
     Return a unique "origin" on the sphere for operations that need a fixed
     reference point.  In particular, this is the "point at infinity" used for
     point-in-polygon testing (by counting the number of edge crossings).
+    
     It shouldnot* be a point that is commonly used in edge tests in order
     to avoid triggering code to handle degenerate cases.  (This rules out the
     north and south poles.)  It should also not be on the boundary of any
@@ -527,6 +541,7 @@ extracted from its source code and included here for reference.
     "a" and "b".  This function is similar to a.CrossProd(b) except that it
     does a better job of ensuring orthogonality when "a" is nearly parallel
     to "b", and it returns a non-zero result even when a == b or a == -b.
+    
     It satisfies the following properties (RCP == RobustCrossProd):
     
     .. code-block:: cpp
@@ -542,6 +557,7 @@ extracted from its source code and included here for reference.
     Return true if the points A, B, C are strictly counterclockwise.  Return
     false if the points are clockwise or collinear (i.e. if they are all
     contained on some great circle).
+    
     Due to numerical errors, situations may arise that are mathematically
     impossible, e.g. ABC may be considered strictly CCW while BCA is not.
     However, the implementation guarantees the following:
@@ -559,17 +575,20 @@ extracted from its source code and included here for reference.
     it has additional logic to make sure that the above properties hold even
     when the three points are coplanar, and to deal with the limitations of
     floating-point arithmetic.
+    
     RobustCCW satisfies the following conditions:
     
      (1) RobustCCW(a,b,c) == 0 if and only if a == b, b == c, or c == a
      (2) RobustCCW(b,c,a) == RobustCCW(a,b,c) for all a,b,c
      (3) RobustCCW(c,b,a) == -RobustCCW(a,b,c) for all a,b,c
     
+    
     In other words:
     
      (1) The result is zero if and only if two points are the same.
      (2) Rotating the order of the arguments does not affect the result.
      (3) Exchanging any two arguments inverts the result.
+    
     
     On the other hand, note that it is not true in general that
     RobustCCW(-a,b,c) == -RobustCCW(a,b,c), or any similar identities
@@ -591,6 +610,7 @@ extracted from its source code and included here for reference.
     
     result is uncertain.  Uncertain certain cases can be resolved, if
     desired, by calling ExpensiveCCW.
+    
     The purpose of this method is to allow additional cheap tests to be done,
     where possible, in order to avoid calling ExpensiveCCW unnecessarily.
   
@@ -607,6 +627,7 @@ extracted from its source code and included here for reference.
     collinear and no four S2Points are coplanar.  These perturbations are so
     small that they do not affect the sign of any determinant that was
     non-zero before the perturbations.
+    
     Unlike RobustCCW(), this method does not require the input points to be
     normalized.
   
@@ -632,6 +653,7 @@ extracted from its source code and included here for reference.
     Return the interior angle at the vertex B in the triangle ABC.  The
     return value is always in the range [0, Pi].  The points do not need to
     be normalized.  Ensures that Angle(a,b,c) == Angle(c,b,a) for all a,b,c.
+    
     The angle is undefined if A or C is diametrically opposite from B, and
     becomes numerically unstable as the length of edge AB or BC approaches
     180 degrees.
@@ -652,6 +674,7 @@ extracted from its source code and included here for reference.
     expensive as Girard's formula, but it is numerically stable for both
     large and very small triangles.  All points should be unit length.
     The area is always positive.
+    
     The triangle area is undefined if it contains two antipodal points, and
     becomes numerically unstable as the length of any edge approaches 180
     degrees.
@@ -673,8 +696,10 @@ extracted from its source code and included here for reference.
   .. cpp:function:: static S2Point PlanarCentroid(S2Point const& a, S2Point const& b, S2Point const& c)
   
     About centroids:
+    
+    
     There are several notions of the "centroid" of a triangle.  First, there
-     is the planar centroid, which is simply the centroid of the ordinary
+    is the planar centroid, which is simply the centroid of the ordinary
     (non-spherical) triangle defined by the three vertices.  Second, there is
     the surface centroid, which is defined as the intersection of the three
     medians of the spherical triangle.  It is possible to show that this
@@ -683,12 +708,14 @@ extracted from its source code and included here for reference.
     defined as the area integral over the spherical triangle of (x,y,z)
     divided by the triangle area.  This is the point that the triangle would
     rotate around if it was spinning in empty space.
+    
     The best centroid for most purposes is the true centroid.  Unlike the
     planar and surface centroids, the true centroid behaves linearly as
     regions are added or subtracted.  That is, if you split a triangle into
     pieces and compute the average of their centroids (weighted by triangle
     area), the result equals the centroid of the original triangle.  This is
     not true of the other centroids.
+    
     Also note that the surface centroid may be nowhere near the intuitive
     "center" of a spherical triangle.  For example, consider the triangle
     with vertices A=(1,eps,0), B=(0,0,1), C=(-1,eps,0) (a quarter-sphere).
@@ -778,6 +805,7 @@ extracted from its source code and included here for reference.
   .. cpp:class:: template <int dim> Metric
   
     S2Cell Metrics 
+    
     The following are various constants that describe the shapes and sizes of
     cells.  They are useful for deciding which cell level to use in order to
     satisfy a given condition (e.g. that cell vertices must be no further
@@ -843,6 +871,7 @@ extracted from its source code and included here for reference.
   representation has good numerical accuracy for very small caps (unlike the
   (axis, min-distance-from-origin) representation), and is also efficient for
   containment tests (unlike the (axis, angle) representation).
+  
   Here are some useful relationships between the cap height (h), the cap
   opening angle (theta), the maximum chord length from the cap's center (d),
   and the radius of cap's base (a).  All formulas assume a unit radius.
@@ -853,10 +882,12 @@ extracted from its source code and included here for reference.
         = 2 sin^2(theta/2)
     d^2 = 2 h
         = a^2 + h^2
+    
   
   Caps may be constructed from either an axis and a height, or an axis and
   an angle.  To avoid ambiguity, there are no public constructors except
   the default constructor.
+  
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator, however it is
   not a "plain old datatype" (POD) because it has virtual functions.
@@ -984,6 +1015,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2Cap* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     
@@ -1094,11 +1126,13 @@ extracted from its source code and included here for reference.
     If this is not a leaf cell, set children[0..3] to the four children of
     this cell (in traversal order) and return true.  Otherwise returns false.
     This method is equivalent to the following:
+    
     for (pos=0, id=child_begin(); id != child_end(); id = id.next(), ++pos)
     
     .. code-block:: cpp
     
       children[i] = S2Cell(id);
+      
     
     except that it is more than two times faster.
   
@@ -1145,6 +1179,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2Cell* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     
@@ -1189,10 +1224,13 @@ extracted from its source code and included here for reference.
   .. code-block:: cpp
   
     id = [face][face_pos]
+    
     face:     a 3-bit number (range 0..5) encoding the cube face.
+    
     face_pos: a 61-bit number encoding the position of the center of this
               cell along the Hilbert curve over this face (see the Wiki
               pages for details).
+    
   
   Sequentially increasing cell ids follow a continuous space-filling curve
   over the entire sphere.  They have the following properties:
@@ -1203,13 +1241,16 @@ extracted from its source code and included here for reference.
      Therefore, the level of a cell is determined by the position of its
      lowest-numbered bit that is turned on (for a cell at level k, this
      position is 2(kMaxLevel - k).)
+  
    - The id of a parent cell is at the midpoint of the range of ids spanned
      by its children (or by its descendants at any level).
+  
   
   Leaf cells are often used to represent points on the unit sphere, and
   this class provides methods for converting directly between these two
   representations.  For cells that represent 2D regions rather than
   discrete point, it is better to use the S2Cell class.
+  
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
@@ -1321,9 +1362,11 @@ extracted from its source code and included here for reference.
     within this cell (including itself).  The range isinclusive*
     (i.e. test using >= and <=) and the return values of both
     methods are valid leaf cell ids.
+    
     These methods should not be used for iteration.  If you want to
     iterate through all the leaf cells, call child_begin(kMaxLevel) and
     child_end(kMaxLevel) instead.
+    
     It would in fact be error-prone to define a range_end() method,
     because (range_max().id() + 1) is not always a valid cell id, and the
     iterator would need to be tested using "<" rather that the usual "!=".
@@ -1371,6 +1414,7 @@ extracted from its source code and included here for reference.
     
       for(S2CellId c = id.child_begin(); c != id.child_end(); c = c.next())
         ...
+      
     
     The convention for advancing the iterator is "c = c.next()" rather
     than "++c" to avoid possible confusion with incrementing the
@@ -1456,6 +1500,7 @@ extracted from its source code and included here for reference.
     by appending them to "output".  Normally there are four neighbors, but
     the closest vertex may only have three neighbors if it is one of the 8
     cube vertices.
+    
     Requires: level < this->level(), so that we can determine which vertex is
     closest (in particular, level == kMaxLevel is not allowed).
   
@@ -1466,6 +1511,7 @@ extracted from its source code and included here for reference.
     cells X and Y are neighbors if their boundaries intersect but their
     interiors do not.  In particular, two cells that intersect at a single
     point are neighbors.
+    
     Requires: nbr_level >= this->level().  Note that for cells adjacent to a
     face vertex, the same neighbor may be appended more than once.
   
@@ -1560,6 +1606,7 @@ extracted from its source code and included here for reference.
     cells, replacing groups of 4 child cells by their parent cell whenever
     possible, and sorting all the cell ids in increasing order.  Returns true
     if the number of cells was reduced.
+    
     This methodmust* be called before doing any calculations on the cell
     union, such as Intersects() or Contains().
   
@@ -1571,6 +1618,7 @@ extracted from its source code and included here for reference.
     is not a multiple of "level_mod" are replaced by their children, until
     either both of these conditions are satisfied or the maximum level is
     reached.
+    
     This method allows a covering generated by S2RegionCoverer using
     min_level() or level_mod() constraints to be stored as a normalized cell
     union (which allows various geometric computations to be done) and then
@@ -1635,12 +1683,14 @@ extracted from its source code and included here for reference.
   
     Expands the cell union by adding a "rim" of cells on expand_level
     around the union boundary.
+    
     For each cell c in the union, we add all cells at level
     expand_level that abut c.  There are typically eight of those
     (four edge-abutting and four sharing a vertex).  However, if c is
     finer than expand_level, we add all cells abutting
     c.parent(expand_level) as well as c.parent(expand_level) itself,
     as an expand_level cell rarely abuts a smaller cell.
+    
     Note that the size of the output is exponential in
     "expand_level".  For example, if expand_level == 20 and the input
     has a cell at level 10, there will be on the order of 4000
@@ -1698,6 +1748,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2CellUnion* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     
@@ -1741,6 +1792,7 @@ extracted from its source code and included here for reference.
 
   This class structures a set S of data edges, so that one can quickly
   find which edges of S may potentially intersect or touch a query edge.
+  
   The set S is assumed to be indexable by a consecutive sequence of
   integers in the range [0..num_edges()-1].  You subclass this class by
   defining the three virtual functions num_edges(), edge_from(),
@@ -1756,19 +1808,23 @@ extracted from its source code and included here for reference.
       edge_index.GetEdge(it.Index(), &from, &to);
       ... RobustCrossing(a,b, from,to) ...
     }
+    
   
   What is this GetEdge()?  You don't want to use edge_from() and
   edge_to() in your own code: these are virtual functions that will
   add a lot of overhead.  The most efficient way is as above: you
   define GetEdge() in your S2EdgeIndex subclass that access the edge
   points as efficiently as possible.
+  
   The function GetCandidates initializes the iterator to return a set
   of candidate edges from S, such that we are sure that any data edge
   that touches or crosses (a,b) is a candidate.
+  
   This class returns all edges until it finds that it is worth it to compute
   a quad tree on the data set.  Chance my have it that you compute the quad
   tree exactly when it's too late and all the work is done, If this happens,
   we only double the total running time.
+  
   You can help the class by declaring in advance that you will make a
   certain number of calls to GetCandidates():
   
@@ -1781,15 +1837,19 @@ extracted from its source code and included here for reference.
          ... RobustCrossing(v(i), v(i+1), it.From(), it.To()) ...
       }
     }
+    
   
   Here, we say that we will call GetCandidates() n times.  If we have
   1000 data edges and n=1000, then we will compute the quad tree
   immediately instead of waiting till we've wasted enough time to
   justify the cost.
+  
   The tradeoff between brute force and quad tree depends on many
   things, we use a very approximate trade-off.
+  
   See examples in S2Loop.cc and S2Polygon.cc, in particular, look at
   the optimization that allows one to use the EdgeCrosser.
+  
   TODO(user): Get a better API without the clumsy GetCandidates().
   
   .. code-block:: cpp
@@ -1802,6 +1862,7 @@ extracted from its source code and included here for reference.
     An iterator on data edges that may cross a query edge (a,b).
     Create the iterator, call GetCandidates(), then Done()/Next()
     repeatedly.
+    
     The current edge in the iteration has index Index(), goes between
     From() and To().
   
@@ -1851,6 +1912,7 @@ extracted from its source code and included here for reference.
     now.  This guarantees that we will never use more than twice the
     time we would have used had we known in advance exactly how many
     edges we would have wanted to test.  It is the theoretical best.
+    
     The value 'n' is the number of iterators we expect to request from
     this edge index.
   
@@ -1968,7 +2030,8 @@ extracted from its source code and included here for reference.
      (1) RobustCrossing(b,a,c,d) == RobustCrossing(a,b,c,d)
      (2) RobustCrossing(c,d,a,b) == RobustCrossing(a,b,c,d)
      (3) RobustCrossing(a,b,c,d) == 0 if a==c, a==d, b==c, b==d
-     (3) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d
+     (4) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d
+    
     
     Note that if you want to check an edge against achain* of other
     edges, it is much more efficient to use an EdgeCrosser (above).
@@ -1982,19 +2045,22 @@ extracted from its source code and included here for reference.
     can be implemented by counting the number of edge crossings.  The basic
     rule is that a "crossing" occurs if AB is encountered after CD during a
     CCW sweep around the shared vertex starting from a fixed reference point.
+    
     Note that according to this rule, if AB crosses CD then in general CD
     does not cross AB.  However, this leads to the correct result when
     counting polygon edge crossings.  For example, suppose that A,B,C are
     three consecutive vertices of a CCW polygon.  If we now consider the edge
     crossings of a segment BP as P sweeps around B, the crossing number
     changes parity exactly when BP crosses BA or BC.
+    
     Useful properties of VertexCrossing (VC):
     
      (1) VC(a,a,c,d) == VC(a,b,c,c) == false
      (2) VC(a,b,a,b) == VC(a,b,b,a) == true
      (3) VC(a,b,c,d) == VC(a,b,d,c) == VC(b,a,c,d) == VC(b,a,d,c)
-     (3) If exactly one of a,b equals one of c,d, then exactly one of
+     (4) If exactly one of a,b equals one of c,d, then exactly one of
          VC(a,b,c,d) and VC(c,d,a,b) is true
+    
     
     It is an error to call this method with 4 distinct vertices.
   
@@ -2015,6 +2081,7 @@ extracted from its source code and included here for reference.
     
      (1) GI(b,a,c,d) == GI(a,b,d,c) == GI(a,b,c,d)
      (2) GI(c,d,a,b) == GI(a,b,c,d)
+    
     
     The returned intersection point X is guaranteed to be close to the edges
     AB and CD, but if the edges intersect at a very small angle then X may
@@ -2066,6 +2133,7 @@ extracted from its source code and included here for reference.
   package, the intent is to represent spherical geometry as a mathematical
   abstraction, so functions that are specifically related to the Earth's
   geometry (e.g. easting/northing conversions) should be put elsewhere.
+  
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
@@ -2099,6 +2167,7 @@ extracted from its source code and included here for reference.
   .. cpp:function:: inline static S2LatLng FromUnsignedE6(uint32 lat_e6, uint32 lng_e6)
   
     Convenience functions -- to use when args have been fixed32s in protos.
+    
     The arguments are static_cast into int32, so very large unsigned values
     are treated as negative numbers.
   
@@ -2155,6 +2224,7 @@ extracted from its source code and included here for reference.
     .. code-block:: cpp
     
       S1Angle::Radians(ToPoint().Angle(o.ToPoint()))
+      
     
     but this implementation is slightly more efficient.  Both S2LatLngs
     must be normalized.
@@ -2173,6 +2243,7 @@ extracted from its source code and included here for reference.
   An S2LatLngRect represents a closed latitude-longitude rectangle.  It is
   capable of representing the empty and full rectangles as well as
   single points.
+  
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator, however it is
   not a "plain old datatype" (POD) because it has virtual functions.
@@ -2283,7 +2354,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: bool is_inverted() const
   
-    Return true if lng_.lo() > lng_.hi(), i.e. the rectangle crosses
+    Return true if `lng_.lo() > lng_.hi()`, i.e. the rectangle crosses
     the 180 degree longitude line.
   
     
@@ -2377,6 +2448,7 @@ extracted from its source code and included here for reference.
     are clamped while longitudes are wrapped.  Note that any expansion of an
     empty interval remains empty, and both components of the given margin
     must be non-negative.  "margin" does not need to be normalized.
+    
     NOTE: If you are trying to grow a rectangle by a certaindistance* on
     the sphere (e.g. 5km), use the ConvolveWithCap() method instead.
   
@@ -2447,6 +2519,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2LatLngRect* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     
@@ -2516,13 +2589,16 @@ extracted from its source code and included here for reference.
   of the polygon is on the left side of the edges.  This implies that a
   clockwise loop enclosing a small area is interpreted to be a CCW loop
   enclosing a very large area.
+  
   Loops are not allowed to have any duplicate vertices (whether adjacent or
   not), and non-adjacent edges are not allowed to intersect.  Loops must have
   at least 3 vertices.  Although these restrictions are not enforced in
   optimized code, you may get unexpected results if they are violated.
+  
   Point containment is defined such that if the sphere is subdivided into
   faces (loops), every point is contained by exactly one face.  This implies
   that loops do not necessarily contain all (or any) of their vertices.
+  
   TODO(user): When doing operations on two loops, always create the
   edgeindex for the bigger of the two.  Same for polygons.
 
@@ -2618,10 +2694,12 @@ extracted from its source code and included here for reference.
     (see s2.h for details on centroids).  The result is not unit length, so
     you may want to normalize it.  Also note that in general, the centroid
     may not be contained by the loop.
+    
     We prescale by the loop area for two reasons: (1) it is cheaper to
     compute this way, and (2) it makes it easier to compute the centroid of
     more complicated shapes (by splitting them into disjoint regions and
     adding their centroids).
+    
     Note that the return value is not affected by whether this loop is a
     "hole" or a "shell".
   
@@ -2634,6 +2712,7 @@ extracted from its source code and included here for reference.
     nearly-degenerate loops are handled consistently with S2::RobustCCW().
     So for example, if a loop has zero area (i.e., it is a very small CCW
     loop) then the turning angle will always be negative.
+    
     This quantity is also called the "geodesic curvature" of the loop.
   
     
@@ -2663,6 +2742,7 @@ extracted from its source code and included here for reference.
     Requires that A does not properly contain the complement of B, i.e.
     A and B do not contain each other's boundaries.  This method is used
     for testing whether multi-loop polygons contain each other.
+    
     WARNING: there is a bug in this function - it does not detect loop
     crossings in certain situations involving shared edges.  CL 2926852 works
     around this bug for polygon intersection, but it probably effects other
@@ -2698,6 +2778,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2Loop* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
     GetRectBound() is guaranteed to return exact results, while GetCapBound()
     is conservative.
@@ -2752,6 +2833,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2PointRegion* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     
@@ -2794,16 +2876,20 @@ extracted from its source code and included here for reference.
   loops should be oriented CCW, i.e. the shell or hole is on the left side of
   the loop.  Loops may be specified in any order.  A point is defined to be
   inside the polygon if it is contained by an odd number of loops.
+  
   Polygons have the following restrictions:
   
    - Loops may not cross, i.e. the boundary of a loop may not intersect
      both the interior and exterior of any other loop.
+  
    - Loops may not share edges, i.e. if a loop contains an edge AB, then
      no other loop may contain AB or BA.
+  
    - No loop may cover more than half the area of the sphere.  This ensures
      that no loop properly contains the complement of any other loop, even
      if the loops are from different polygons.  (Loops that represent exact
      hemispheres are allowed.)
+  
   
   Loops may share vertices, however no vertex may appear twice in a single
   loop (see s2loop.h).
@@ -2888,6 +2974,7 @@ extracted from its source code and included here for reference.
     polygon (see s2.h for details on centroids).  The result is not unit
     length, so you may want to normalize it.  Also note that in general, the
     centroid may not be contained by the polygon.
+    
     We prescale by the polygon area for two reasons: (1) it is cheaper to
     compute this way, and (2) it makes it easier to compute the centroid of
     more complicated shapes (by splitting them into disjoint regions and
@@ -2905,6 +2992,7 @@ extracted from its source code and included here for reference.
     Returns true if this polgyon (A) approximately contains the given other
     polygon (B). This is true if it is possible to move the vertices of B
     no further than "vertex_merge_radius" such that A contains the modified B.
+    
     For example, the empty polygon will contain any polygon whose maximum
     width is no more than vertex_merge_radius.
   
@@ -2924,6 +3012,7 @@ extracted from its source code and included here for reference.
     S2PolygonBuilder for details).  By default, the merge radius is just
     large enough to compensate for errors that occur when computing
     intersection points between edges (S2EdgeUtil::kIntersectionTolerance).
+    
     If you are going to convert the resulting polygon to a lower-precision
     format, it is necessary to increase the merge radius in order to get a
     valid result after rounding (i.e. no duplicate vertices, etc).  For
@@ -2978,6 +3067,7 @@ extracted from its source code and included here for reference.
     are appended in the order they would be encountered by traversing "in"
     from beginning to end.  Note that the output may include polylines with
     only one vertex, but there will not be any zero-vertex polylines.
+    
     This is equivalent to calling IntersectWithPolylineSloppy() with the
     "vertex_merge_radius" set to S2EdgeUtil::kIntersectionTolerance.
   
@@ -3047,6 +3137,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2Polygon* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
     GetRectBound() guarantees that it will return exact bounds. GetCapBound()
     does not.
@@ -3096,18 +3187,22 @@ extracted from its source code and included here for reference.
   and optionally it can also remove duplicate edge pairs (consisting of two
   identical edges or an edge and its reverse edge).  This is useful for
   computing seamless unions of polygons that have been cut into pieces.
+  
   Here are some of the situations this class was designed to handle:
   
   1. Computing the union of disjoint polygons that may share part of their
      boundaries.  For example, reassembling a lake that has been split into
      two loops by a state boundary.
+  
   2. Constructing polygons from input data that does not follow S2
      conventions, i.e. where loops may have repeated vertices, or distinct
      loops may share edges, or shells and holes have opposite or unspecified
      orientations.
+  
   3. Computing the symmetric difference of a set of polygons whose edges
      intersect only at vertices.  This can be used to implement a limited
      form of polygon intersection or subtraction as well as unions.
+  
   4. As a tool for implementing other polygon operations by generating a
      collection of directed edges and then assembling them into loops.
 
@@ -3140,6 +3235,7 @@ extracted from its source code and included here for reference.
   .. cpp:function:: bool undirected_edges() const
   
     Default value: false.
+    
     If "undirected_edges" is false, then the input is assumed to consist of
     edges that can be assembled into oriented loops without reversing any of
     the edges.  Otherwise, "undirected_edges" should be set to true.
@@ -3152,18 +3248,22 @@ extracted from its source code and included here for reference.
   .. cpp:function:: bool xor_edges() const
   
     Default value: true.
+    
     If "xor_edges" is true, then any duplicate edge pairs are removed.  This
     is useful for computing the union of a collection of polygons whose
     interiors are disjoint but whose boundaries may share some common edges
     (e.g. computing the union of South Africa, Lesotho, and Swaziland).
+    
     Note that for directed edges, a "duplicate edge pair" consists of an edge
     and its corresponding reverse edge.  This means that either (a) "shells"
     and "holes" must have opposite orientations, or (b) shells and holes do
     not share edges.  Otherwise undirected_edges() should be specified.
+    
     There are only two reasons to turn off xor_edges():
     
      (1) AssemblePolygon() will be called, and you want to assert that there
          are no duplicate edge pairs in the input.
+    
      (2) AssembleLoops() will be called, and you want to keep abutting loops
          separate in the output rather than merging their regions together
          (e.g. assembling loops for Kansas City, KS and Kansas City, MO
@@ -3177,6 +3277,7 @@ extracted from its source code and included here for reference.
   .. cpp:function:: bool validate() const
   
     Default value: false.
+    
     If true, IsValid() is called on all loops and polygons before
     constructing them.  If any loop is invalid (e.g. self-intersecting), it
     is rejected and returned as a set of "unused edges".  Any remaining valid
@@ -3191,10 +3292,12 @@ extracted from its source code and included here for reference.
   .. cpp:function:: S1Angle vertex_merge_radius() const
   
     Default value: 0.
+    
     If set to a positive value, all vertex pairs that are separated by less
     than this distance will be merged together.  Note that vertices can move
     arbitrarily far if there is a long chain of vertices separated by less
     than this distance.
+    
     This method is useful for assembling polygons out of input data where
     vertices and/or edges may not be perfectly aligned.
   
@@ -3206,18 +3309,22 @@ extracted from its source code and included here for reference.
   .. cpp:function:: double edge_splice_fraction() const
   
     Default value: 0.866 (approximately sqrt(3)/2).
+    
     The edge splice radius is automatically set to this fraction of the vertex
     merge radius.  If the edge splice radius is positive, then all vertices
     that are closer than this distance to an edge are spliced into that edge.
     Note that edges can move arbitrarily far if there is a long chain of
     vertices in just the right places.
+    
     You can turn off edge splicing by setting this value to zero.  This will
     save some time if you don't need this feature, or you don't want vertices
     to be spliced into nearby edges for some reason.
+    
     Note that the edge splice fraction must be less than sqrt(3)/2 in order to
     avoid infinite loops in the merge algorithm.  The default value is very
     close to this maximum and therefore results in the maximum amount of edge
     splicing for a given vertex merge radius.
+    
     The only reason to reduce the edge splice fraction is if you want to limit
     changes in edge direction due to splicing.  The direction of an edge can
     change by up to asin(edge_splice_fraction) due to each splice.  Thus by
@@ -3245,6 +3352,7 @@ extracted from its source code and included here for reference.
     for input data that may not follow S2 polygon conventions.  Note that
     edges are not allowed to cross each other.  Also note that as a
     convenience, edges where v0 == v1 are ignored.
+    
     Returns true if an edge was added, and false if an edge was erased
     (due to XORing) or not added (if both endpoints were the same).
   
@@ -3255,6 +3363,7 @@ extracted from its source code and included here for reference.
     (i.e. this loop represents a hole), the reverse edges are added instead.
     This implies that "shells" are CCW and "holes" are CW, as required for
     the directed edges convention described above.
+    
     This method does not take ownership of the loop.
   
     
@@ -3262,6 +3371,7 @@ extracted from its source code and included here for reference.
   
     Add all loops in the given polygon.  Shells and holes are added with
     opposite orientations as described for AddLoop().
+    
     This method does not take ownership of the polygon.
   
     
@@ -3277,10 +3387,12 @@ extracted from its source code and included here for reference.
     are preferred.  Returns true if all edges were assembled.  If
     "unused_edges" is not NULL, it is initialized to the set of edges that
     could not be assembled into loops.
+    
     Note that if xor_edges() is false and duplicate edge pairs may be
     present, then undirected_edges() should be specified unless all loops can
     be assembled in a counter-clockwise direction.  Otherwise this method may
     not be able to assemble all loops due to its preference for CCW loops.
+    
     This method resets the S2PolygonBuilder state so that it can be reused.
   
     
@@ -3288,9 +3400,11 @@ extracted from its source code and included here for reference.
   
     Like AssembleLoops, but normalizes all the loops so that they enclose
     less than half the sphere, and then assembles the loops into a polygon.
+    
     For this method to succeed, there should be no duplicate edges in the
     input.  If this is not known to be true, then the "xor_edges" option
     should be set (which is true by default).
+    
     Note that S2Polygons cannot represent arbitrary regions on the sphere,
     because of the limitation that no loop encloses more than half of the
     sphere.  For example, an S2Polygon cannot represent a 100km wide band
@@ -3350,6 +3464,7 @@ extracted from its source code and included here for reference.
     Return the true centroid of the polyline multiplied by the length of the
     polyline (see s2.h for details on centroids).  The result is not unit
     length, so you may want to normalize it.
+    
     Prescaling by the polyline length makes it easy to compute the centroid
     of several polylines (by simply adding up their centroids).
   
@@ -3369,12 +3484,14 @@ extracted from its source code and included here for reference.
     vertex after the interpolated point P.  This allows the caller to easily
     construct a given suffix of the polyline by concatenating P with the
     polyline vertices starting at "next_vertex".  Note that P is guaranteed
-    to be different than vertex(*next_vertex), so this will never result in
+    to be different than `vertex(*next_vertex)`, so this will never result in
     a duplicate vertex.
+    
     The polyline must not be empty.  Note that if "fraction" >= 1.0, then
     "next_vertex" will be set to num_vertices() (indicating that no vertices
     from the polyline need to be appended).  The value of "next_vertex" is
     always between 1 and num_vertices().
+    
     This method can also be used to construct a prefix of the polyline, by
     taking the polyline vertices up to "next_vertex - 1" and appending the
     returned point P if it is different from the last vertex (since in this
@@ -3388,6 +3505,7 @@ extracted from its source code and included here for reference.
     beginning of the polyline over the length of the polyline.  The return
     value is always betwen 0 and 1 inclusive.  See GetSuffix() for the
     meaning of "next_vertex".
+    
     The polyline should not be empty.  If it has fewer than 2 vertices, the
     return value is zero.
   
@@ -3398,6 +3516,7 @@ extracted from its source code and included here for reference.
     point.  See GetSuffix() for the meaning of "next_vertex", which is chosen
     here w.r.t. the projected point as opposed to the interpolated point in
     GetSuffix().
+    
     The polyline must be non-empty.
   
     
@@ -3407,6 +3526,7 @@ extracted from its source code and included here for reference.
     using a naive definition of "right-hand-sideness" where the point is on
     the RHS of the polyline iff the point is on the RHS of the line segment in
     the polyline which it is closest to.
+    
     The polyline must have at least 2 vertices.
   
     
@@ -3416,6 +3536,7 @@ extracted from its source code and included here for reference.
     polylines share a vertex they are considered to be intersecting. When a
     polyline endpoint is the only intersection with the other polyline, the
     function may return true or false arbitrarily.
+    
     The running time is quadratic in the number of vertices.
   
     
@@ -3429,13 +3550,17 @@ extracted from its source code and included here for reference.
     Return a subsequence of vertex indices such that the polyline connecting
     these vertices is never further than "tolerance" from the original
     polyline.  The first and last vertices are always preserved.
+    
     Some useful properties of the algorithm:
     
      - It runs in linear time.
+    
      - The output is always a valid polyline.  In particular, adjacent
        output vertices are never identical or antipodal.
+    
      - The method is not optimal, but it tends to produce 2-3% fewer
        vertices than the Douglas-Peucker algorithm with the same tolerance.
+    
      - The output isparametrically* equivalent to the original polyline to
        within the given tolerance.  For example, if a polyline backtracks on
        itself and then proceeds onwards, the backtracking will be preserved
@@ -3458,6 +3583,7 @@ extracted from its source code and included here for reference.
     true if this polyline has parameterization a:[0,1] -> S^2, "covered" has
     parameterization b:[0,1] -> S^2, and there is a non-decreasing function
     f:[0,1] -> [0,1] such that distance(a(f(t)), b(t)) <= max_error for all t.
+    
     You can think of this as testing whether it is possible to drive a car
     along "covered" and a car along some subpath of this polyline such that no
     car ever goes backward, and the cars are always within "max_error" of each
@@ -3466,6 +3592,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2Polyline* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     
@@ -3511,15 +3638,19 @@ extracted from its source code and included here for reference.
   represents a closed axis-aligned rectangle in the (x,y) plane, but it also
   happens to be a subtype of S2Region, which means that you can use an
   S2RegionCoverer to approximate it as a collection of S2CellIds.
+  
   With respect to the S2Cell decomposition, an S2R2Rect is interpreted as a
   region of (s,t)-space on face 0.  In particular, the rectangle [0,1]x[0,1]
   corresponds to the S2CellId that covers all of face 0.  This means that
   only rectangles that are subsets of [0,1]x[0,1] can be approximated using
   the S2RegionCoverer interface.
+  
   The S2R2Rect class is also a convenient way to find the (s,t)-region
   covered by a given S2CellId (see the FromCell and FromCellId methods).
+  
   TODO: If the geometry library is extended to have better support for planar
   geometry, then this class should no longer be necessary.
+  
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator, however it is
   not a "plain old datatype" (POD) because it has virtual functions.
@@ -3685,6 +3816,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2R2Rect* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     
@@ -3724,6 +3856,7 @@ extracted from its source code and included here for reference.
 
   An S2Region represents a two-dimensional region over the unit sphere.
   It is an abstract interface with various concrete subtypes.
+  
   The main purpose of this interface is to allow complex regions to be
   approximated as simpler regions.  So rather than having a wide variety
   of virtual methods that are implemented by all subtypes, the interface
@@ -3776,6 +3909,7 @@ extracted from its source code and included here for reference.
   
     Use encoder to generate a serialized representation of this region.
     Assumes that encoder can be enlarged using calls to Ensure(int).
+    
     The representation chosen is left up to the sub-classes but it should
     satisfy the following constraints:
     
@@ -3794,10 +3928,12 @@ extracted from its source code and included here for reference.
     Encode(). Note that since this method is virtual, it requires that a
     Region object of the appropriate concrete type has already been
     constructed. It is not possible to decode regions of unknown type.
+    
     Whenever the Decode method is changed to deal with new serialized
     representations, it should be done so in a manner that allows for
     older versions to be decoded i.e. the version number in the serialized
     representation should be used to decide how to decode the data.
+    
     Returns true on success.
   
     
@@ -3816,23 +3952,27 @@ extracted from its source code and included here for reference.
   An S2RegionCoverer is a class that allows arbitrary regions to be
   approximated as unions of cells (S2CellUnion).  This is useful for
   implementing various sorts of search and precomputation operations.
+  
   Typical usage:
-  S2RegionCoverer coverer;
   
   .. code-block:: cpp
   
+    S2RegionCoverer coverer;
     coverer.set_max_cells(5);
     S2Cap cap = S2Cap::FromAxisAngle(...);
     vector<S2CellId> covering;
     coverer.GetCovering(cap, &covering);
+    
   
   This yields a vector of at most 5 cells that is guaranteed to cover the
   given cap (a disc-shaped region on the sphere).
+  
   The approximation algorithm is not optimal but does a pretty good job in
   practice.  The output does not always use the maximum number of cells
   allowed, both because this would not always yield a better approximation,
   and because max_cells() is a limit on how much work is done exploring the
   possible covering as well as a limit on the final output size.
+  
   One can also generate interior coverings, which are sets of cells which
   are entirely contained within a region.  Interior coverings can be
   empty, even for non-empty regions, if there are no cells that satisfy
@@ -3847,6 +3987,7 @@ extracted from its source code and included here for reference.
   
     Set the minimum and maximum cell level to be used.  The default is to use
     all cell levels.  Requires: max_level() >= min_level().
+    
     To find the cell level corresponding to a given physical distance, use
     the S2Cell metrics defined in s2.h.  For example, to find the cell
     level that corresponds to an average edge length of 10km, use:
@@ -3855,6 +3996,7 @@ extracted from its source code and included here for reference.
     
         int level = S2::kAvgEdge.GetClosestLevel(
                     geostore::S2Earth::KmToRadians(length_km));
+      
     
     Note: min_level() takes priority over max_cells(), i.e. cells below the
     given level will never be used even if this causes a large number of
@@ -3896,11 +4038,14 @@ extracted from its source code and included here for reference.
        all six face cells).  Up to 3 cells may be returned even for very tiny
        convex regions if they happen to be located at the intersection of
        three cube faces.
+    
      - For any setting of max_cells(), an arbitrary number of cells may be
        returned if min_level() is too high for the region being approximated.
+    
      - If max_cells() is less than 4, the area of the covering may be
        arbitrarily large compared to the area of the original region even if
        the region is convex (e.g. an S2Cap or S2LatLngRect).
+    
     
     Accuracy is measured by dividing the area of the covering by the area of
     the original region.  The following table shows the median and worst case
@@ -3979,6 +4124,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2RegionIntersection* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     
@@ -4049,6 +4195,7 @@ extracted from its source code and included here for reference.
     
   .. cpp:function:: virtual S2RegionUnion* Clone() const
   
+    
     S2Region interface (see s2region.h for details):
   
     

@@ -1530,7 +1530,7 @@ def xyz_to_face_uv(p):
 
 
 def face_xyz_to_uv(face, p):
-    '''XYZ to UV
+    '''(face, XYZ) to UV
 
     see :cpp:func:`S2::FaceXYZtoUV`
     '''
@@ -1545,6 +1545,10 @@ def face_xyz_to_uv(face, p):
 
 
 def face_uv_to_xyz(face, u, v):
+    '''(face, u, v) to xyz
+
+    see :cpp:func:`S2::FaceUVtoXYZ`
+    '''
     if face == 0:
         return Point(1, u, v)
     elif face == 1:
@@ -1563,11 +1567,16 @@ def get_norm(face):
     return face_uv_to_xyz(face, 0, 0)
 
 
-# Return the right-handed normal (not necessarily unit length) for an
-# edge in the direction of the positive v-axis at the given u-value on
-# the given face.  (This vector is perpendicular to the plane through
-# the sphere origin that contains the given edge.)
 def get_u_norm(face, u):
+    '''u norm
+
+    Return the right-handed normal (not necessarily unit length) for an
+    edge in the direction of the positive v-axis at the given u-value on
+    the given face.  (This vector is perpendicular to the plane through
+    the sphere origin that contains the given edge.)
+
+    see :cpp:func:`S2::GetUNorm`
+    '''
     if face == 0:
         return Point(u, -1, 0)
     elif face == 1:
@@ -1582,10 +1591,15 @@ def get_u_norm(face, u):
         return Point(0, -1, -u)
 
 
-# Return the right-handed normal (not necessarily unit length) for an
-# edge in the direction of the positive u-axis at the given v-value on
-# the given face.
 def get_v_norm(face, v):
+    '''v norm
+
+    Return the right-handed normal (not necessarily unit length) for an
+    edge in the direction of the positive u-axis at the given v-value on
+    the given face.
+
+    see :cpp:func:`S2::GetVNorm`
+    '''
     if face == 0:
         return Point(-v, 0, 1)
     elif face == 1:
@@ -1635,6 +1649,10 @@ def is_unit_length(p):
 
 
 def ortho(a):
+    '''ortho
+
+    see :cpp:func:`S2::Ortho`
+    '''
     k = a.largest_abs_component() - 1
     if k < 0:
         k = 2
@@ -1648,7 +1666,12 @@ def ortho(a):
 
 
 def origin():
-    # These values are ones that try not to overlap cells etc
+    '''Origin
+
+    These values are ones that try not to overlap cells etc
+
+    see :cpp:func:`S2::Origin`
+    '''
     return Point(0.00457, 1, 0.0321).normalize()
 
 
@@ -1668,6 +1691,8 @@ def robust_cross_prod(a, b):
     (since :math:`a` and :math:`b` are unit length).  This
     yields a result that is nearly orthogonal to both :math:`a` and :math:`b`
     even if these two values differ only in the lowest bit of one component.
+
+    see :cpp:func:`S2::RobustCrossProd`
     '''
     assert is_unit_length(a)
     assert is_unit_length(b)
@@ -1680,6 +1705,10 @@ def robust_cross_prod(a, b):
 
 
 def simple_crossing(a, b, c, d):
+    '''Simple Crossing
+
+    see :cpp:func:`SimpleCrossing`
+    '''
     ab = a.cross_prod(b)
     acb = -(ab.dot_prod(c))
     bda = ab.dot_prod(d)
@@ -1693,6 +1722,10 @@ def simple_crossing(a, b, c, d):
 
 
 def girard_area(a, b, c):
+    '''Girard Area
+
+    see :cpp:func:`S2::GirardArea`
+    '''
     ab = robust_cross_prod(a, b)
     bc = robust_cross_prod(b, c)
     ac = robust_cross_prod(a, c)
@@ -1700,6 +1733,10 @@ def girard_area(a, b, c):
 
 
 def area(a, b, c):
+    '''Area
+
+    see :cpp:func:`S2::Area`
+    '''
     assert is_unit_length(a)
     assert is_unit_length(b)
     assert is_unit_length(c)
@@ -1725,28 +1762,26 @@ def area(a, b, c):
     ))
 
 
-# Return true if the points A, B, C are strictly counterclockwise.  Return
-# false if the points are clockwise or collinear (i.e. if they are all
-# contained on some great circle).
-#
-# Due to numerical errors, situations may arise that are mathematically
-# impossible, e.g. ABC may be considered strictly CCW while BCA is not.
-# However, the implementation guarantees the following:
-#
-#   If simple_ccw(a,b,c), then !simple_ccw(c,b,a) for all a,b,c.
 def simple_ccw(a, b, c):
-    # We compute the signed volume of the parallelepiped ABC.  The usual
-    # formula for this is (AxB).C, but we compute it here using (CxA).B
-    # in order to ensure that ABC and CBA are not both CCW.  This follows
-    # from the following identities (which are true numerically, not just
-    # mathematically):
-    #
-    #     (1) x.CrossProd(y) == -(y.CrossProd(x))
-    #     (2) (-x).DotProd(y) == -(x.DotProd(y))
+    '''Simple Counterclockwise
+
+    Return true if the points A, B, C are strictly counterclockwise.  Return
+    false if the points are clockwise or collinear (i.e. if they are all
+    contained on some great circle).
+
+    Due to numerical errors, situations may arise that are mathematically
+    impossible, e.g. ABC may be considered strictly CCW while BCA is not.
+    However, the implementation guarantees the following:
+
+      If simple_ccw(a,b,c), then !simple_ccw(c,b,a) for all a,b,c.
+
+    see :cpp:func:`S2::SimpleCCW`
+    '''
     return c.cross_prod(a).dot_prod(b) > 0
 
 
 class Interval(object):
+    '''Interval interface'''
     def __init__(self, lo, hi):
         # self.__bounds = [args[0], args[1]]
         self.__bounds = (lo, hi)
@@ -1773,6 +1808,10 @@ class Interval(object):
 
 
 class LineInterval(Interval):
+    '''Line Interval in R1
+
+    see :cpp:class:`R1Interval`
+    '''
 
     def __init__(self, lo=1, hi=0):
         super(LineInterval, self).__init__(lo, hi)
@@ -1857,9 +1896,11 @@ class LineInterval(Interval):
                 math.fabs(other.hi() - self.hi()) <= max_error)
 
 
-# originally S1Interval in C++ code
 class SphereInterval(Interval):
+    '''Interval in S1
 
+    see :cpp:class:`S1Interval`
+    '''
     def __init__(self, lo=math.pi, hi=-math.pi, args_checked=False):
         if args_checked:
             super(SphereInterval, self).__init__(lo, hi)
@@ -2122,6 +2163,10 @@ class SphereInterval(Interval):
 
 
 class Cell(object):
+    '''Cell
+
+    see :cpp:class:`Cell`
+    '''
 
     def __init__(self, cell_id=None):
         self.__uv = [[None, None], [None, None]]
@@ -2340,6 +2385,10 @@ class Cell(object):
 
 
 class CellUnion(object):
+    '''Cell Union
+
+    see :cpp:class:`CellUnion`
+    '''
 
     def __init__(self, cell_ids=None, raw=True):
         if cell_ids is None:
@@ -2599,6 +2648,10 @@ FACE_CELLS = (Cell.from_face_pos_level(0, 0, 0),
 
 
 class RegionCoverer(object):
+    '''Region Coverer
+
+    see :cpp:class:`RegionCoverer`
+    '''
 
     class Candidate(object):
         @property

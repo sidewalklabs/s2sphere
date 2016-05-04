@@ -50,6 +50,29 @@ function_re_partial = re.compile(
     '([A-Z][a-zA-Z0-9]+|int|double|bool|void|const)[\*&]{0,2} '
     '[a-z_A-Z0-9]+\(')
 
+special_cases = {
+    '//  // is the planar centroid, which is simply the centroid of '
+    'the ordinary\n':
+    '// is the planar centroid, which is simply the centroid of '
+    'the ordinary\n',
+
+    '// ----------------\n': '// \n',
+
+    '//  (3) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d\n':
+    '//  (4) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d\n',
+
+    '//  (3) If exactly one of a,b equals one of c,d, then exactly one of\n':
+    '//  (4) If exactly one of a,b equals one of c,d, then exactly one of\n',
+
+    '// to be different than vertex(*next_vertex), so this will never '
+    'result in\n':
+    '// to be different than `vertex(*next_vertex)`, so this will never '
+    'result in\n',
+
+    '// Return true if lng_.lo() > lng_.hi(), i.e. the rectangle crosses\n':
+    '// Return true if `lng_.lo() > lng_.hi()`, i.e. the rectangle crosses\n',
+}
+
 
 def extract(files, outfile):
     with open(outfile, 'w') as o:
@@ -80,12 +103,12 @@ def extract_file(in_file, out_file):
         if is_private:
             continue
 
+        if line in special_cases:
+            line = special_cases[line]
+
         if line.strip().startswith(COMMENT_TAGS):
             cached_lines.append(line)
             continue
-
-        if partial_function:
-            print('function name: {}'.format(partial_function + line.strip()))
 
         if line.startswith('class') and '{' in line:
             name = line[6:]
@@ -212,12 +235,8 @@ class Formatter(object):
 
         return processed
 
-    def remove_rst_formatting(self, lines):
-        return [l for l in lines if not all(c == '-' for c in l[:-1])]
-
     def comment(self, lines):
         processed = [self.strip(l) for l in lines]
-        processed = self.remove_rst_formatting(processed)
         processed = self.detect_block(processed)
         return ''.join((' ' * 2) + l for l in processed)
 
