@@ -14,11 +14,11 @@ class Angle(object):
     '''A one-dimensional angle (as opposed to a two-dimensional solid angle).
 
     It has methods for converting angles to or from radians and degrees.
-    This mimics the behavior of the original :cpp:class:`S1Angle` class.
 
     :param float radians:
         angle in radians
 
+    see :cpp:class:`S1Angle`
     '''
 
     def __init__(self, radians=0):
@@ -69,7 +69,8 @@ class Point(object):
     '''A point in 3d Euclidean space.
 
     "Normalized" points are points on the unit sphere.
-    This mimics the behavior of the original :cpp:type:`S2Point`.
+
+    see :cpp:type:`S2Point`
     '''
 
     def __init__(self, x, y, z):
@@ -164,7 +165,7 @@ class Point(object):
 class LatLon(object):
     '''A point on a sphere in latitute-longitude coordinates.
 
-    The corresponds to the original :cpp:class:`S2LatLng`.
+    see :cpp:class:`S2LatLng`
     '''
 
     @classmethod
@@ -280,7 +281,7 @@ class LatLon(object):
 class Cap(object):
     '''A spherical cap, which is a portion of a sphere cut off by a plane.
 
-    This mimics the original :cpp:class:`S2Cap` class.
+    see :cpp:class:`S2Cap`
     '''
 
     ROUND_UP = 1.0 + 1.0 / (1 << 52)
@@ -498,7 +499,7 @@ class Cap(object):
 class LatLonRect(object):
     '''A rectangle in latitude-longitude space.
 
-    This class mimics the original :cpp:class:`S2LatLngRect` class.
+    see :cpp:class:`S2LatLngRect`
     '''
 
     def __init__(self, *args):
@@ -879,7 +880,7 @@ _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 class CellId(object):
     '''S2 cell id
 
-    Mimics the original :cpp:class:`S2CellId` class.
+    see :cpp:class:`S2CellId`
     '''
 
     # projection types
@@ -1450,7 +1451,7 @@ class CellId(object):
 class Metric(object):
     '''Metric
 
-    Mimics the original :cpp:class:`S2::Metric` class.
+    see :cpp:class:`S2::Metric`
     '''
 
     def __init__(self, deriv, dim):
@@ -1483,7 +1484,7 @@ class Metric(object):
 class LengthMetric(Metric):
     '''Length metric. A 1D specialization of :class:`s2sphere.Metric`.
 
-    Mimics the original :cpp:class:`S2::LengthMetric`.
+    see :cpp:class:`S2::LengthMetric`
     '''
     def __init__(self, deriv):
         super(LengthMetric, self).__init__(deriv, 1)
@@ -1492,7 +1493,7 @@ class LengthMetric(Metric):
 class AreaMetric(Metric):
     '''Area metric. A 2D specialization of :class:`s2sphere.Metric`.
 
-    Mimics the original :cpp:class:`S2::AreaMetric`.
+    see :cpp:class:`S2::AreaMetric`
     '''
     def __init__(self, deriv):
         super(AreaMetric, self).__init__(deriv, 2)
@@ -1707,7 +1708,7 @@ def robust_cross_prod(a, b):
 def simple_crossing(a, b, c, d):
     '''Simple Crossing
 
-    see :cpp:func:`SimpleCrossing`
+    see :cpp:func:`S2EdgeUtil::SimpleCrossing`
     '''
     ab = a.cross_prod(b)
     acb = -(ab.dot_prod(c))
@@ -2165,7 +2166,7 @@ class SphereInterval(Interval):
 class Cell(object):
     '''Cell
 
-    see :cpp:class:`Cell`
+    see :cpp:class:`S2Cell`
     '''
 
     def __init__(self, cell_id=None):
@@ -2387,7 +2388,7 @@ class Cell(object):
 class CellUnion(object):
     '''Cell Union
 
-    see :cpp:class:`CellUnion`
+    see :cpp:class:`S2CellUnion`
     '''
 
     def __init__(self, cell_ids=None, raw=True):
@@ -2650,7 +2651,7 @@ FACE_CELLS = (Cell.from_face_pos_level(0, 0, 0),
 class RegionCoverer(object):
     '''Region Coverer
 
-    see :cpp:class:`RegionCoverer`
+    see :cpp:class:`S2RegionCoverer`
     '''
 
     class Candidate(object):
