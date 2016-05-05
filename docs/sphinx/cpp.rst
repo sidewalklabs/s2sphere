@@ -16,430 +16,380 @@ extracted from its source code and included here for reference.
   An R1Interval represents a closed, bounded interval on the real line.
   It is capable of representing the empty interval (containing no points)
   and zero-length intervals (containing a single point).
-  
+
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
-  
   .. cpp:function:: static inline R1Interval Empty()
-  
+
     Returns an empty interval.
-  
-    
+
   .. cpp:function:: static R1Interval FromPoint(double p)
-  
+
     Convenience method to construct an interval containing a single point.
-  
-    
+
   .. cpp:function:: static R1Interval FromPointPair(double p1, double p2)
-  
+
     Convenience method to construct the minimal interval containing
     the two given points.  This is equivalent to starting with an empty
     interval and calling AddPoint() twice, but it is more efficient.
-  
-    
+
   .. cpp:function:: double lo() const
-  
-  
-    
+
+
+
   .. cpp:function:: double hi() const
-  
-  
-    
+
+
+
   .. cpp:function:: double bound(int i) const
-  
-  
-    
+
+
+
   .. cpp:function:: Vector2_d const& bounds() const
-  
-  
-    
+
+
+
   .. cpp:function:: void set_lo(double p)
-  
+
     Methods to modify one endpoint of an existing R1Interval.  Do not use
     these methods if you want to replace both endpoints of the interval; use
     a constructor instead.  For example:
-    
+
     .. code-block:: cpp
-    
+
        lat_bounds = R1Interval(lat_lo, lat_hi);
-  
-    
+
   .. cpp:function:: void set_hi(double p)
-  
-  
-    
+
+
+
   .. cpp:function:: bool is_empty() const
-  
+
     Return true if the interval is empty, i.e. it contains no points.
-  
-    
+
   .. cpp:function:: double GetCenter() const
-  
+
     Return the center of the interval.  For empty intervals,
     the result is arbitrary.
-  
-    
+
   .. cpp:function:: double GetLength() const
-  
+
     Return the length of the interval.  The length of an empty interval
     is negative.
-  
-    
+
   .. cpp:function:: bool Contains(double p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool InteriorContains(double p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(R1Interval const& y) const
-  
+
     Return true if this interval contains the interval 'y'.
-  
-    
+
   .. cpp:function:: bool InteriorContains(R1Interval const& y) const
-  
+
     Return true if the interior of this interval contains the entire
     interval 'y' (including its boundary).
-  
-    
+
   .. cpp:function:: bool Intersects(R1Interval const& y) const
-  
+
     Return true if this interval intersects the given interval,
     i.e. if they have any points in common.
-  
-    
+
   .. cpp:function:: bool InteriorIntersects(R1Interval const& y) const
-  
+
     Return true if the interior of this interval intersects
     any point of the given interval (including its boundary).
-  
-    
+
   .. cpp:function:: double GetDirectedHausdorffDistance(R1Interval const& y) const
-  
+
     Return the Hausdorff distance to the given interval 'y'. For two
     R1Intervals x and y, this distance is defined as
-    
+
     .. code-block:: cpp
-    
+
         h(x, y) = max_{p in x} min_{q in y} d(p, q).
-  
-    
+
   .. cpp:function:: void AddPoint(double p)
-  
+
     Expand the interval so that it contains the given point "p".
-  
-    
+
   .. cpp:function:: R1Interval Expanded(double radius) const
-  
+
     Return an interval that contains all points with a distance "radius" of
     a point in this interval.  Note that the expansion of an empty interval
     is always empty.
-  
-    
+
   .. cpp:function:: R1Interval Union(R1Interval const& y) const
-  
+
     Return the smallest interval that contains this interval and the
     given interval "y".
-  
-    
+
   .. cpp:function:: R1Interval Intersection(R1Interval const& y) const
-  
+
     Return the intersection of this interval with the given interval.
     Empty intervals do not need to be special-cased.
-  
-    
+
   .. cpp:function:: bool ApproxEquals(R1Interval const& y, double max_error = 1e-15) const
-  
+
     Return true if length of the symmetric difference between the two
     intervals is at most the given tolerance.
-  
-  
+
 .. cpp:class:: S1Angle
 
   This class represents a one-dimensional angle (as opposed to a
   two-dimensional solid angle).  It has methods for converting angles to
   or from radians, degrees, and the E5/E6/E7 representations (i.e. degrees
   multiplied by 1e5/1e6/1e7 and rounded to the nearest integer).
-  
+
   This class has built-in support for the E5, E6, and E7
   representations.  An E5 is the measure of an angle in degrees,
   multiplied by 10**5.
-  
+
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
-  
   .. cpp:function:: inline static S1Angle Radians(double radians)
-  
+
     These methods construct S1Angle objects from their measure in radians
     or degrees.
-  
-    
+
   .. cpp:function:: inline static S1Angle Degrees(double degrees)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S1Angle E5(int32 e5)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S1Angle E6(int32 e6)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S1Angle E7(int32 e7)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S1Angle UnsignedE6(uint32 e6)
-  
+
     Convenience functions -- to use when args have been fixed32s in protos.
-    
+
     The arguments are static_cast into int32, so very large unsigned values
     are treated as negative numbers.
-  
-    
+
   .. cpp:function:: inline static S1Angle UnsignedE7(uint32 e7)
-  
-  
-    
+
+
+
   .. cpp:function:: double radians() const
-  
-  
-    
+
+
+
   .. cpp:function:: double degrees() const
-  
-  
-    
+
+
+
   .. cpp:function:: S1Angle abs() const
-  
+
     Return the absolute value of an angle.
-  
-    
+
   .. cpp:function:: S1Angle Normalized() const
-  
+
     Return the angle normalized to the range (-180, 180] degrees.
-  
-    
+
   .. cpp:function:: void Normalize()
-  
+
     Normalize this angle to the range (-180, 180] degrees.
-  
-  
+
 .. cpp:class:: S1Interval
 
   An S1Interval represents a closed interval on a unit circle (also known
   as a 1-dimensional sphere).  It is capable of representing the empty
   interval (containing no points), the full interval (containing all
   points), and zero-length intervals (containing a single point).
-  
+
   Points are represented by the angle they make with the positive x-axis in
   the range [-Pi, Pi].  An interval is represented by its lower and upper
   bounds (both inclusive, since the interval is closed).  The lower bound may
   be greater than the upper bound, in which case the interval is "inverted"
   (i.e. it passes through the point (-1, 0)).
-  
+
   Note that the point (-1, 0) has two valid representations, Pi and -Pi.
   The normalized representation of this point internally is Pi, so that
   endpoints of normal intervals are in the range (-Pi, Pi].  However, we
   take advantage of the point -Pi to construct two special intervals:
   the Full() interval is [-Pi, Pi], and the Empty() interval is [Pi, -Pi].
-  
+
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
-  
   .. cpp:function:: static inline S1Interval Empty()
-  
+
     Returns the empty interval.
-  
-    
+
   .. cpp:function:: static inline S1Interval Full()
-  
+
     Returns the full interval.
-  
-    
+
   .. cpp:function:: static S1Interval FromPoint(double p)
-  
+
     Convenience method to construct an interval containing a single point.
-  
-    
+
   .. cpp:function:: static S1Interval FromPointPair(double p1, double p2)
-  
+
     Convenience method to construct the minimal interval containing
     the two given points.  This is equivalent to starting with an empty
     interval and calling AddPoint() twice, but it is more efficient.
-  
-    
+
   .. cpp:function:: double lo() const
-  
-  
-    
+
+
+
   .. cpp:function:: double hi() const
-  
-  
-    
+
+
+
   .. cpp:function:: double bound(int i) const
-  
-  
-    
+
+
+
   .. cpp:function:: Vector2_d const& bounds() const
-  
-  
-    
+
+
+
   .. cpp:function:: void set_lo(double p)
-  
+
     Methods to modify one endpoint of an existing S1Interval.  Requires that
     the resulting S1Interval is valid.  This implies you cannot call this
     method on an Empty() or Full() interval, since these intervals do not
     have any endpoints.
-    
+
     Do not use these methods if you want to replace both endpoints of the
     interval; use a constructor instead.  For example:
-    
+
     .. code-block:: cpp
-    
+
        lng_bounds = S1Interval(lng_lo, lng_hi);
-  
-    
+
   .. cpp:function:: void set_hi(double p)
-  
-  
-    
+
+
+
   .. cpp:function:: inline bool is_valid() const
-  
+
     An interval is valid if neither bound exceeds Pi in absolute value,
     and the value -Pi appears only in the Empty() and Full() intervals.
-  
-    
+
   .. cpp:function:: bool is_full() const
-  
+
     Return true if the interval contains all points on the unit circle.
-  
-    
+
   .. cpp:function:: bool is_empty() const
-  
+
     Return true if the interval is empty, i.e. it contains no points.
-  
-    
+
   .. cpp:function:: bool is_inverted() const
-  
+
     Return true if lo() > hi().  (This is true for empty intervals.)
-  
-    
+
   .. cpp:function:: double GetCenter() const
-  
+
     Return the midpoint of the interval.  For full and empty intervals,
     the result is arbitrary.
-  
-    
+
   .. cpp:function:: double GetLength() const
-  
+
     Return the length of the interval.  The length of an empty interval
     is negative.
-  
-    
+
   .. cpp:function:: S1Interval Complement() const
-  
+
     Return the complement of the interior of the interval.  An interval and
     its complement have the same boundary but do not share any interior
     values.  The complement operator is not a bijection, since the complement
     of a singleton interval (containing a single value) is the same as the
     complement of an empty interval.
-  
-    
+
   .. cpp:function:: double GetComplementCenter() const
-  
+
     Return the midpoint of the complement of the interval. For full and empty
     intervals, the result is arbitrary. For a singleton interval (containing a
     single point), the result is its antipodal point on S1.
-  
-    
+
   .. cpp:function:: bool Contains(double p) const
-  
+
     Return true if the interval (which is closed) contains the point 'p'.
-  
-    
+
   .. cpp:function:: bool InteriorContains(double p) const
-  
+
     Return true if the interior of the interval contains the point 'p'.
-  
-    
+
   .. cpp:function:: bool Contains(S1Interval const& y) const
-  
+
     Return true if the interval contains the given interval 'y'.
     Works for empty, full, and singleton intervals.
-  
-    
+
   .. cpp:function:: bool InteriorContains(S1Interval const& y) const
-  
+
     Returns true if the interior of this interval contains the entire
     interval 'y'.  Note that x.InteriorContains(x) is true only when
     x is the empty or full interval, and x.InteriorContains(S1Interval(p,p))
     is equivalent to x.InteriorContains(p).
-  
-    
+
   .. cpp:function:: bool Intersects(S1Interval const& y) const
-  
+
     Return true if the two intervals contain any points in common.
     Note that the point +/-Pi has two representations, so the intervals
     [-Pi,-3] and [2,Pi] intersect, for example.
-  
-    
+
   .. cpp:function:: bool InteriorIntersects(S1Interval const& y) const
-  
+
     Return true if the interior of this interval contains any point of the
     interval 'y' (including its boundary).  Works for empty, full, and
     singleton intervals.
-  
-    
+
   .. cpp:function:: double GetDirectedHausdorffDistance(S1Interval const& y) const
-  
+
     Return the Hausdorff distance to the given interval 'y'. For two
     S1Intervals x and y, this distance is defined by
-    
+
     .. code-block:: cpp
-    
+
         h(x, y) = max_{p in x} min_{q in y} d(p, q),
-    
+
     where d(.,.) is measured along S1.
-  
-    
+
   .. cpp:function:: void AddPoint(double p)
-  
+
     Expand the interval by the minimum amount necessary so that it
     contains the given point "p" (an angle in the range [-Pi, Pi]).
-  
-    
+
   .. cpp:function:: S1Interval Expanded(double radius) const
-  
+
     Return an interval that contains all points with a distance "radius" of a
     point in this interval.  Note that the expansion of an empty interval is
     always empty.  The radius must be non-negative.
-  
-    
+
   .. cpp:function:: S1Interval Union(S1Interval const& y) const
-  
+
     Return the smallest interval that contains this interval and the
     given interval "y".
-  
-    
+
   .. cpp:function:: S1Interval Intersection(S1Interval const& y) const
-  
+
     Return the smallest interval that contains the intersection of this
     interval with "y".  Note that the region of intersection may
     consist of two disjoint intervals.
-  
-    
+
   .. cpp:function:: bool ApproxEquals(S1Interval const& y, double max_error = 1e-15) const
-  
+
     Return true if the length of the symmetric difference between the two
     intervals is at most the given tolerance.
-  
-  
+
 .. cpp:type:: Vector3_d S2Point
 
   An S2Point represents a point on the unit sphere as a 3D vector.  Usually
@@ -447,7 +397,6 @@ extracted from its source code and included here for reference.
   this.  See util/math/vector3-inl.h for the methods available.  Among other
   things, there are overloaded operators that make it convenient to write
   arithmetic expressions (e.g. (1-x)*p1 + x*p2).
-
 
 .. cpp:class:: template<> hash<S2Point>
 
@@ -460,163 +409,150 @@ extracted from its source code and included here for reference.
   intersection tests.  The name "S2" is derived from the mathematical symbol
   for the two-dimensional unit sphere (note that the "2" refers to the
   dimension of the surface, not the space it is embedded in).
-  
+
   This class also defines a framework for decomposing the unit sphere into a
   hierarchy of "cells".  Each cell is a quadrilateral bounded by four
   geodesics.  The top level of the hierarchy is obtained by projecting the
   six faces of a cube onto the unit sphere, and lower levels are obtained by
   subdividing each cell into four children recursively.
-  
+
   This class specifies the details of how the cube faces are projected onto
   the unit sphere.  This includes getting the face ordering and orientation
   correct so that sequentially increasing cell ids follow a continuous
   space-filling curve over the entire sphere, and defining the
   transformation from cell-space to cube-space in order to make the cells
   more uniform in size.
-  
+
   This file also contains documentation of the various coordinate systems
   and conventions used.
-  
-  This class is not thread-safe for loops and objects that use loops.
-  
 
-  
+  This class is not thread-safe for loops and objects that use loops.
+
+
   .. cpp:function:: inline static S2Point Origin()
-  
+
     Return a unique "origin" on the sphere for operations that need a fixed
     reference point.  In particular, this is the "point at infinity" used for
     point-in-polygon testing (by counting the number of edge crossings).
-    
+
     It shouldnot* be a point that is commonly used in edge tests in order
     to avoid triggering code to handle degenerate cases.  (This rules out the
     north and south poles.)  It should also not be on the boundary of any
     low-level S2Cell for the same reason.
-  
-    
+
   .. cpp:function:: static bool IsUnitLength(S2Point const& p)
-  
+
     Return true if the given point is approximately unit length
     (this is mainly useful for assertions).
-  
-    
+
   .. cpp:function:: static S2Point Ortho(S2Point const& a)
-  
+
     Return a unit-length vector that is orthogonal to "a".  Satisfies
     Ortho(-a) = -Ortho(a) for all a.
-  
-    
+
   .. cpp:function:: static void GetFrame(S2Point const& z, Matrix3x3_d* m)
-  
+
     Given a point "z" on the unit sphere, extend this into a right-handed
     coordinate frame of unit-length column vectors m = (x,y,z).  Note that
     the vectors (x,y) are an orthonormal frame for the tangent space at "z",
     while "z" itself is an orthonormal frame for the normal space at "z".
-  
-    
+
   .. cpp:function:: static S2Point ToFrame(Matrix3x3_d const& m, S2Point const& p)
-  
+
     Given an orthonormal basis "m" of column vectors and a point "p", return
     the coordinates of "p" with respect to the basis "m".  The resulting
     point "q" satisfies the identity (mq == p).
-  
-    
+
   .. cpp:function:: static S2Point FromFrame(Matrix3x3_d const& m, S2Point const& q)
-  
+
     Given an orthonormal basis "m" of column vectors and a point "q" with
     respect to that basis, return the equivalent point "p" with respect to
     the standard axis-aligned basis.  The result satisfies (p == mq).
-  
-    
+
   .. cpp:function:: static bool ApproxEquals(S2Point const& a, S2Point const& b, double max_error = 1e-15)
-  
+
     the coordinates of "p" with respect to the basis "m".  The resulting
     point "r" satisfies the identity (mr == p).
     Return true if two points are within the given distance of each other
     (this is mainly useful for testing).
-  
-    
+
   .. cpp:function:: static S2Point RobustCrossProd(S2Point const& a, S2Point const& b)
-  
+
     Return a vector "c" that is orthogonal to the given unit-length vectors
     "a" and "b".  This function is similar to a.CrossProd(b) except that it
     does a better job of ensuring orthogonality when "a" is nearly parallel
     to "b", and it returns a non-zero result even when a == b or a == -b.
-    
+
     It satisfies the following properties (RCP == RobustCrossProd):
-    
+
     .. code-block:: cpp
-    
+
       (1) RCP(a,b) != 0 for all a, b
       (2) RCP(b,a) == -RCP(a,b) unless a == b or a == -b
       (3) RCP(-a,b) == -RCP(a,b) unless a == b or a == -b
       (4) RCP(a,-b) == -RCP(a,b) unless a == b or a == -b
-  
-    
+
   .. cpp:function:: static bool SimpleCCW(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     Return true if the points A, B, C are strictly counterclockwise.  Return
     false if the points are clockwise or collinear (i.e. if they are all
     contained on some great circle).
-    
+
     Due to numerical errors, situations may arise that are mathematically
     impossible, e.g. ABC may be considered strictly CCW while BCA is not.
     However, the implementation guarantees the following:
-    
+
     .. code-block:: cpp
-    
+
       If SimpleCCW(a,b,c), then !SimpleCCW(c,b,a) for all a,b,c.
-  
-    
+
   .. cpp:function:: static int RobustCCW(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     Returns +1 if the points A, B, C are counterclockwise, -1 if the points
     are clockwise, and 0 if any two points are the same.  This function is
     essentially like taking the sign of the determinant of ABC, except that
     it has additional logic to make sure that the above properties hold even
     when the three points are coplanar, and to deal with the limitations of
     floating-point arithmetic.
-    
+
     RobustCCW satisfies the following conditions:
-    
+
      (1) RobustCCW(a,b,c) == 0 if and only if a == b, b == c, or c == a
      (2) RobustCCW(b,c,a) == RobustCCW(a,b,c) for all a,b,c
      (3) RobustCCW(c,b,a) == -RobustCCW(a,b,c) for all a,b,c
-    
-    
+
+
     In other words:
-    
+
      (1) The result is zero if and only if two points are the same.
      (2) Rotating the order of the arguments does not affect the result.
      (3) Exchanging any two arguments inverts the result.
-    
-    
+
+
     On the other hand, note that it is not true in general that
     RobustCCW(-a,b,c) == -RobustCCW(a,b,c), or any similar identities
     involving antipodal points.
-  
-    
+
   .. cpp:function:: inline static int RobustCCW(S2Point const& a, S2Point const& b, S2Point const& c, S2Point const& a_cross_b)
-  
+
     A more efficient version of RobustCCW that allows the precomputed
     cross-product of A and B to be specified.  (Unlike the 3 argument
     version this method is also inlined.)
-  
-    
+
   .. cpp:function:: inline static int TriageCCW(S2Point const& a, S2Point const& b, S2Point const& c, S2Point const& a_cross_b)
-  
+
     This version of RobustCCW returns +1 if the points are definitely CCW,
-    
+
     -1 if they are definitely CW, and 0 if two points are identical or the
-    
+
     result is uncertain.  Uncertain certain cases can be resolved, if
     desired, by calling ExpensiveCCW.
-    
+
     The purpose of this method is to allow additional cheap tests to be done,
     where possible, in order to avoid calling ExpensiveCCW unnecessarily.
-  
-    
+
   .. cpp:function:: static int ExpensiveCCW(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     This function is invoked by RobustCCW() if the sign of the determinant is
     uncertain.  It always returns a non-zero result unless two of the input
     points are the same.  It uses a combination of multiple-precision
@@ -627,77 +563,70 @@ extracted from its source code and included here for reference.
     collinear and no four S2Points are coplanar.  These perturbations are so
     small that they do not affect the sign of any determinant that was
     non-zero before the perturbations.
-    
+
     Unlike RobustCCW(), this method does not require the input points to be
     normalized.
-  
-    
+
   .. cpp:function:: static bool OrderedCCW(S2Point const& a, S2Point const& b, S2Point const& c, S2Point const& o)
-  
+
     Given 4 points on the unit sphere, return true if the edges OA, OB, and
     OC are encountered in that order while sweeping CCW around the point O.
     You can think of this as testing whether A <= B <= C with respect to the
     CCW ordering around O that starts at A, or equivalently, whether B is
     contained in the range of angles (inclusive) that starts at A and extends
     CCW to C.  Properties:
-    
+
      (1) If OrderedCCW(a,b,c,o) && OrderedCCW(b,a,c,o), then a == b
      (2) If OrderedCCW(a,b,c,o) && OrderedCCW(a,c,b,o), then b == c
      (3) If OrderedCCW(a,b,c,o) && OrderedCCW(c,b,a,o), then a == b == c
      (4) If a == b or b == c, then OrderedCCW(a,b,c,o) is true
      (5) Otherwise if a == c, then OrderedCCW(a,b,c,o) is false
-  
-    
+
   .. cpp:function:: static double Angle(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     Return the interior angle at the vertex B in the triangle ABC.  The
     return value is always in the range [0, Pi].  The points do not need to
     be normalized.  Ensures that Angle(a,b,c) == Angle(c,b,a) for all a,b,c.
-    
+
     The angle is undefined if A or C is diametrically opposite from B, and
     becomes numerically unstable as the length of edge AB or BC approaches
     180 degrees.
-  
-    
+
   .. cpp:function:: static double TurnAngle(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     Return the exterior angle at the vertex B in the triangle ABC.  The
     return value is positive if ABC is counterclockwise and negative
     otherwise.  If you imagine an ant walking from A to B to C, this is the
     angle that the ant turns at vertex B (positive = left, negative = right).
     Ensures that TurnAngle(a,b,c) == -TurnAngle(c,b,a) for all a,b,c.
-  
-    
+
   .. cpp:function:: static double Area(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     Return the area of triangle ABC.  The method used is about twice as
     expensive as Girard's formula, but it is numerically stable for both
     large and very small triangles.  All points should be unit length.
     The area is always positive.
-    
+
     The triangle area is undefined if it contains two antipodal points, and
     becomes numerically unstable as the length of any edge approaches 180
     degrees.
-  
-    
+
   .. cpp:function:: static double GirardArea(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     Return the area of the triangle computed using Girard's formula.  All
     points should be unit length.  This is slightly faster than the Area()
     method above but is not accurate for very small triangles.
-  
-    
+
   .. cpp:function:: static double SignedArea(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     Like Area(), but returns a positive value for counterclockwise triangles
     and a negative value otherwise.
-  
-    
+
   .. cpp:function:: static S2Point PlanarCentroid(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     About centroids:
-    
-    
+
+
     There are several notions of the "centroid" of a triangle.  First, there
     is the planar centroid, which is simply the centroid of the ordinary
     (non-spherical) triangle defined by the three vertices.  Second, there is
@@ -708,14 +637,14 @@ extracted from its source code and included here for reference.
     defined as the area integral over the spherical triangle of (x,y,z)
     divided by the triangle area.  This is the point that the triangle would
     rotate around if it was spinning in empty space.
-    
+
     The best centroid for most purposes is the true centroid.  Unlike the
     planar and surface centroids, the true centroid behaves linearly as
     regions are added or subtracted.  That is, if you split a triangle into
     pieces and compute the average of their centroids (weighted by triangle
     area), the result equals the centroid of the original triangle.  This is
     not true of the other centroids.
-    
+
     Also note that the surface centroid may be nowhere near the intuitive
     "center" of a spherical triangle.  For example, consider the triangle
     with vertices A=(1,eps,0), B=(0,0,1), C=(-1,eps,0) (a quarter-sphere).
@@ -731,81 +660,71 @@ extracted from its source code and included here for reference.
     spherical triangle, i.e. the intersection of the three medians.  However,
     note that for large spherical triangles the surface centroid may be
     nowhere near the intuitive "center" (see example above).
-  
-    
+
   .. cpp:function:: static S2Point TrueCentroid(S2Point const& a, S2Point const& b, S2Point const& c)
-  
+
     Returns the true centroid of the spherical triangle ABC multiplied by the
     signed area of spherical triangle ABC.  The reasons for multiplying by
     the signed area are (1) this is the quantity that needs to be summed to
     compute the centroid of a union or difference of triangles, and (2) it's
     actually easier to calculate this way.
-  
-    
+
   .. cpp:function:: inline static double STtoUV(double s)
-  
+
     Convert an s or t value  to the corresponding u or v value.  This is
     a non-linear transformation from [-1,1] to [-1,1] that attempts to
     make the cell sizes more uniform.
-  
-    
+
   .. cpp:function:: inline static double UVtoST(double u)
-  
+
     The inverse of the STtoUV transformation.  Note that it is not always
     true that UVtoST(STtoUV(x)) == x due to numerical errors.
-  
-    
+
   .. cpp:function:: inline static S2Point FaceUVtoXYZ(int face, double u, double v)
-  
+
     Convert (face, u, v) coordinates to a direction vector (not
     necessarily unit length).
-  
-    
+
   .. cpp:function:: inline static bool FaceXYZtoUV(int face, S2Point const& p, double* pu, double* pv)
-  
+
     If the dot product of p with the given face normal is positive,
     set the corresponding u and v values (which may lie outside the range
     [-1,1]) and return true.  Otherwise return false.
-  
-    
+
   .. cpp:function:: inline static int XYZtoFaceUV(S2Point const& p, double* pu, double* pv)
-  
+
     Convert a direction vector (not necessarily unit length) to
     (face, u, v) coordinates.
-  
-    
+
   .. cpp:function:: inline static S2Point GetUNorm(int face, double u)
-  
+
     Return the right-handed normal (not necessarily unit length) for an
     edge in the direction of the positive v-axis at the given u-value on
     the given face.  (This vector is perpendicular to the plane through
     the sphere origin that contains the given edge.)
-  
-    
+
   .. cpp:function:: inline static S2Point GetVNorm(int face, double v)
-  
+
     Return the right-handed normal (not necessarily unit length) for an
     edge in the direction of the positive u-axis at the given v-value on
     the given face.
-  
-    
+
   .. cpp:function:: inline static S2Point GetNorm(int face)
-  
+
     Return the unit-length normal, u-axis, or v-axis for the given face.
-  
-    
+
   .. cpp:function:: inline static S2Point GetUAxis(int face)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S2Point GetVAxis(int face)
-  
-  
-    
+
+
+
   .. cpp:class:: template <int dim> Metric
-  
-    S2Cell Metrics 
-    
+
+    S2Cell Metrics
+
     The following are various constants that describe the shapes and sizes of
     cells.  They are useful for deciding which cell level to use in order to
     satisfy a given condition (e.g. that cell vertices must be no further
@@ -815,55 +734,49 @@ extracted from its source code and included here for reference.
     maximum bounds are valid for cells at all levels, but they may be
     somewhat conservative for very large cells (e.g. face cells).
     Defines a cell metric of the given dimension (1 == length, 2 == area).
-  
-      
+
     .. cpp:function:: double deriv() const
-    
+
       The "deriv" value of a metric is a derivative, and must be multiplied by
       a length or area in (s,t)-space to get a useful value.
-    
-        
+
     .. cpp:function:: double GetValue(int level) const
-    
+
       Return the value of a metric for cells at the given level. The value is
       either a length or an area on the unit sphere, depending on the
       particular metric.
-    
-        
+
     .. cpp:function:: int GetClosestLevel(double value) const
-    
+
       Return the level at which the metric has approximately the given
       value.  For example, S2::kAvgEdge.GetClosestLevel(0.1) returns the
       level at which the average cell edge length is approximately 0.1.
       The return value is always a valid level.
-    
-        
+
     .. cpp:function:: int GetMinLevel(double value) const
-    
+
       Return the minimum level such that the metric is at most the given
       value, or S2CellId::kMaxLevel if there is no such level.  For example,
       S2::kMaxDiag.GetMinLevel(0.1) returns the minimum level such that all
       cell diagonal lengths are 0.1 or smaller.  The return value is always a
       valid level.
-    
-        
+
     .. cpp:function:: int GetMaxLevel(double value) const
-    
+
       Return the maximum level such that the metric is at least the given
       value, or zero if there is no such level.  For example,
       S2::kMinWidth.GetMaxLevel(0.1) returns the maximum level such that all
       cells have a minimum width of 0.1 or larger.  The return value is
       always a valid level.
-    
-      
+
   .. cpp:type:: Metric<1> LengthMetric
-  
-  
-    
+
+
+
   .. cpp:type:: Metric<2> AreaMetric
-  
-  
-  
+
+
+
 .. cpp:class:: S2Cap : public S2Region
 
   This class represents a spherical cap, i.e. a portion of a sphere cut off
@@ -871,668 +784,605 @@ extracted from its source code and included here for reference.
   representation has good numerical accuracy for very small caps (unlike the
   (axis, min-distance-from-origin) representation), and is also efficient for
   containment tests (unlike the (axis, angle) representation).
-  
+
   Here are some useful relationships between the cap height (h), the cap
   opening angle (theta), the maximum chord length from the cap's center (d),
   and the radius of cap's base (a).  All formulas assume a unit radius.
-  
+
   .. code-block:: cpp
-  
+
       h = 1 - cos(theta)
         = 2 sin^2(theta/2)
     d^2 = 2 h
         = a^2 + h^2
-    
-  
+
+
   Caps may be constructed from either an axis and a height, or an axis and
   an angle.  To avoid ambiguity, there are no public constructors except
   the default constructor.
-  
+
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator, however it is
   not a "plain old datatype" (POD) because it has virtual functions.
 
-  
   .. cpp:function:: inline static S2Cap FromAxisHeight(S2Point const& axis, double height)
-  
+
     Create a cap given its axis and the cap height, i.e. the maximum
     projected distance along the cap axis from the cap center.
     'axis' should be a unit-length vector.
-  
-    
+
   .. cpp:function:: static S2Cap FromAxisAngle(S2Point const& axis, S1Angle const& angle)
-  
+
     Create a cap given its axis and the cap opening angle, i.e. maximum
     angle between the axis and a point on the cap.  'axis' should be a
     unit-length vector, and 'angle' should be non-negative.  If 'angle' is
     180 degrees or larger, the cap will contain the entire unit sphere.
-  
-    
+
   .. cpp:function:: inline static S2Cap FromAxisArea(S2Point const& axis, double area)
-  
+
     Create a cap given its axis and its area in steradians.  'axis' should be
     a unit-length vector, and 'area' should be between 0 and 4M_PI.
-  
-    
+
   .. cpp:function:: static S2Cap Empty()
-  
+
     Return an empty cap, i.e. a cap that contains no points.
-  
-    
+
   .. cpp:function:: static S2Cap Full()
-  
+
     Return a full cap, i.e. a cap that contains all points.
-  
-    
+
   .. cpp:function:: S2Point const& axis() const
-  
+
     Accessor methods.
-  
-    
+
   .. cpp:function:: double height() const
-  
-  
-    
+
+
+
   .. cpp:function:: double area() const
-  
-  
-    
+
+
+
   .. cpp:function:: S1Angle angle() const
-  
+
     Return the cap opening angle in radians, or a negative number for
     empty caps.
-  
-    
+
   .. cpp:function:: bool is_valid() const
-  
+
     We allow negative heights (to represent empty caps) but not heights
     greater than 2.
-  
-    
+
   .. cpp:function:: bool is_empty() const
-  
+
     Return true if the cap is empty, i.e. it contains no points.
-  
-    
+
   .. cpp:function:: bool is_full() const
-  
+
     Return true if the cap is full, i.e. it contains all points.
-  
-    
+
   .. cpp:function:: S2Cap Complement() const
-  
+
     Return the complement of the interior of the cap.  A cap and its
     complement have the same boundary but do not share any interior points.
     The complement operator is not a bijection, since the complement of a
     singleton cap (containing a single point) is the same as the complement
     of an empty cap.
-  
-    
+
   .. cpp:function:: bool Contains(S2Cap const& other) const
-  
+
     Return true if and only if this cap contains the given other cap
     (in a set containment sense, e.g. every cap contains the empty cap).
-  
-    
+
   .. cpp:function:: bool Intersects(S2Cap const& other) const
-  
+
     Return true if and only if this cap intersects the given other cap,
     i.e. whether they have any points in common.
-  
-    
+
   .. cpp:function:: bool InteriorIntersects(S2Cap const& other) const
-  
+
     Return true if and only if the interior of this cap intersects the
     given other cap.  (This relationship is not symmetric, since only
     the interior of this cap is used.)
-  
-    
+
   .. cpp:function:: bool InteriorContains(S2Point const& p) const
-  
+
     Return true if and only if the given point is contained in the interior
     of the region (i.e. the region excluding its boundary).  'p' should be
     be a unit-length vector.
-  
-    
+
   .. cpp:function:: void AddPoint(S2Point const& p)
-  
+
     Increase the cap height if necessary to include the given point.
     If the cap is empty the axis is set to the given point, but otherwise
     it is left unchanged.  'p' should be a unit-length vector.
-  
-    
+
   .. cpp:function:: void AddCap(S2Cap const& other)
-  
+
     Increase the cap height if necessary to include "other".  If the current
     cap is empty it is set to the given other cap.
-  
-    
+
   .. cpp:function:: S2Cap Expanded(S1Angle const& distance) const
-  
+
     Return a cap that contains all points within a given distance of this
     cap.  Note that any expansion of the empty cap is still empty.
-  
-    
+
   .. cpp:function:: virtual S2Cap* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
+
     The point 'p' should be a unit-length vector.
-  
-    
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-    
+
+
+
   .. cpp:function:: bool ApproxEquals(S2Cap const& other, double max_error = 1e-14)
-  
+
     Return true if the cap axis and height differ by at most "max_error"
     from the given cap "other".
-  
-  
+
 .. cpp:class:: S2Cell : public S2Region
 
+  An S2Cell is an S2Region object that represents a cell.  Unlike S2CellIds,
+  it supports efficient containment and intersection tests.  However, it is
+  also a more expensive representation (currently 48 bytes rather than 8).
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator, however it is
   not a "plain old datatype" (POD) because it has virtual functions.
 
-  
   .. cpp:function:: static S2Cell FromFacePosLevel(int face, uint64 pos, int level)
-  
-  
-    
+
+
+
   .. cpp:function:: inline S2CellId id() const
-  
-  
-    
+
+
+
   .. cpp:function:: inline int face() const
-  
-  
-    
+
+
+
   .. cpp:function:: inline int level() const
-  
-  
-    
+
+
+
   .. cpp:function:: inline int orientation() const
-  
-  
-    
+
+
+
   .. cpp:function:: inline bool is_leaf() const
-  
-  
-    
+
+
+
   .. cpp:function:: int GetSizeIJ() const
-  
+
     These are equivalent to the S2CellId methods, but have a more efficient
     implementation since the level has been precomputed.
-  
-    
+
   .. cpp:function:: double GetSizeST() const
-  
-  
-    
+
+
+
   .. cpp:function:: S2Point GetVertex(int k) const
-  
+
     Return the k-th vertex of the cell (k = 0,1,2,3).  Vertices are returned
     in CCW order.  The points returned by GetVertexRaw are not necessarily
     unit length.
-  
-    
+
   .. cpp:function:: S2Point GetVertexRaw(int k) const
-  
-  
-    
+
+
+
   .. cpp:function:: S2Point GetEdge(int k) const
-  
+
     Return the inward-facing normal of the great circle passing through
     the edge from vertex k to vertex k+1 (mod 4).  The normals returned
     by GetEdgeRaw are not necessarily unit length.
-  
-    
+
   .. cpp:function:: S2Point GetEdgeRaw(int k) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Subdivide(S2Cell children[4]) const
-  
+
     If this is not a leaf cell, set children[0..3] to the four children of
     this cell (in traversal order) and return true.  Otherwise returns false.
     This method is equivalent to the following:
-    
+
     for (pos=0, id=child_begin(); id != child_end(); id = id.next(), ++pos)
-    
+
     .. code-block:: cpp
-    
+
       children[i] = S2Cell(id);
-      
-    
+
+
     except that it is more than two times faster.
-  
-    
+
   .. cpp:function:: S2Point GetCenter() const
-  
+
     Return the direction vector corresponding to the center in (s,t)-space of
     the given cell.  This is the point at which the cell is divided into four
     subcells; it is not necessarily the centroid of the cell in (u,v)-space
     or (x,y,z)-space.  The point returned by GetCenterRaw is not necessarily
     unit length.
-  
-    
+
   .. cpp:function:: S2Point GetCenterRaw() const
-  
-  
-    
+
+
+
   .. cpp:function:: static double AverageArea(int level)
-  
+
     Return the average area for cells at the given level.
-  
-    
+
   .. cpp:function:: double AverageArea() const
-  
+
     Return the average area of cells at this level.  This is accurate to
     within a factor of 1.7 (for S2_QUADRATIC_PROJECTION) and is extremely
     cheap to compute.
-  
-    
+
   .. cpp:function:: double ApproxArea() const
-  
+
     Return the approximate area of this cell.  This method is accurate to
     within 3% percent for all cell sizes and accurate to within 0.1% for
     cells at level 5 or higher (i.e. squares 350km to a side or smaller
     on the Earth's surface).  It is moderately cheap to compute.
-  
-    
+
   .. cpp:function:: double ExactArea() const
-  
+
     Return the area of this cell as accurately as possible.  This method is
     more expensive but it is accurate to 6 digits of precision even for leaf
     cells (whose area is approximately 1e-18).
-  
-    
+
   .. cpp:function:: virtual S2Cell* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
+
     The point 'p' does not need to be normalized.
-  
-    
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-  
+
+
+
 .. cpp:class:: S2CellId
 
   An S2CellId is a 64-bit unsigned integer that uniquely identifies a
   cell in the S2 cell decomposition.  It has the following format:
-  
+
   .. code-block:: cpp
-  
+
     id = [face][face_pos]
-    
+
     face:     a 3-bit number (range 0..5) encoding the cube face.
-    
+
     face_pos: a 61-bit number encoding the position of the center of this
               cell along the Hilbert curve over this face (see the Wiki
               pages for details).
-    
-  
+
+
   Sequentially increasing cell ids follow a continuous space-filling curve
   over the entire sphere.  They have the following properties:
-  
+
    - The id of a cell at level k consists of a 3-bit face number followed
      by k bit pairs that recursively select one of the four children of
      each cell.  The next bit is always 1, and all other bits are 0.
      Therefore, the level of a cell is determined by the position of its
      lowest-numbered bit that is turned on (for a cell at level k, this
      position is 2(kMaxLevel - k).)
-  
+
    - The id of a parent cell is at the midpoint of the range of ids spanned
      by its children (or by its descendants at any level).
-  
-  
+
+
   Leaf cells are often used to represent points on the unit sphere, and
   this class provides methods for converting directly between these two
   representations.  For cells that represent 2D regions rather than
   discrete point, it is better to use the S2Cell class.
-  
+
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
-  
   .. cpp:function:: inline static S2CellId None()
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S2CellId Sentinel()
-  
+
     Returns an invalid cell id guaranteed to be larger than any
     valid cell id.  Useful for creating indexes.
-  
-    
+
   .. cpp:function:: static S2CellId FromFacePosLevel(int face, uint64 pos, int level)
-  
+
     Return a cell given its face (range 0..5), 61-bit Hilbert curve position
     within that face, and level (range 0..kMaxLevel).  The given position
     will be modified to correspond to the Hilbert curve position at the
     center of the returned cell.  This is a static function rather than a
     constructor in order to give names to the arguments.
-  
-    
+
   .. cpp:function:: static S2CellId FromPoint(S2Point const& p)
-  
+
     Return the leaf cell containing the given point (a direction
     vector, not necessarily unit length).
-  
-    
+
   .. cpp:function:: static S2CellId FromLatLng(S2LatLng const& ll)
-  
+
     Return the leaf cell containing the given normalized S2LatLng.
-  
-    
+
   .. cpp:function:: S2Point ToPoint() const
-  
+
     Return the direction vector corresponding to the center of the given
     cell.  The vector returned by ToPointRaw is not necessarily unit length.
-  
-    
+
   .. cpp:function:: S2Point ToPointRaw() const
-  
-  
-    
+
+
+
   .. cpp:function:: S2LatLng ToLatLng() const
-  
+
     Return the S2LatLng corresponding to the center of the given cell.
-  
-    
+
   .. cpp:function:: inline bool is_valid() const
-  
+
     Return true if id() represents a valid cell.
-  
-    
+
   .. cpp:function:: inline int face() const
-  
+
     Which cube face this cell belongs to, in the range 0..5.
-  
-    
+
   .. cpp:function:: int level() const
-  
+
     Return the subdivision level of the cell (range 0..kMaxLevel).
-  
-    
+
   .. cpp:function:: inline int GetSizeIJ() const
-  
+
     Return the edge length of this cell in (i,j)-space.
-  
-    
+
   .. cpp:function:: inline double GetSizeST() const
-  
+
     Return the edge length of this cell in (s,t)-space.
-  
-    
+
   .. cpp:function:: inline static int GetSizeIJ(int level)
-  
+
     Like the above, but return the size of cells at the given level.
-  
-    
+
   .. cpp:function:: inline static double GetSizeST(int level)
-  
-  
-    
+
+
+
   .. cpp:function:: inline bool is_leaf() const
-  
+
     Return true if this is a leaf cell (more efficient than checking
     whether level() == kMaxLevel).
-  
-    
+
   .. cpp:function:: inline bool is_face() const
-  
+
     Return true if this is a top-level face cell (more efficient than
     checking whether level() == 0).
-  
-    
+
   .. cpp:function:: inline int child_position(int level) const
-  
+
     Return the child position (0..3) of this cell's ancestor at the given
     level, relative to its parent.  The argument should be in the range
-    
+
     1..kMaxLevel.  For example, child_position(1) returns the position of
-    
+
     this cell's level-1 ancestor within its top-level face cell.
-  
-    
+
   .. cpp:function:: inline S2CellId range_min() const
-  
+
     Methods that return the range of cell ids that are contained
     within this cell (including itself).  The range isinclusive*
     (i.e. test using >= and <=) and the return values of both
     methods are valid leaf cell ids.
-    
+
     These methods should not be used for iteration.  If you want to
     iterate through all the leaf cells, call child_begin(kMaxLevel) and
     child_end(kMaxLevel) instead.
-    
+
     It would in fact be error-prone to define a range_end() method,
     because (range_max().id() + 1) is not always a valid cell id, and the
     iterator would need to be tested using "<" rather that the usual "!=".
-  
-    
+
   .. cpp:function:: inline S2CellId range_max() const
-  
-  
-    
+
+
+
   .. cpp:function:: inline bool contains(S2CellId const& other) const
-  
+
     Return true if the given cell is contained within this one.
-  
-    
+
   .. cpp:function:: inline bool intersects(S2CellId const& other) const
-  
+
     Return true if the given cell intersects this one.
-  
-    
+
   .. cpp:function:: inline S2CellId parent() const
-  
+
     Return the cell at the previous level or at the given level (which must
     be less than or equal to the current level).
-  
-    
+
   .. cpp:function:: inline S2CellId parent(int level) const
-  
-  
-    
+
+
+
   .. cpp:function:: inline S2CellId child(int position) const
-  
+
     Return the immediate child of this cell at the given traversal order
     position (in the range 0 to 3).  This cell must not be a leaf cell.
-  
-    
+
   .. cpp:function:: inline S2CellId child_begin() const
-  
+
     Iterator-style methods for traversing the immediate children of a cell or
     all of the children at a given level (greater than or equal to the current
     level).  Note that the end value is exclusive, just like standard STL
     iterators, and may not even be a valid cell id.  You should iterate using
     code like this:
-    
+
     .. code-block:: cpp
-    
+
       for(S2CellId c = id.child_begin(); c != id.child_end(); c = c.next())
         ...
-      
-    
+
+
     The convention for advancing the iterator is "c = c.next()" rather
     than "++c" to avoid possible confusion with incrementing the
     underlying 64-bit cell id.
-  
-    
+
   .. cpp:function:: inline S2CellId child_begin(int level) const
-  
-  
-    
+
+
+
   .. cpp:function:: inline S2CellId child_end() const
-  
-  
-    
+
+
+
   .. cpp:function:: inline S2CellId child_end(int level) const
-  
-  
-    
+
+
+
   .. cpp:function:: inline S2CellId next() const
-  
+
     Return the next/previous cell at the same level along the Hilbert curve.
     Works correctly when advancing from one face to the next, but
     doesnot* wrap around from the last face to the first or vice versa.
-  
-    
+
   .. cpp:function:: inline S2CellId prev() const
-  
-  
-    
+
+
+
   .. cpp:function:: S2CellId advance(int64 steps) const
-  
+
     This method advances or retreats the indicated number of steps along the
     Hilbert curve at the current level, and returns the new position.  The
     position is never advanced past End() or before Begin().
-  
-    
+
   .. cpp:function:: inline S2CellId next_wrap() const
-  
+
     Like next() and prev(), but these methods wrap around from the last face
     to the first and vice versa.  They shouldnot* be used for iteration in
     conjunction with child_begin(), child_end(), Begin(), or End().  The
     input must be a valid cell id.
-  
-    
+
   .. cpp:function:: inline S2CellId prev_wrap() const
-  
-  
-    
+
+
+
   .. cpp:function:: S2CellId advance_wrap(int64 steps) const
-  
+
     This method advances or retreats the indicated number of steps along the
     Hilbert curve at the current level, and returns the new position.  The
     position wraps between the first and last faces as necessary.  The input
     must be a valid cell id.
-  
-    
+
   .. cpp:function:: inline static S2CellId Begin(int level)
-  
+
     Iterator-style methods for traversing all the cells along the Hilbert
     curve at a given level (across all 6 faces of the cube).  Note that the
     end value is exclusive (just like standard STL iterators), and is not a
     valid cell id.
-  
-    
+
   .. cpp:function:: inline static S2CellId End(int level)
-  
-  
-    
+
+
+
   .. cpp:function:: static S2CellId FromToken(string const& token)
-  
-  
-    
+
+
+
   .. cpp:function:: void GetEdgeNeighbors(S2CellId neighbors[4]) const
-  
+
     Return the four cells that are adjacent across the cell's four edges.
     Neighbors are returned in the order defined by S2Cell::GetEdge.  All
     neighbors are guaranteed to be distinct.
-  
-    
+
   .. cpp:function:: void AppendVertexNeighbors(int level, vector<S2CellId>* output) const
-  
+
     Return the neighbors of closest vertex to this cell at the given level,
     by appending them to "output".  Normally there are four neighbors, but
     the closest vertex may only have three neighbors if it is one of the 8
     cube vertices.
-    
+
     Requires: level < this->level(), so that we can determine which vertex is
     closest (in particular, level == kMaxLevel is not allowed).
-  
-    
+
   .. cpp:function:: void AppendAllNeighbors(int nbr_level, vector<S2CellId>* output) const
-  
+
     Append all neighbors of this cell at the given level to "output".  Two
     cells X and Y are neighbors if their boundaries intersect but their
     interiors do not.  In particular, two cells that intersect at a single
     point are neighbors.
-    
+
     Requires: nbr_level >= this->level().  Note that for cells adjacent to a
     face vertex, the same neighbor may be appended more than once.
-  
-    
+
   .. cpp:function:: static S2CellId FromFaceIJ(int face, int i, int j)
-  
+
     /
     Low-level methods.
     Return a leaf cell given its cube face (range 0..5) and
     i- and j-coordinates (see s2.h).
-  
-    
+
   .. cpp:function:: int ToFaceIJOrientation(int* pi, int* pj, int* orientation) const
-  
+
     Return the (face, i, j) coordinates for the leaf cell corresponding to
     this cell id.  Since cells are represented by the Hilbert curve position
     at the center of the cell, the returned (i,j) for non-leaf cells will be
     a leaf cell adjacent to the cell center.  If "orientation" is non-NULL,
     also return the Hilbert curve orientation for the current cell.
-  
-  
+
 .. cpp:class:: template<> hash<S2CellId>
 
 
@@ -1545,161 +1395,146 @@ extracted from its source code and included here for reference.
   Unlike polygons, cells have a fixed hierarchical structure.  This makes
   them more suitable for optimizations based on preprocessing.
 
-  
   .. cpp:function:: void Init(vector<S2CellId> const& cell_ids)
-  
+
     Populates a cell union with the given S2CellIds or 64-bit cells ids, and
     then calls Normalize().  The InitSwap() version takes ownership of the
     vector data without copying and clears the given vector.  These methods
     may be called multiple times.
-  
-    
+
   .. cpp:function:: void Init(vector<uint64> const& cell_ids)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitSwap(vector<S2CellId>* cell_ids)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitRaw(vector<S2CellId> const& cell_ids)
-  
+
     Like Init(), but does not call Normalize().  The cell unionmust* be
     normalized before doing any calculations with it, so it is the caller's
     responsibility to make sure that the input is normalized.  This method is
     useful when converting cell unions to another representation and back.
     These methods may be called multiple times.
-  
-    
+
   .. cpp:function:: void InitRaw(vector<uint64> const& cell_ids)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitRawSwap(vector<S2CellId>* cell_ids)
-  
-  
-    
+
+
+
   .. cpp:function:: void Detach(vector<S2CellId>* cell_ids)
-  
+
     Gives ownership of the vector data to the client without copying, and
     clears the content of the cell union.  The original data in cell_ids
     is lost if there was any.  This is the opposite of InitRawSwap().
-  
-    
+
   .. cpp:function:: int num_cells() const
-  
+
     Convenience methods for accessing the individual cell ids.
-  
-    
+
   .. cpp:function:: S2CellId const& cell_id(int i) const
-  
-  
-    
+
+
+
   .. cpp:function:: vector<S2CellId> const& cell_ids() const
-  
+
     Direct access to the underlying vector for STL algorithms.
-  
-    
+
   .. cpp:function:: bool Normalize()
-  
+
     Normalizes the cell union by discarding cells that are contained by other
     cells, replacing groups of 4 child cells by their parent cell whenever
     possible, and sorting all the cell ids in increasing order.  Returns true
     if the number of cells was reduced.
-    
+
     This methodmust* be called before doing any calculations on the cell
     union, such as Intersects() or Contains().
-  
-    
+
   .. cpp:function:: void Denormalize(int min_level, int level_mod, vector<S2CellId>* output) const
-  
+
     Replaces "output" with an expanded version of the cell union where any
     cells whose level is less than "min_level" or where (level - min_level)
     is not a multiple of "level_mod" are replaced by their children, until
     either both of these conditions are satisfied or the maximum level is
     reached.
-    
+
     This method allows a covering generated by S2RegionCoverer using
     min_level() or level_mod() constraints to be stored as a normalized cell
     union (which allows various geometric computations to be done) and then
     converted back to the original list of cell ids that satisfies the
     desired constraints.
-  
-    
+
   .. cpp:function:: void Pack(int excess = 0)
-  
+
     If there are more than "excess" elements of the cell_ids() vector that
     are allocated but unused, reallocate the array to eliminate the excess
     space.  This reduces memory usage when many cell unions need to be held
     in memory at once.
-  
-    
+
   .. cpp:function:: bool Contains(S2CellId const& id) const
-  
+
     Return true if the cell union contains the given cell id.  Containment is
     defined with respect to regions, e.g. a cell contains its 4 children.
     This is a fast operation (logarithmic in the size of the cell union).
-  
-    
+
   .. cpp:function:: bool Intersects(S2CellId const& id) const
-  
+
     Return true if the cell union intersects the given cell id.
     This is a fast operation (logarithmic in the size of the cell union).
-  
-    
+
   .. cpp:function:: bool Contains(S2CellUnion const* y) const
-  
+
     Return true if this cell union contain/intersects the given other cell
     union.
-  
-    
+
   .. cpp:function:: bool Intersects(S2CellUnion const* y) const
-  
-  
-    
+
+
+
   .. cpp:function:: void GetUnion(S2CellUnion const* x, S2CellUnion const* y)
-  
+
     Initialize this cell union to the union, intersection, or
     difference (x - y) of the two given cell unions.
     Requires: x != this and y != this.
-  
-    
+
   .. cpp:function:: void GetIntersection(S2CellUnion const* x, S2CellUnion const* y)
-  
-  
-    
+
+
+
   .. cpp:function:: void GetDifference(S2CellUnion const* x, S2CellUnion const* y)
-  
-  
-    
+
+
+
   .. cpp:function:: void GetIntersection(S2CellUnion const* x, S2CellId const& id)
-  
+
     Specialized version of GetIntersection() that gets the intersection of a
     cell union with the given cell id.  This can be useful for "splitting" a
     cell union into chunks.
-  
-    
+
   .. cpp:function:: void Expand(int expand_level)
-  
+
     Expands the cell union by adding a "rim" of cells on expand_level
     around the union boundary.
-    
+
     For each cell c in the union, we add all cells at level
     expand_level that abut c.  There are typically eight of those
     (four edge-abutting and four sharing a vertex).  However, if c is
     finer than expand_level, we add all cells abutting
     c.parent(expand_level) as well as c.parent(expand_level) itself,
     as an expand_level cell rarely abuts a smaller cell.
-    
+
     Note that the size of the output is exponential in
     "expand_level".  For example, if expand_level == 20 and the input
     has a cell at level 10, there will be on the order of 4000
     adjacent cells in the output.  For most applications the
     Expand(min_radius, max_level_diff) method below is easier to use.
-  
-    
+
   .. cpp:function:: void Expand(S1Angle const& min_radius, int max_level_diff)
-  
+
     Expand the cell union such that it contains all points whose distance to
     the cell union is at most "min_radius", but do not use cells that are
     more than "max_level_diff" levels higher than the largest cell in the
@@ -1710,18 +1545,16 @@ extracted from its source code and included here for reference.
     largest cell.  Note that in the worst case, the number of cells in the
     output can be up to 4(1 + 2* max_level_diff) times larger than the
     number of cells in the input.
-  
-    
+
   .. cpp:function:: void InitFromRange(S2CellId const& min_id, S2CellId const& max_id)
-  
+
     Create a cell union that corresponds to a continuous range of cell ids.
     The output is a normalized collection of cell ids that covers the leaf
     cells between "min_id" and "max_id" inclusive.
     Requires: min_id.is_leaf(), max_id.is_leaf(), min_id <= max_id.
-  
-    
+
   .. cpp:function:: double AverageBasedArea() const
-  
+
     Approximate this cell union's area by summing the average area of
     each contained cell's average area, using the AverageArea method
     from the S2Cell class.
@@ -1732,74 +1565,67 @@ extracted from its source code and included here for reference.
     NOTE: Since this is proportional to LeafCellsCovered(), it is
     always better to use the other function if all you care about is
     the relative average area between objects.
-  
-    
+
   .. cpp:function:: double ApproxArea() const
-  
+
     Calculates this cell union's area by summing the approximate area for each
     contained cell, using the ApproxArea method from the S2Cell class.
-  
-    
+
   .. cpp:function:: double ExactArea() const
-  
+
     Calculates this cell union's area by summing the exact area for each
     contained cell, using the Exact method from the S2Cell class.
-  
-    
+
   .. cpp:function:: virtual S2CellUnion* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
+
     This is a fast operation (logarithmic in the size of the cell union).
-  
-    
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
+
     This is a fast operation (logarithmic in the size of the cell union).
-  
-    
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
+
     The point 'p' does not need to be normalized.
     This is a fast operation (logarithmic in the size of the cell union).
-  
-  
+
 .. cpp:class:: S2EdgeIndex
 
   This class structures a set S of data edges, so that one can quickly
   find which edges of S may potentially intersect or touch a query edge.
-  
+
   The set S is assumed to be indexable by a consecutive sequence of
   integers in the range [0..num_edges()-1].  You subclass this class by
   defining the three virtual functions num_edges(), edge_from(),
   edge_to().  Then you use it as follows for a query edge (a,b):
-  
+
   .. code-block:: cpp
-  
+
     MyS2EdgeIndex edge_index;
     MyS2EdgeIndex::Iterator it(&edge_index);
     S2Point const* from;
@@ -1808,28 +1634,28 @@ extracted from its source code and included here for reference.
       edge_index.GetEdge(it.Index(), &from, &to);
       ... RobustCrossing(a,b, from,to) ...
     }
-    
-  
+
+
   What is this GetEdge()?  You don't want to use edge_from() and
   edge_to() in your own code: these are virtual functions that will
   add a lot of overhead.  The most efficient way is as above: you
   define GetEdge() in your S2EdgeIndex subclass that access the edge
   points as efficiently as possible.
-  
+
   The function GetCandidates initializes the iterator to return a set
   of candidate edges from S, such that we are sure that any data edge
   that touches or crosses (a,b) is a candidate.
-  
+
   This class returns all edges until it finds that it is worth it to compute
   a quad tree on the data set.  Chance my have it that you compute the quad
   tree exactly when it's too late and all the work is done, If this happens,
   we only double the total running time.
-  
+
   You can help the class by declaring in advance that you will make a
   certain number of calls to GetCandidates():
-  
+
   .. code-block:: cpp
-  
+
     MyS2EdgeIndex::Iterator it(&edge_index)
     edge_index.PredictAdditionalCalls(n);
     for (int i = 0; i < n; ++i) {
@@ -1837,74 +1663,66 @@ extracted from its source code and included here for reference.
          ... RobustCrossing(v(i), v(i+1), it.From(), it.To()) ...
       }
     }
-    
-  
+
+
   Here, we say that we will call GetCandidates() n times.  If we have
   1000 data edges and n=1000, then we will compute the quad tree
   immediately instead of waiting till we've wasted enough time to
   justify the cost.
-  
+
   The tradeoff between brute force and quad tree depends on many
   things, we use a very approximate trade-off.
-  
+
   See examples in S2Loop.cc and S2Polygon.cc, in particular, look at
   the optimization that allows one to use the EdgeCrosser.
-  
+
   TODO(user): Get a better API without the clumsy GetCandidates().
-  
+
   .. code-block:: cpp
-  
+
     Maybe edge_index.GetIterator()?
 
-  
   .. cpp:class:: Iterator
-  
+
     An iterator on data edges that may cross a query edge (a,b).
     Create the iterator, call GetCandidates(), then Done()/Next()
     repeatedly.
-    
+
     The current edge in the iteration has index Index(), goes between
     From() and To().
-  
-      
+
     .. cpp:function:: void GetCandidates(S2Point const& a, S2Point const& b)
-    
+
       Initializes the iterator to iterate over a set of candidates that may
       cross the edge (a,b).
-    
-        
+
     .. cpp:function:: int Index() const
-    
+
       Index of the current edge in the iteration.
-    
-        
+
     .. cpp:function:: bool Done() const
-    
+
       True if there is no more candidate.
-    
-        
+
     .. cpp:function:: void Next()
-    
+
       Iterate to the next available candidate.
-    
-      
+
   .. cpp:function:: void Reset()
-  
+
     Empties the index in case it already contained something.
-  
-    
+
   .. cpp:function:: void ComputeIndex()
-  
+
     Computes the index if not yet done and tells if the index has
     been computed.
-  
-    
+
   .. cpp:function:: bool IsIndexComputed() const
-  
-  
-    
+
+
+
   .. cpp:function:: void PredictAdditionalCalls(int n)
-  
+
     If the index hasn't been computed yet, looks at how much work has
     gone into iterating using the brute force method, and how much
     more work is planned as defined by 'cost'.  If it were to have been
@@ -1912,220 +1730,198 @@ extracted from its source code and included here for reference.
     now.  This guarantees that we will never use more than twice the
     time we would have used had we known in advance exactly how many
     edges we would have wanted to test.  It is the theoretical best.
-    
+
     The value 'n' is the number of iterators we expect to request from
     this edge index.
-  
-    
+
   .. cpp:function:: virtual int num_edges() const = 0
-  
+
     Overwrite these functions to give access to the underlying data.
     The function num_edges() returns the number of edges in the
     index, while edge_from(index) and edge_to(index) return the
     "from" and "to" endpoints of the edge at the given index.
-  
-    
+
   .. cpp:function:: virtual S2Point const* edge_from(int index) const = 0
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2Point const* edge_to(int index) const = 0
-  
-  
-  
+
+
+
 .. cpp:class:: S2EdgeUtil
 
   This class contains various utility functions related to edges.  It
   collects together common code that is needed to implement polygonal
   geometry such as polylines, loops, and general polygons.
 
-  
   .. cpp:class:: EdgeCrosser
-  
+
     This class allows a vertex chain v0, v1, v2, ... to be efficiently
     tested for intersection with a given fixed edge AB.
-  
-      
+
     .. cpp:function:: inline void RestartAt(S2Point const* c)
-    
+
       Call this function when your chain 'jumps' to a new place.
-    
-        
+
     .. cpp:function:: inline int RobustCrossing(S2Point const* d)
-    
+
       This method is equivalent to calling the S2EdgeUtil::RobustCrossing()
       function (defined below) on the edges AB and CD.  It returns +1 if
       there is a crossing, -1 if there is no crossing, and 0 if two points
       from different edges are the same.  Returns 0 or -1 if either edge is
       degenerate.  As a side effect, it saves vertex D to be used as the next
       vertex C.
-    
-        
+
     .. cpp:function:: inline bool EdgeOrVertexCrossing(S2Point const* d)
-    
+
       This method is equivalent to the S2EdgeUtil::EdgeOrVertexCrossing()
       method defined below.  It is similar to RobustCrossing, but handles
       cases where two vertices are identical in a way that makes it easy to
       implement point-in-polygon containment tests.
-    
-      
+
   .. cpp:class:: RectBounder
-  
+
     This class computes a bounding rectangle that contains all edges
     defined by a vertex chain v0, v1, v2, ...  All vertices must be unit
     length.  Note that the bounding rectangle of an edge can be larger than
     the bounding rectangle of its endpoints, e.g. consider an edge that
     passes through the north pole.
-  
-      
+
     .. cpp:function:: void AddPoint(S2Point const* b)
-    
+
       This method is called to add each vertex to the chain.  'b'
       must point to fixed storage that persists through the next call
       to AddPoint.  This means that if you don't store all of your
       points for the lifetime of the bounder, you must at least store
       the last two points and alternate which one you use for the
       next point.
-    
-        
+
     .. cpp:function:: S2LatLngRect GetBound() const
-    
+
       Return the bounding rectangle of the edge chain that connects the
       vertices defined so far.
-    
-      
+
   .. cpp:class:: LongitudePruner
-  
+
     The purpose of this class is to find edges that intersect a given
     longitude interval.  It can be used as an efficient rejection test when
     attempting to find edges that intersect a given region.  It accepts a
     vertex chain v0, v1, v2, ...  and returns a boolean value indicating
     whether each edge intersects the specified longitude interval.
-  
-      
+
     .. cpp:function:: inline bool Intersects(S2Point const& v1)
-    
+
       Returns true if the edge (v0, v1) intersects the given longitude
       interval, and then saves 'v1' to be used as the next 'v0'.
-    
-      
+
   .. cpp:function:: static bool SimpleCrossing(S2Point const& a, S2Point const& b, S2Point const& c, S2Point const& d)
-  
+
     Return true if edge AB crosses CD at a point that is interior
     to both edges.  Properties:
-    
+
      (1) SimpleCrossing(b,a,c,d) == SimpleCrossing(a,b,c,d)
      (2) SimpleCrossing(c,d,a,b) == SimpleCrossing(a,b,c,d)
-  
-    
+
   .. cpp:function:: static int RobustCrossing(S2Point const& a, S2Point const& b, S2Point const& c, S2Point const& d)
-  
+
     Like SimpleCrossing, except that points that lie exactly on a line are
     arbitrarily classified as being on one side or the other (according to
     the rules of S2::RobustCCW).  It returns +1 if there is a crossing, -1
     if there is no crossing, and 0 if any two vertices from different edges
     are the same.  Returns 0 or -1 if either edge is degenerate.
     Properties of RobustCrossing:
-    
+
      (1) RobustCrossing(b,a,c,d) == RobustCrossing(a,b,c,d)
      (2) RobustCrossing(c,d,a,b) == RobustCrossing(a,b,c,d)
      (3) RobustCrossing(a,b,c,d) == 0 if a==c, a==d, b==c, b==d
      (4) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d
-    
-    
+
+
     Note that if you want to check an edge against achain* of other
     edges, it is much more efficient to use an EdgeCrosser (above).
-  
-    
+
   .. cpp:function:: static bool VertexCrossing(S2Point const& a, S2Point const& b, S2Point const& c, S2Point const& d)
-  
+
     Given two edges AB and CD where at least two vertices are identical
     (i.e. RobustCrossing(a,b,c,d) == 0), this function defines whether the
     two edges "cross" in a such a way that point-in-polygon containment tests
     can be implemented by counting the number of edge crossings.  The basic
     rule is that a "crossing" occurs if AB is encountered after CD during a
     CCW sweep around the shared vertex starting from a fixed reference point.
-    
+
     Note that according to this rule, if AB crosses CD then in general CD
     does not cross AB.  However, this leads to the correct result when
     counting polygon edge crossings.  For example, suppose that A,B,C are
     three consecutive vertices of a CCW polygon.  If we now consider the edge
     crossings of a segment BP as P sweeps around B, the crossing number
     changes parity exactly when BP crosses BA or BC.
-    
+
     Useful properties of VertexCrossing (VC):
-    
+
      (1) VC(a,a,c,d) == VC(a,b,c,c) == false
      (2) VC(a,b,a,b) == VC(a,b,b,a) == true
      (3) VC(a,b,c,d) == VC(a,b,d,c) == VC(b,a,c,d) == VC(b,a,d,c)
      (4) If exactly one of a,b equals one of c,d, then exactly one of
          VC(a,b,c,d) and VC(c,d,a,b) is true
-    
-    
+
+
     It is an error to call this method with 4 distinct vertices.
-  
-    
+
   .. cpp:function:: static bool EdgeOrVertexCrossing(S2Point const& a, S2Point const& b, S2Point const& c, S2Point const& d)
-  
+
     A convenience function that calls RobustCrossing() to handle cases
     where all four vertices are distinct, and VertexCrossing() to handle
     cases where two or more vertices are the same.  This defines a crossing
     function such that point-in-polygon containment tests can be implemented
     by simply counting edge crossings.
-  
-    
+
   .. cpp:function:: static S2Point GetIntersection(S2Point const& a, S2Point const& b, S2Point const& c, S2Point const& d)
-  
+
     Given two edges AB and CD such that RobustCrossing() is true, return
     their intersection point.  Useful properties of GetIntersection (GI):
-    
+
      (1) GI(b,a,c,d) == GI(a,b,d,c) == GI(a,b,c,d)
      (2) GI(c,d,a,b) == GI(a,b,c,d)
-    
-    
+
+
     The returned intersection point X is guaranteed to be close to the edges
     AB and CD, but if the edges intersect at a very small angle then X may
     not be close to the true mathematical intersection point P.  See the
     description of "kIntersectionTolerance" below for details.
-  
-    
+
   .. cpp:function:: static double GetDistanceFraction(S2Point const& x, S2Point const& a, S2Point const& b)
-  
+
     Given a point X and an edge AB, return the distance ratio AX / (AX + BX).
     If X happens to be on the line segment AB, this is the fraction "t" such
     that X == Interpolate(A, B, t).  Requires that A and B are distinct.
-  
-    
+
   .. cpp:function:: static S2Point Interpolate(double t, S2Point const& a, S2Point const& b)
-  
+
     Return the point X along the line segment AB whose distance from A is the
     given fraction "t" of the distance AB.  Does NOT require that "t" be
     between 0 and 1.  Note that all distances are measured on the surface of
     the sphere, so this is more complicated than just computing (1-t)*a + t*b
     and normalizing the result.
-  
-    
+
   .. cpp:function:: static S2Point InterpolateAtDistance(S1Angle const& ax, S2Point const& a, S2Point const& b)
-  
+
     Like Interpolate(), except that the parameter "ax" represents the desired
     distance from A to the result X rather than a fraction between 0 and 1.
-  
-    
+
   .. cpp:function:: static S1Angle GetDistance(S2Point const& x, S2Point const& a, S2Point const& b)
-  
+
     Return the minimum distance from X to any point on the edge AB.  All
     arguments should be unit length.  The result is very accurate for small
     distances but may have some numerical error if the distance is large
     (approximately Pi/2 or greater).  The case A == B is handled correctly.
-  
-    
+
   .. cpp:function:: static S2Point GetClosestPoint(S2Point const& x, S2Point const& a, S2Point const& b)
-  
+
     Return the point along the edge AB that is closest to the point X.
     The fractional distance of this point along the edge AB can be obtained
     using GetDistanceFraction() above.
-  
-  
+
 .. cpp:class:: S2LatLng
 
   This class represents a point on the unit sphere as a pair
@@ -2133,454 +1929,406 @@ extracted from its source code and included here for reference.
   package, the intent is to represent spherical geometry as a mathematical
   abstraction, so functions that are specifically related to the Earth's
   geometry (e.g. easting/northing conversions) should be put elsewhere.
-  
+
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator.
 
-  
   .. cpp:function:: inline static S2LatLng Invalid()
-  
+
     Returns an S2LatLng for which is_valid() will return false.
-  
-    
+
   .. cpp:function:: inline static S2LatLng FromRadians(double lat_radians, double lng_radians)
-  
+
     Convenience functions -- shorter than calling S1Angle::Radians(), etc.
-  
-    
+
   .. cpp:function:: inline static S2LatLng FromDegrees(double lat_degrees, double lng_degrees)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S2LatLng FromE5(int32 lat_e5, int32 lng_e5)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S2LatLng FromE6(int32 lat_e6, int32 lng_e6)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S2LatLng FromE7(int32 lat_e7, int32 lng_e7)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S2LatLng FromUnsignedE6(uint32 lat_e6, uint32 lng_e6)
-  
+
     Convenience functions -- to use when args have been fixed32s in protos.
-    
+
     The arguments are static_cast into int32, so very large unsigned values
     are treated as negative numbers.
-  
-    
+
   .. cpp:function:: inline static S2LatLng FromUnsignedE7(uint32 lat_e7, uint32 lng_e7)
-  
-  
-    
+
+
+
   .. cpp:function:: inline static S1Angle Latitude(S2Point const& p)
-  
+
     Methods to compute the latitude and longitude of a point separately.
-  
-    
+
   .. cpp:function:: inline static S1Angle Longitude(S2Point const& p)
-  
-  
-    
+
+
+
   .. cpp:function:: S1Angle lat() const
-  
+
     Accessor methods.
-  
-    
+
   .. cpp:function:: S1Angle lng() const
-  
-  
-    
+
+
+
   .. cpp:function:: Vector2_d const& coords() const
-  
-  
-    
+
+
+
   .. cpp:function:: inline bool is_valid() const
-  
+
     Return true if the latitude is between -90 and 90 degrees inclusive
     and the longitude is between -180 and 180 degrees inclusive.
-  
-    
+
   .. cpp:function:: S2LatLng Normalized() const
-  
+
     Clamps the latitude to the range [-90, 90] degrees, and adds or subtracts
     a multiple of 360 degrees to the longitude if necessary to reduce it to
     the range [-180, 180].
-  
-    
+
   .. cpp:function:: S2Point ToPoint() const
-  
+
     Convert a normalized S2LatLng to the equivalent unit-length vector.
-  
-    
+
   .. cpp:function:: S1Angle GetDistance(S2LatLng const& o) const
-  
+
     Return the distance (measured along the surface of the sphere) to the
     given S2LatLng.  This is mathematically equivalent to:
-    
+
     .. code-block:: cpp
-    
+
       S1Angle::Radians(ToPoint().Angle(o.ToPoint()))
-      
-    
+
+
     but this implementation is slightly more efficient.  Both S2LatLngs
     must be normalized.
-  
-    
+
   .. cpp:function:: bool ApproxEquals(S2LatLng const& o, double max_error = 1e-15) const
-  
-  
-    
+
+
+
   .. cpp:function:: void ToStringInDegrees(string* s) const
-  
-  
-  
+
+
+
 .. cpp:class:: S2LatLngRect : public S2Region
 
   An S2LatLngRect represents a closed latitude-longitude rectangle.  It is
   capable of representing the empty and full rectangles as well as
   single points.
-  
+
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator, however it is
   not a "plain old datatype" (POD) because it has virtual functions.
 
-  
   .. cpp:function:: static S2LatLngRect FromCenterSize(S2LatLng const& center, S2LatLng const& size)
-  
+
     Construct a rectangle of the given size centered around the given point.
     "center" needs to be normalized, but "size" does not.  The latitude
     interval of the result is clamped to [-90,90] degrees, and the longitude
     interval of the result is Full() if and only if the longitude size is
     360 degrees or more.  Examples of clamping (in degrees):
-    
+
     .. code-block:: cpp
-    
+
       center=(80,170),  size=(40,60)   -> lat=[60,90],   lng=[140,-160]
       center=(10,40),   size=(210,400) -> lat=[-90,90],  lng=[-180,180]
       center=(-90,180), size=(20,50)   -> lat=[-90,-80], lng=[155,-155]
-  
-    
+
   .. cpp:function:: static S2LatLngRect FromPoint(S2LatLng const& p)
-  
+
     Construct a rectangle containing a single (normalized) point.
-  
-    
+
   .. cpp:function:: static S2LatLngRect FromPointPair(S2LatLng const& p1, S2LatLng const& p2)
-  
+
     Construct the minimal bounding rectangle containing the two given
     normalized points.  This is equivalent to starting with an empty
     rectangle and calling AddPoint() twice.  Note that it is different than
     the S2LatLngRect(lo, hi) constructor, where the first point is always
     used as the lower-left corner of the resulting rectangle.
-  
-    
+
   .. cpp:function:: S1Angle lat_lo() const
-  
+
     Accessor methods.
-  
-    
+
   .. cpp:function:: S1Angle lat_hi() const
-  
-  
-    
+
+
+
   .. cpp:function:: S1Angle lng_lo() const
-  
-  
-    
+
+
+
   .. cpp:function:: S1Angle lng_hi() const
-  
-  
-    
+
+
+
   .. cpp:function:: R1Interval const& lat() const
-  
-  
-    
+
+
+
   .. cpp:function:: S1Interval const& lng() const
-  
-  
-    
+
+
+
   .. cpp:function:: S2LatLng lo() const
-  
-  
-    
+
+
+
   .. cpp:function:: S2LatLng hi() const
-  
-  
-    
+
+
+
   .. cpp:function:: static inline S2LatLngRect Empty()
-  
+
     The canonical empty and full rectangles.
-  
-    
+
   .. cpp:function:: static inline S2LatLngRect Full()
-  
-  
-    
+
+
+
   .. cpp:function:: static R1Interval FullLat()
-  
+
     The full allowable range of latitudes and longitudes.
-  
-    
+
   .. cpp:function:: static S1Interval FullLng()
-  
-  
-    
+
+
+
   .. cpp:function:: inline bool is_valid() const
-  
+
     Return true if the rectangle is valid, which essentially just means
     that the latitude bounds do not exceed Pi/2 in absolute value and
     the longitude bounds do not exceed Pi in absolute value.  Also, if
     either the latitude or longitude bound is empty then both must be.
-  
-    
+
   .. cpp:function:: inline bool is_empty() const
-  
+
     Return true if the rectangle is empty, i.e. it contains no points at all.
-  
-    
+
   .. cpp:function:: inline bool is_full() const
-  
+
     Return true if the rectangle is full, i.e. it contains all points.
-  
-    
+
   .. cpp:function:: inline bool is_point() const
-  
+
     Return true if the rectangle is a point, i.e. lo() == hi()
-  
-    
+
   .. cpp:function:: bool is_inverted() const
-  
+
     Return true if `lng_.lo() > lng_.hi()`, i.e. the rectangle crosses
     the 180 degree longitude line.
-  
-    
+
   .. cpp:function:: S2LatLng GetVertex(int k) const
-  
+
     Return the k-th vertex of the rectangle (k = 0,1,2,3) in CCW order.
-  
-    
+
   .. cpp:function:: S2LatLng GetCenter() const
-  
+
     Return the center of the rectangle in latitude-longitude space
     (in general this is not the center of the region on the sphere).
-  
-    
+
   .. cpp:function:: S2LatLng GetSize() const
-  
+
     Return the width and height of this rectangle in latitude-longitude
     space.  Empty rectangles have a negative width and height.
-  
-    
+
   .. cpp:function:: double Area() const
-  
+
     Returns the surface area of this rectangle on the unit sphere.
-  
-    
+
   .. cpp:function:: bool Contains(S2LatLng const& ll) const
-  
+
     More efficient version of Contains() that accepts a S2LatLng rather than
     an S2Point.  The argument must be normalized.
-  
-    
+
   .. cpp:function:: bool InteriorContains(S2Point const& p) const
-  
+
     Return true if and only if the given point is contained in the interior
     of the region (i.e. the region excluding its boundary).  The point 'p'
     does not need to be normalized.
-  
-    
+
   .. cpp:function:: bool InteriorContains(S2LatLng const& ll) const
-  
+
     More efficient version of InteriorContains() that accepts a S2LatLng
     rather than an S2Point.  The argument must be normalized.
-  
-    
+
   .. cpp:function:: bool Contains(S2LatLngRect const& other) const
-  
+
     Return true if and only if the rectangle contains the given other
     rectangle.
-  
-    
+
   .. cpp:function:: bool InteriorContains(S2LatLngRect const& other) const
-  
+
     Return true if and only if the interior of this rectangle contains all
     points of the given other rectangle (including its boundary).
-  
-    
+
   .. cpp:function:: bool Intersects(S2LatLngRect const& other) const
-  
+
     Return true if this rectangle and the given other rectangle have any
     points in common.
-  
-    
+
   .. cpp:function:: bool Intersects(S2Cell const& cell) const
-  
+
     Returns true if this rectangle intersects the given cell.  (This is an
     exact test and may be fairly expensive, see also MayIntersect below.)
-  
-    
+
   .. cpp:function:: bool InteriorIntersects(S2LatLngRect const& other) const
-  
+
     Return true if and only if the interior of this rectangle intersects
     any point (including the boundary) of the given other rectangle.
-  
-    
+
   .. cpp:function:: void AddPoint(S2Point const& p)
-  
+
     Increase the size of the bounding rectangle to include the given point.
     The rectangle is expanded by the minimum amount possible.  The S2LatLng
     argument must be normalized.
-  
-    
+
   .. cpp:function:: void AddPoint(S2LatLng const& ll)
-  
-  
-    
+
+
+
   .. cpp:function:: S2LatLngRect Expanded(S2LatLng const& margin) const
-  
+
     Return a rectangle that contains all points whose latitude distance from
     this rectangle is at most margin.lat(), and whose longitude distance
     from this rectangle is at most margin.lng().  In particular, latitudes
     are clamped while longitudes are wrapped.  Note that any expansion of an
     empty interval remains empty, and both components of the given margin
     must be non-negative.  "margin" does not need to be normalized.
-    
+
     NOTE: If you are trying to grow a rectangle by a certaindistance* on
     the sphere (e.g. 5km), use the ConvolveWithCap() method instead.
-  
-    
+
   .. cpp:function:: S2LatLngRect Union(S2LatLngRect const& other) const
-  
+
     Return the smallest rectangle containing the union of this rectangle and
     the given rectangle.
-  
-    
+
   .. cpp:function:: S2LatLngRect Intersection(S2LatLngRect const& other) const
-  
+
     Return the smallest rectangle containing the intersection of this
     rectangle and the given rectangle.  Note that the region of intersection
     may consist of two disjoint rectangles, in which case a single rectangle
     spanning both of them is returned.
-  
-    
+
   .. cpp:function:: S2LatLngRect ConvolveWithCap(S1Angle const& angle) const
-  
+
     Return a rectangle that contains the convolution of this rectangle with a
     cap of the given angle.  This expands the rectangle by a fixed distance
     (as opposed to growing the rectangle in latitude-longitude space).  The
     returned rectangle includes all points whose minimum distance to the
     original rectangle is at most the given angle.
-  
-    
+
   .. cpp:function:: S1Angle GetDistance(S2LatLngRect const& other) const
-  
+
     Returns the minimum distance (measured along the surface of the sphere) to
     the given S2LatLngRect. Both S2LatLngRects must be non-empty.
-  
-    
+
   .. cpp:function:: S1Angle GetDistance(S2LatLng const& p) const
-  
+
     Returns the minimum distance (measured along the surface of the sphere)
     from a given point to the rectangle (both its boundary and its interior).
     The latlng must be valid.
-  
-    
+
   .. cpp:function:: S1Angle GetDirectedHausdorffDistance(S2LatLngRect const& other) const
-  
+
     Returns the (directed or undirected) Hausdorff distance (measured along the
     surface of the sphere) to the given S2LatLngRect. The directed Hausdorff
     distance from rectangle A to rectangle B is given by
-    
+
     .. code-block:: cpp
-    
+
         h(A, B) = max_{p in A} min_{q in B} d(p, q).
-    
+
     The Hausdorff distance between rectangle A and rectangle B is given by
-    
+
     .. code-block:: cpp
-    
+
         H(A, B) = max{h(A, B), h(B, A)}.
-  
-    
+
   .. cpp:function:: S1Angle GetHausdorffDistance(S2LatLngRect const& other) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool ApproxEquals(S2LatLngRect const& other, double max_error = 1e-15) const
-  
+
     Return true if the latitude and longitude intervals of the two rectangles
     are the same up to the given tolerance (see r1interval.h and s1interval.h
     for details).
-  
-    
+
   .. cpp:function:: virtual S2LatLngRect* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
+
     This test is cheap but is NOT exact.  Use Intersects() if you want a more
     accurate and more expensive test.  Note that when this method is used by
     an S2RegionCoverer, the accuracy isn't all that important since if a cell
     may intersect the region then it is subdivided, and the accuracy of this
     method goes up as the cells get smaller.
-  
-    
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
+
     The point 'p' does not need to be normalized.
-  
-    
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-  
+
+
+
 .. cpp:class:: S2LoopIndex: public S2EdgeIndex
 
   Indexing structure to efficiently compute intersections.
 
-  
   .. cpp:function:: virtual S2Point const* edge_from(int index) const
-  
+
     There is no need to overwrite Reset(), as the only data that's
     used to implement this class is all contained in the loop data.
     void Reset();
-  
-    
+
   .. cpp:function:: virtual S2Point const* edge_to(int index) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual int num_edges() const
-  
-  
-  
+
+
+
 .. cpp:class:: S2Loop : public S2Region
 
   An S2Loop represents a simple spherical polygon.  It consists of a single
@@ -2589,183 +2337,162 @@ extracted from its source code and included here for reference.
   of the polygon is on the left side of the edges.  This implies that a
   clockwise loop enclosing a small area is interpreted to be a CCW loop
   enclosing a very large area.
-  
+
   Loops are not allowed to have any duplicate vertices (whether adjacent or
   not), and non-adjacent edges are not allowed to intersect.  Loops must have
   at least 3 vertices.  Although these restrictions are not enforced in
   optimized code, you may get unexpected results if they are violated.
-  
+
   Point containment is defined such that if the sphere is subdivided into
   faces (loops), every point is contained by exactly one face.  This implies
   that loops do not necessarily contain all (or any) of their vertices.
-  
+
   TODO(user): When doing operations on two loops, always create the
   edgeindex for the bigger of the two.  Same for polygons.
 
-  
   .. cpp:function:: void Init(vector<S2Point> const& vertices)
-  
+
     Initialize a loop connecting the given vertices.  The last vertex is
     implicitly connected to the first.  All points should be unit length.
     Loops must have at least 3 vertices.
-  
-    
+
   .. cpp:function:: bool IsValid() const
-  
+
     Check whether this loop is valid.  Note that in debug mode, validity
     is checked at loop creation time, so IsValid()
     should always return true.
-  
-    
+
   .. cpp:function:: static bool IsValid(vector<S2Point> const& vertices, int max_adjacent)
-  
+
     These two versions are deprecated and ignore max_adjacent.
     DEPRECATED.
-  
-    
+
   .. cpp:function:: bool IsValid(int max_adjacent) const
-  
+
     DEPRECATED.
-  
-    
+
   .. cpp:function:: int depth() const
-  
+
     The depth of a loop is defined as its nesting level within its containing
     polygon.  "Outer shell" loops have depth 0, holes within those loops have
     depth 1, shells within those holes have depth 2, etc.  This field is only
     used by the S2Polygon implementation.
-  
-    
+
   .. cpp:function:: void set_depth(int depth)
-  
-  
-    
+
+
+
   .. cpp:function:: bool is_hole() const
-  
+
     Return true if this loop represents a hole in its containing polygon.
-  
-    
+
   .. cpp:function:: int sign() const
-  
+
     The sign of a loop is -1 if the loop represents a hole in its containing
     polygon, and +1 otherwise.
-  
-    
+
   .. cpp:function:: int num_vertices() const
-  
-  
-    
+
+
+
   .. cpp:function:: S2Point const& vertex(int i) const
-  
+
     For convenience, we make two entire copies of the vertex list available:
     vertex(n..2*n-1) is mapped to vertex(0..n-1), where n == num_vertices().
-  
-    
+
   .. cpp:function:: bool IsNormalized() const
-  
+
     Return true if the loop area is at most 2*Pi.  Degenerate loops are
     handled consistently with S2::RobustCCW(), i.e., if a loop can be
     expressed as the union of degenerate or nearly-degenerate CCW triangles,
     then it will always be considered normalized.
-  
-    
+
   .. cpp:function:: void Normalize()
-  
+
     Invert the loop if necessary so that the area enclosed by the loop is at
     most 2*Pi.
-  
-    
+
   .. cpp:function:: void Invert()
-  
+
     Reverse the order of the loop vertices, effectively complementing
     the region represented by the loop.
-  
-    
+
   .. cpp:function:: double GetArea() const
-  
+
     Return the area of the loop interior, i.e. the region on the left side of
     the loop.  The return value is between 0 and 4*Pi.  (Note that the return
     value is not affected by whether this loop is a "hole" or a "shell".)
-  
-    
+
   .. cpp:function:: S2Point GetCentroid() const
-  
+
     Return the true centroid of the loop multiplied by the area of the loop
     (see s2.h for details on centroids).  The result is not unit length, so
     you may want to normalize it.  Also note that in general, the centroid
     may not be contained by the loop.
-    
+
     We prescale by the loop area for two reasons: (1) it is cheaper to
     compute this way, and (2) it makes it easier to compute the centroid of
     more complicated shapes (by splitting them into disjoint regions and
     adding their centroids).
-    
+
     Note that the return value is not affected by whether this loop is a
     "hole" or a "shell".
-  
-    
+
   .. cpp:function:: double GetTurningAngle() const
-  
+
     Return the sum of the turning angles at each vertex.  The return value is
     positive if the loop is counter-clockwise, negative if the loop is
     clockwise, and zero if the loop is a great circle.  Degenerate and
     nearly-degenerate loops are handled consistently with S2::RobustCCW().
     So for example, if a loop has zero area (i.e., it is a very small CCW
     loop) then the turning angle will always be negative.
-    
+
     This quantity is also called the "geodesic curvature" of the loop.
-  
-    
+
   .. cpp:function:: bool Contains(S2Loop const* b) const
-  
+
     Return true if the region contained by this loop is a superset of the
     region contained by the given other loop.
-  
-    
+
   .. cpp:function:: bool Intersects(S2Loop const* b) const
-  
+
     Return true if the region contained by this loop intersects the region
     contained by the given other loop.
-  
-    
+
   .. cpp:function:: bool ContainsNested(S2Loop const* b) const
-  
+
     Given two loops of a polygon (see s2polygon.h for requirements), return
     true if A contains B.  This version of Contains() is much cheaper since
     it does not need to check whether the boundaries of the two loops cross.
-  
-    
+
   .. cpp:function:: int ContainsOrCrosses(S2Loop const* b) const
-  
+
     Return +1 if A contains B (i.e. the interior of B is a subset of the
     interior of A), -1 if the boundaries of A and B cross, and 0 otherwise.
     Requires that A does not properly contain the complement of B, i.e.
     A and B do not contain each other's boundaries.  This method is used
     for testing whether multi-loop polygons contain each other.
-    
+
     WARNING: there is a bug in this function - it does not detect loop
     crossings in certain situations involving shared edges.  CL 2926852 works
     around this bug for polygon intersection, but it probably effects other
     tests.  TODO: fix ContainsOrCrosses() and revert CL 2926852.
-  
-    
+
   .. cpp:function:: bool BoundaryEquals(S2Loop const* b) const
-  
+
     Return true if two loops have the same boundary.  This is true if and
     only if the loops have the same vertices in the same cyclic order.
     (For testing purposes.)
-  
-    
+
   .. cpp:function:: bool BoundaryApproxEquals(S2Loop const* b, double max_error = 1e-15) const
-  
+
     Return true if two loops have the same boundary except for vertex
     perturbations.  More precisely, the vertices in the two loops must be in
     the same cyclic order, and corresponding vertex pairs must be separated
     by no more than "max_error".  (For testing purposes.)
-  
-    
+
   .. cpp:function:: bool BoundaryNear(S2Loop const* b, double max_error = 1e-15) const
-  
+
     Return true if the two loop boundaries are within "max_error" of each
     other along their entire lengths.  The two loops may have different
     numbers of vertices.  More precisely, this method returns true if the two
@@ -2774,101 +2501,96 @@ extracted from its source code and included here for reference.
     testing whether it is possible to drive two cars all the way around the
     two loops such that no car ever goes backward and the cars are always
     within "max_error" of each other.  (For testing purposes.)
-  
-    
+
   .. cpp:function:: virtual S2Loop* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
     GetRectBound() is guaranteed to return exact results, while GetCapBound()
     is conservative.
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
+
     The point 'p' does not need to be normalized.
-  
-    
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool DecodeWithinScope(Decoder* const decoder)
-  
-  
-  
+
+
+
 .. cpp:class:: S2PointRegion : public S2Region
 
   An S2PointRegion is a region that contains a single point.  It is more
   expensive than the raw S2Point type and is useful mainly for completeness.
 
-  
   .. cpp:function:: S2Point const& point() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2PointRegion* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-  
+
+
+
 .. cpp:class:: S2Polygon : public S2Region
 
   An S2Polygon is an S2Region object that represents a polygon.  A polygon
@@ -2876,135 +2598,120 @@ extracted from its source code and included here for reference.
   loops should be oriented CCW, i.e. the shell or hole is on the left side of
   the loop.  Loops may be specified in any order.  A point is defined to be
   inside the polygon if it is contained by an odd number of loops.
-  
+
   Polygons have the following restrictions:
-  
+
    - Loops may not cross, i.e. the boundary of a loop may not intersect
      both the interior and exterior of any other loop.
-  
+
    - Loops may not share edges, i.e. if a loop contains an edge AB, then
      no other loop may contain AB or BA.
-  
+
    - No loop may cover more than half the area of the sphere.  This ensures
      that no loop properly contains the complement of any other loop, even
      if the loops are from different polygons.  (Loops that represent exact
      hemispheres are allowed.)
-  
-  
+
+
   Loops may share vertices, however no vertex may appear twice in a single
   loop (see s2loop.h).
 
-  
   .. cpp:function:: void Init(vector<S2Loop*>* loops)
-  
+
     Initialize a polygon by taking ownership of the given loops and clearing
     the given vector.  This method figures out the loop nesting hierarchy and
     then reorders the loops by following a preorder traversal.  This implies
     that each loop is immediately followed by its descendants in the nesting
     hierarchy.  (See also GetParent and GetLastDescendant.)
-  
-    
+
   .. cpp:function:: void Release(vector<S2Loop*>* loops)
-  
+
     Release ownership of the loops of this polygon, and appends them to
     "loops" if non-NULL.  Resets the polygon to be empty.
-  
-    
+
   .. cpp:function:: void Copy(S2Polygon const* src)
-  
+
     Makes a deep copy of the given source polygon.  Requires that the
     destination polygon is empty.
-  
-    
+
   .. cpp:function:: static bool IsValid(const vector<S2Loop*>& loops)
-  
+
     Return true if the given loops form a valid polygon.  Assumes that
     all of the given loops have already been validated.
-  
-    
+
   .. cpp:function:: bool IsValid() const
-  
+
     Return true if this is a valid polygon.  Note that in debug mode,
     validity is checked at polygon creation time, so IsValid() should always
     return true.
-  
-    
+
   .. cpp:function:: bool IsValid(bool check_loops, int max_adjacent) const
-  
+
     DEPRECATED.
-  
-    
+
   .. cpp:function:: int num_loops() const
-  
-  
-    
+
+
+
   .. cpp:function:: int num_vertices() const
-  
+
     Total number of vertices in all loops.
-  
-    
+
   .. cpp:function:: S2Loop* loop(int k) const
-  
-  
-    
+
+
+
   .. cpp:function:: int GetParent(int k) const
-  
+
     Return the index of the parent of loop k, or -1 if it has no parent.
-  
-    
+
   .. cpp:function:: int GetLastDescendant(int k) const
-  
+
     Return the index of the last loop that is contained within loop k.
     Returns num_loops() - 1 if k < 0.  Note that loops are indexed according
     to a preorder traversal of the nesting hierarchy, so the immediate
     children of loop k can be found by iterating over loops
     (k+1)..GetLastDescendant(k) and selecting those whose depth is equal to
     (loop(k)->depth() + 1).
-  
-    
+
   .. cpp:function:: double GetArea() const
-  
+
     Return the area of the polygon interior, i.e. the region on the left side
     of an odd number of loops.  The return value is between 0 and 4*Pi.
-  
-    
+
   .. cpp:function:: S2Point GetCentroid() const
-  
+
     Return the true centroid of the polygon multiplied by the area of the
     polygon (see s2.h for details on centroids).  The result is not unit
     length, so you may want to normalize it.  Also note that in general, the
     centroid may not be contained by the polygon.
-    
+
     We prescale by the polygon area for two reasons: (1) it is cheaper to
     compute this way, and (2) it makes it easier to compute the centroid of
     more complicated shapes (by splitting them into disjoint regions and
     adding their centroids).
-  
-    
+
   .. cpp:function:: bool Contains(S2Polygon const* b) const
-  
+
     Return true if this polygon contains the given other polygon, i.e.
     if polygon A contains all points contained by polygon B.
-  
-    
+
   .. cpp:function:: bool ApproxContains(S2Polygon const* b, S1Angle vertex_merge_radius) const
-  
+
     Returns true if this polgyon (A) approximately contains the given other
     polygon (B). This is true if it is possible to move the vertices of B
     no further than "vertex_merge_radius" such that A contains the modified B.
-    
+
     For example, the empty polygon will contain any polygon whose maximum
     width is no more than vertex_merge_radius.
-  
-    
+
   .. cpp:function:: bool Intersects(S2Polygon const* b) const
-  
+
     Return true if this polygon intersects the given other polygon, i.e.
     if there is a point that is contained by both polygons.
-  
-    
+
   .. cpp:function:: void InitToIntersection(S2Polygon const* a, S2Polygon const* b)
-  
+
     Initialize this polygon to the intersection, union, or difference
     (A - B) of the given two polygons.  The "vertex_merge_radius" determines
     how close two vertices must be to be merged together and how close a
@@ -3012,174 +2719,161 @@ extracted from its source code and included here for reference.
     S2PolygonBuilder for details).  By default, the merge radius is just
     large enough to compensate for errors that occur when computing
     intersection points between edges (S2EdgeUtil::kIntersectionTolerance).
-    
+
     If you are going to convert the resulting polygon to a lower-precision
     format, it is necessary to increase the merge radius in order to get a
     valid result after rounding (i.e. no duplicate vertices, etc).  For
     example, if you are going to convert them to geostore::PolygonProto
     format, then S1Angle::E7(1) is a good value for "vertex_merge_radius".
-  
-    
+
   .. cpp:function:: void InitToIntersectionSloppy(S2Polygon const* a, S2Polygon const* b, S1Angle vertex_merge_radius)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitToUnion(S2Polygon const* a, S2Polygon const* b)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitToUnionSloppy(S2Polygon const* a, S2Polygon const* b, S1Angle vertex_merge_radius)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitToDifference(S2Polygon const* a, S2Polygon const* b)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitToDifferenceSloppy(S2Polygon const* a, S2Polygon const* b, S1Angle vertex_merge_radius)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitToSimplified(S2Polygon const* a, S1Angle tolerance)
-  
+
     Initializes this polygon to a polygon that contains fewer vertices and is
     within tolerance of the polygon a, with some caveats.
-    
+
     - If there is a very small island in the original polygon, it may
       disappear completely.  Thus some parts of the original polygon
       may not be close to the simplified polygon.  Those parts are small,
       though, and arguably don't need to be kept.
-    
+
     - However, if there are dense islands, they may all disappear, instead
       of replacing them by a big simplified island.
-    
+
     - For small tolerances (compared to the polygon size), it may happen that
       the simplified polygon has more vertices than the original, if the
       first step of the simplification creates too many self-intersections.
       One can construct irrealistic cases where that happens to an extreme
       degree.
-  
-    
+
   .. cpp:function:: void IntersectWithPolyline(S2Polyline const* in, vector<S2Polyline*> *out) const
-  
+
     Intersect this polygon with the polyline "in" and append the resulting
     zero or more polylines to "out" (which must be empty).  The polylines
     are appended in the order they would be encountered by traversing "in"
     from beginning to end.  Note that the output may include polylines with
     only one vertex, but there will not be any zero-vertex polylines.
-    
+
     This is equivalent to calling IntersectWithPolylineSloppy() with the
     "vertex_merge_radius" set to S2EdgeUtil::kIntersectionTolerance.
-  
-    
+
   .. cpp:function:: void SubtractFromPolyline(S2Polyline const* in, vector<S2Polyline*> *out) const
-  
+
     Same as IntersectWithPolyline, but subtracts this polygon from
     the given polyline.
-  
-    
+
   .. cpp:function:: static S2Polygon* DestructiveUnion(vector<S2Polygon*>* polygons)
-  
+
     Return a polygon which is the union of the given polygons.
     Clears the vector and deletes the polygons!
-  
-    
+
   .. cpp:function:: static S2Polygon* DestructiveUnionSloppy(vector<S2Polygon*>* polygons, S1Angle vertex_merge_radius)
-  
-  
-    
+
+
+
   .. cpp:function:: void InitToCellUnionBorder(S2CellUnion const& cells)
-  
+
     Initialize this polygon to the outline of the given cell union.
     In principle this polygon should exactly contain the cell union and
     this polygon's inverse should not intersect the cell union, but rounding
     issues may cause this not to be the case.
     Does not work correctly if the union covers more than half the sphere.
-  
-    
+
   .. cpp:function:: bool IsNormalized() const
-  
+
     Return true if every loop of this polygon shares at most one vertex with
     its parent loop.  Every polygon has a unique normalized form.  Normalized
     polygons are useful for testing since it is easy to compare whether two
     polygons represent the same region.
-  
-    
+
   .. cpp:function:: bool BoundaryEquals(S2Polygon const* b) const
-  
+
     Return true if two polygons have the same boundary.  More precisely, this
     method requires that both polygons have loops with the same cyclic vertex
     order and the same nesting hierarchy.
-  
-    
+
   .. cpp:function:: bool BoundaryApproxEquals(S2Polygon const* b, double max_error = 1e-15) const
-  
+
     Return true if two polygons have the same boundary except for vertex
     perturbations.  Both polygons must have loops with the same cyclic vertex
     order and the same nesting hierarchy, but the vertex locations are
     allowed to differ by up to "max_error".
-  
-    
+
   .. cpp:function:: bool BoundaryNear(S2Polygon const* b, double max_error = 1e-15) const
-  
+
     Return true if two polygons have boundaries that are within "max_error"
     of each other along their entire lengths.  More precisely, there must be
     a bijection between the two sets of loops such that for each pair of
     loops, "a_loop->BoundaryNear(b_loop)" is true.
-  
-    
+
   .. cpp:function:: S2Point Project(S2Point const& point) const
-  
+
     If the point is not contained by the polygon returns a point on the
     polygon closest to the given point. Otherwise returns the point itself.
     The polygon must not be empty.
-  
-    
+
   .. cpp:function:: virtual S2Polygon* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
     GetRectBound() guarantees that it will return exact bounds. GetCapBound()
     does not.
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
+
      Cap surrounding rect bound.
-    
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
+
     The point 'p' does not need to be normalized.
-  
-    
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool DecodeWithinScope(Decoder* const decoder)
-  
-  
-  
+
+
+
 .. cpp:class:: S2PolygonBuilderOptions
 
   This is a simple class for assembling polygons out of edges.  It requires
@@ -3187,144 +2881,136 @@ extracted from its source code and included here for reference.
   and optionally it can also remove duplicate edge pairs (consisting of two
   identical edges or an edge and its reverse edge).  This is useful for
   computing seamless unions of polygons that have been cut into pieces.
-  
+
   Here are some of the situations this class was designed to handle:
-  
+
   1. Computing the union of disjoint polygons that may share part of their
      boundaries.  For example, reassembling a lake that has been split into
      two loops by a state boundary.
-  
+
   2. Constructing polygons from input data that does not follow S2
      conventions, i.e. where loops may have repeated vertices, or distinct
      loops may share edges, or shells and holes have opposite or unspecified
      orientations.
-  
+
   3. Computing the symmetric difference of a set of polygons whose edges
      intersect only at vertices.  This can be used to implement a limited
      form of polygon intersection or subtraction as well as unions.
-  
+
   4. As a tool for implementing other polygon operations by generating a
      collection of directed edges and then assembling them into loops.
 
-  
   .. cpp:function:: inline static S2PolygonBuilderOptions DIRECTED_XOR()
-  
+
     These are the options that should be used for assembling well-behaved
     input data into polygons.  All edges should be directed such that
     "shells" and "holes" have opposite orientations (typically CCW shells and
     clockwise holes), unless it is known that shells and holes do not share
     any edges.
-  
-    
+
   .. cpp:function:: inline static S2PolygonBuilderOptions UNDIRECTED_XOR()
-  
+
     These are the options that should be used for assembling polygons that do
     not follow the conventions above, e.g. where edge directions may vary
     within a single loop, or shells and holes are not oppositely oriented and
     may share edges.
-  
-    
+
   .. cpp:function:: inline static S2PolygonBuilderOptions UNDIRECTED_UNION()
-  
+
     These are the options that should be used for assembling edges where the
     desired output is a collection of loops rather than a polygon, and edges
     may occur more than once.  Edges are treated as undirected and are not
     XORed together.
-  
-    
+
   .. cpp:function:: bool undirected_edges() const
-  
+
     Default value: false.
-    
+
     If "undirected_edges" is false, then the input is assumed to consist of
     edges that can be assembled into oriented loops without reversing any of
     the edges.  Otherwise, "undirected_edges" should be set to true.
-  
-    
+
   .. cpp:function:: void set_undirected_edges(bool undirected_edges)
-  
-  
-    
+
+
+
   .. cpp:function:: bool xor_edges() const
-  
+
     Default value: true.
-    
+
     If "xor_edges" is true, then any duplicate edge pairs are removed.  This
     is useful for computing the union of a collection of polygons whose
     interiors are disjoint but whose boundaries may share some common edges
     (e.g. computing the union of South Africa, Lesotho, and Swaziland).
-    
+
     Note that for directed edges, a "duplicate edge pair" consists of an edge
     and its corresponding reverse edge.  This means that either (a) "shells"
     and "holes" must have opposite orientations, or (b) shells and holes do
     not share edges.  Otherwise undirected_edges() should be specified.
-    
+
     There are only two reasons to turn off xor_edges():
-    
+
      (1) AssemblePolygon() will be called, and you want to assert that there
          are no duplicate edge pairs in the input.
-    
+
      (2) AssembleLoops() will be called, and you want to keep abutting loops
          separate in the output rather than merging their regions together
          (e.g. assembling loops for Kansas City, KS and Kansas City, MO
          simultaneously).
-  
-    
+
   .. cpp:function:: void set_xor_edges(bool xor_edges)
-  
-  
-    
+
+
+
   .. cpp:function:: bool validate() const
-  
+
     Default value: false.
-    
+
     If true, IsValid() is called on all loops and polygons before
     constructing them.  If any loop is invalid (e.g. self-intersecting), it
     is rejected and returned as a set of "unused edges".  Any remaining valid
     loops are kept.  If the entire polygon is invalid (e.g. two loops
     intersect), then all loops are rejected and returned as unused edges.
-  
-    
+
   .. cpp:function:: void set_validate(bool validate)
-  
-  
-    
+
+
+
   .. cpp:function:: S1Angle vertex_merge_radius() const
-  
+
     Default value: 0.
-    
+
     If set to a positive value, all vertex pairs that are separated by less
     than this distance will be merged together.  Note that vertices can move
     arbitrarily far if there is a long chain of vertices separated by less
     than this distance.
-    
+
     This method is useful for assembling polygons out of input data where
     vertices and/or edges may not be perfectly aligned.
-  
-    
+
   .. cpp:function:: void set_vertex_merge_radius(S1Angle const& vertex_merge_radius)
-  
-  
-    
+
+
+
   .. cpp:function:: double edge_splice_fraction() const
-  
+
     Default value: 0.866 (approximately sqrt(3)/2).
-    
+
     The edge splice radius is automatically set to this fraction of the vertex
     merge radius.  If the edge splice radius is positive, then all vertices
     that are closer than this distance to an edge are spliced into that edge.
     Note that edges can move arbitrarily far if there is a long chain of
     vertices in just the right places.
-    
+
     You can turn off edge splicing by setting this value to zero.  This will
     save some time if you don't need this feature, or you don't want vertices
     to be spliced into nearby edges for some reason.
-    
+
     Note that the edge splice fraction must be less than sqrt(3)/2 in order to
     avoid infinite loops in the merge algorithm.  The default value is very
     close to this maximum and therefore results in the maximum amount of edge
     splicing for a given vertex merge radius.
-    
+
     The only reason to reduce the edge splice fraction is if you want to limit
     changes in edge direction due to splicing.  The direction of an edge can
     change by up to asin(edge_splice_fraction) due to each splice.  Thus by
@@ -3332,79 +3018,73 @@ extracted from its source code and included here for reference.
     splice.  However, note that most direction changes are much smaller than
     this: the worst case occurs only if the vertex being spliced is just
     outside the vertex merge radius from one of the edge endpoints.
-  
-    
+
   .. cpp:function:: void set_edge_splice_fraction(double edge_splice_fraction)
-  
-  
-  
+
+
+
 .. cpp:class:: S2PolygonBuilder
 
 
-  
+
   .. cpp:function:: S2PolygonBuilderOptions const& options() const
-  
-  
-    
+
+
+
   .. cpp:function:: bool AddEdge(S2Point const& v0, S2Point const& v1)
-  
+
     Add the given edge to the polygon builder.  This method should be used
     for input data that may not follow S2 polygon conventions.  Note that
     edges are not allowed to cross each other.  Also note that as a
     convenience, edges where v0 == v1 are ignored.
-    
+
     Returns true if an edge was added, and false if an edge was erased
     (due to XORing) or not added (if both endpoints were the same).
-  
-    
+
   .. cpp:function:: void AddLoop(S2Loop const* loop)
-  
+
     Add all edges in the given loop.  If the sign() of the loop is negative
     (i.e. this loop represents a hole), the reverse edges are added instead.
     This implies that "shells" are CCW and "holes" are CW, as required for
     the directed edges convention described above.
-    
+
     This method does not take ownership of the loop.
-  
-    
+
   .. cpp:function:: void AddPolygon(S2Polygon const* polygon)
-  
+
     Add all loops in the given polygon.  Shells and holes are added with
     opposite orientations as described for AddLoop().
-    
+
     This method does not take ownership of the polygon.
-  
-    
+
   .. cpp:type:: vector<pair<S2Point, S2Point> > EdgeList
-  
+
     This type is used to return any edges that could not be assembled.
-  
-    
+
   .. cpp:function:: bool AssembleLoops(vector<S2Loop*>* loops, EdgeList* unused_edges)
-  
+
     Assembles the given edges into as many non-crossing loops as possible.
     When there is a choice about how to assemble the loops, then CCW loops
     are preferred.  Returns true if all edges were assembled.  If
     "unused_edges" is not NULL, it is initialized to the set of edges that
     could not be assembled into loops.
-    
+
     Note that if xor_edges() is false and duplicate edge pairs may be
     present, then undirected_edges() should be specified unless all loops can
     be assembled in a counter-clockwise direction.  Otherwise this method may
     not be able to assemble all loops due to its preference for CCW loops.
-    
+
     This method resets the S2PolygonBuilder state so that it can be reused.
-  
-    
+
   .. cpp:function:: bool AssemblePolygon(S2Polygon* polygon, EdgeList* unused_edges)
-  
+
     Like AssembleLoops, but normalizes all the loops so that they enclose
     less than half the sphere, and then assembles the loops into a polygon.
-    
+
     For this method to succeed, there should be no duplicate edges in the
     input.  If this is not known to be true, then the "xor_edges" option
     should be set (which is true by default).
-    
+
     Note that S2Polygons cannot represent arbitrary regions on the sphere,
     because of the limitation that no loop encloses more than half of the
     sphere.  For example, an S2Polygon cannot represent a 100km wide band
@@ -3412,224 +3092,203 @@ extracted from its source code and included here for reference.
     *complement* of the expected region.  So for example if all the world's
     coastlines were assembled, the output S2Polygon would represent the land
     area (irrespective of the input edge or loop orientations).
-  
-    
+
   .. cpp:function:: void set_debug_matrix(Matrix3x3_d const& m)
-  
+
     This function is only for debugging.  If it is called, then points will
     be transformed by the inverse of the given matrix before being printed as
     lat-lng coordinates in degrees.  "m" should be orthonormal.
-  
-  
+
 .. cpp:class:: S2Polyline : public S2Region
 
   An S2Polyline represents a sequence of zero or more vertices connected by
   straight edges (geodesics).  Edges of length 0 and 180 degrees are not
   allowed, i.e. adjacent vertices should not be identical or antipodal.
 
-  
   .. cpp:function:: void Init(vector<S2Point> const& vertices)
-  
+
     Initialize a polyline that connects the given vertices. Empty polylines are
     allowed.  Adjacent vertices should not be identical or antipodal.  All
     vertices should be unit length.
-  
-    
+
   .. cpp:function:: void Init(vector<S2LatLng> const& vertices)
-  
+
     Convenience initialization function that accepts latitude-longitude
     coordinates rather than S2Points.
-  
-    
+
   .. cpp:function:: static bool IsValid(vector<S2Point> const& vertices)
-  
+
     Return true if the given vertices form a valid polyline.
-  
-    
+
   .. cpp:function:: int num_vertices() const
-  
-  
-    
+
+
+
   .. cpp:function:: S2Point const& vertex(int k) const
-  
-  
-    
+
+
+
   .. cpp:function:: S1Angle GetLength() const
-  
+
     Return the length of the polyline.
-  
-    
+
   .. cpp:function:: S2Point GetCentroid() const
-  
+
     Return the true centroid of the polyline multiplied by the length of the
     polyline (see s2.h for details on centroids).  The result is not unit
     length, so you may want to normalize it.
-    
+
     Prescaling by the polyline length makes it easy to compute the centroid
     of several polylines (by simply adding up their centroids).
-  
-    
+
   .. cpp:function:: S2Point Interpolate(double fraction) const
-  
+
     Return the point whose distance from vertex 0 along the polyline is the
     given fraction of the polyline's total length.  Fractions less than zero
     or greater than one are clamped.  The return value is unit length.  This
     cost of this function is currently linear in the number of vertices.
     The polyline must not be empty.
-  
-    
+
   .. cpp:function:: S2Point GetSuffix(double fraction, int* next_vertex) const
-  
+
     Like Interpolate(), but also return the index of the next polyline
     vertex after the interpolated point P.  This allows the caller to easily
     construct a given suffix of the polyline by concatenating P with the
     polyline vertices starting at "next_vertex".  Note that P is guaranteed
     to be different than `vertex(*next_vertex)`, so this will never result in
     a duplicate vertex.
-    
+
     The polyline must not be empty.  Note that if "fraction" >= 1.0, then
     "next_vertex" will be set to num_vertices() (indicating that no vertices
     from the polyline need to be appended).  The value of "next_vertex" is
     always between 1 and num_vertices().
-    
+
     This method can also be used to construct a prefix of the polyline, by
     taking the polyline vertices up to "next_vertex - 1" and appending the
     returned point P if it is different from the last vertex (since in this
     case there is no guarantee of distinctness).
-  
-    
+
   .. cpp:function:: double UnInterpolate(S2Point const& point, int next_vertex) const
-  
+
     The inverse operation of GetSuffix/Interpolate.  Given a point on the
     polyline, returns the ratio of the distance to the point from the
     beginning of the polyline over the length of the polyline.  The return
     value is always betwen 0 and 1 inclusive.  See GetSuffix() for the
     meaning of "next_vertex".
-    
+
     The polyline should not be empty.  If it has fewer than 2 vertices, the
     return value is zero.
-  
-    
+
   .. cpp:function:: S2Point Project(S2Point const& point, int* next_vertex) const
-  
+
     Given a point, returns a point on the polyline that is closest to the given
     point.  See GetSuffix() for the meaning of "next_vertex", which is chosen
     here w.r.t. the projected point as opposed to the interpolated point in
     GetSuffix().
-    
+
     The polyline must be non-empty.
-  
-    
+
   .. cpp:function:: bool IsOnRight(S2Point const& point) const
-  
+
     Returns true if the point given is on the right hand side of the polyline,
     using a naive definition of "right-hand-sideness" where the point is on
     the RHS of the polyline iff the point is on the RHS of the line segment in
     the polyline which it is closest to.
-    
+
     The polyline must have at least 2 vertices.
-  
-    
+
   .. cpp:function:: bool Intersects(S2Polyline const* line) const
-  
+
     Return true if this polyline intersects the given polyline. If the
     polylines share a vertex they are considered to be intersecting. When a
     polyline endpoint is the only intersection with the other polyline, the
     function may return true or false arbitrarily.
-    
+
     The running time is quadratic in the number of vertices.
-  
-    
+
   .. cpp:function:: void Reverse()
-  
+
     Reverse the order of the polyline vertices.
-  
-    
+
   .. cpp:function:: void SubsampleVertices(S1Angle const& tolerance, vector<int>* indices) const
-  
+
     Return a subsequence of vertex indices such that the polyline connecting
     these vertices is never further than "tolerance" from the original
     polyline.  The first and last vertices are always preserved.
-    
+
     Some useful properties of the algorithm:
-    
+
      - It runs in linear time.
-    
+
      - The output is always a valid polyline.  In particular, adjacent
        output vertices are never identical or antipodal.
-    
+
      - The method is not optimal, but it tends to produce 2-3% fewer
        vertices than the Douglas-Peucker algorithm with the same tolerance.
-    
+
      - The output isparametrically* equivalent to the original polyline to
        within the given tolerance.  For example, if a polyline backtracks on
        itself and then proceeds onwards, the backtracking will be preserved
        (to within the given tolerance).  This is different than the
        Douglas-Peucker algorithm used in maps/util/geoutil-inl.h, which only
        guarantees geometric equivalence.
-  
-    
+
   .. cpp:function:: bool ApproxEquals(S2Polyline const* b, double max_error = 1e-15) const
-  
+
     Return true if two polylines have the same number of vertices, and
     corresponding vertex pairs are separated by no more than "max_error".
     (For testing purposes.)
-  
-    
+
   .. cpp:function:: bool NearlyCoversPolyline(S2Polyline const& covered, S1Angle const& max_error) const
-  
+
     Return true if "covered" is within "max_error" of a contiguous subpath of
     this polyline over its entire length.  Specifically, this method returns
     true if this polyline has parameterization a:[0,1] -> S^2, "covered" has
     parameterization b:[0,1] -> S^2, and there is a non-decreasing function
     f:[0,1] -> [0,1] such that distance(a(f(t)), b(t)) <= max_error for all t.
-    
+
     You can think of this as testing whether it is possible to drive a car
     along "covered" and a car along some subpath of this polyline such that no
     car ever goes backward, and the cars are always within "max_error" of each
     other.
-  
-    
+
   .. cpp:function:: virtual S2Polyline* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
+
     Polylines do not have a Contains(S2Point) method, because "containment"
     is not numerically well-defined except at the polyline vertices.
-  
-    
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-  
+
+
+
 .. cpp:type:: Vector2_d R2Point
 
   TODO: Create an r2.h and move this definition into it.
-
 
 .. cpp:class:: S2R2Rect : public S2Region
 
@@ -3638,341 +3297,306 @@ extracted from its source code and included here for reference.
   represents a closed axis-aligned rectangle in the (x,y) plane, but it also
   happens to be a subtype of S2Region, which means that you can use an
   S2RegionCoverer to approximate it as a collection of S2CellIds.
-  
+
   With respect to the S2Cell decomposition, an S2R2Rect is interpreted as a
   region of (s,t)-space on face 0.  In particular, the rectangle [0,1]x[0,1]
   corresponds to the S2CellId that covers all of face 0.  This means that
   only rectangles that are subsets of [0,1]x[0,1] can be approximated using
   the S2RegionCoverer interface.
-  
+
   The S2R2Rect class is also a convenient way to find the (s,t)-region
   covered by a given S2CellId (see the FromCell and FromCellId methods).
-  
+
   TODO: If the geometry library is extended to have better support for planar
   geometry, then this class should no longer be necessary.
-  
+
   This class is intended to be copied by value as desired.  It uses
   the default copy constructor and assignment operator, however it is
   not a "plain old datatype" (POD) because it has virtual functions.
 
-  
   .. cpp:function:: static S2R2Rect FromCell(S2Cell const& cell)
-  
+
     Construct a rectangle that corresponds to the boundary of the given cell
     is (s,t)-space.  Such rectangles are always a subset of [0,1]x[0,1].
-  
-    
+
   .. cpp:function:: static S2R2Rect FromCellId(S2CellId const& id)
-  
-  
-    
+
+
+
   .. cpp:function:: static S2R2Rect FromCenterSize(R2Point const& center, R2Point const& size)
-  
+
     Construct a rectangle from a center point and size in each dimension.
     Both components of size should be non-negative, i.e. this method cannot
     be used to create an empty rectangle.
-  
-    
+
   .. cpp:function:: static S2R2Rect FromPoint(R2Point const& p)
-  
+
     Convenience method to construct a rectangle containing a single point.
-  
-    
+
   .. cpp:function:: static S2R2Rect FromPointPair(R2Point const& p1, R2Point const& p2)
-  
+
     Convenience method to construct the minimal bounding rectangle containing
     the two given points.  This is equivalent to starting with an empty
     rectangle and calling AddPoint() twice.  Note that it is different than
     the S2R2Rect(lo, hi) constructor, where the first point is always
     used as the lower-left corner of the resulting rectangle.
-  
-    
+
   .. cpp:function:: R1Interval const& x() const
-  
+
     Accessor methods.
-  
-    
+
   .. cpp:function:: R1Interval const& y() const
-  
-  
-    
+
+
+
   .. cpp:function:: R2Point lo() const
-  
-  
-    
+
+
+
   .. cpp:function:: R2Point hi() const
-  
-  
-    
+
+
+
   .. cpp:function:: static inline S2R2Rect Empty()
-  
+
     The canonical empty rectangle.  Use is_empty() to test for empty
     rectangles, since they have more than one representation.
-  
-    
+
   .. cpp:function:: inline bool is_valid() const
-  
+
     Return true if the rectangle is valid, which essentially just means
     that if the bound for either axis is empty then both must be.
-  
-    
+
   .. cpp:function:: inline bool is_empty() const
-  
+
     Return true if the rectangle is empty, i.e. it contains no points at all.
-  
-    
+
   .. cpp:function:: R2Point GetVertex(int k) const
-  
+
     Return the k-th vertex of the rectangle (k = 0,1,2,3) in CCW order.
     Vertex 0 is in the lower-left corner.
-  
-    
+
   .. cpp:function:: R2Point GetCenter() const
-  
+
     Return the center of the rectangle in (x,y)-space
     (in general this is not the center of the region on the sphere).
-  
-    
+
   .. cpp:function:: R2Point GetSize() const
-  
+
     Return the width and height of this rectangle in (x,y)-space.  Empty
     rectangles have a negative width and height.
-  
-    
+
   .. cpp:function:: bool Contains(R2Point const& p) const
-  
+
     Return true if the rectangle contains the given point.  Note that
     rectangles are closed regions, i.e. they contain their boundary.
-  
-    
+
   .. cpp:function:: bool InteriorContains(R2Point const& p) const
-  
+
     Return true if and only if the given point is contained in the interior
     of the region (i.e. the region excluding its boundary).
-  
-    
+
   .. cpp:function:: bool Contains(S2R2Rect const& other) const
-  
+
     Return true if and only if the rectangle contains the given other
     rectangle.
-  
-    
+
   .. cpp:function:: bool InteriorContains(S2R2Rect const& other) const
-  
+
     Return true if and only if the interior of this rectangle contains all
     points of the given other rectangle (including its boundary).
-  
-    
+
   .. cpp:function:: bool Intersects(S2R2Rect const& other) const
-  
+
     Return true if this rectangle and the given other rectangle have any
     points in common.
-  
-    
+
   .. cpp:function:: bool InteriorIntersects(S2R2Rect const& other) const
-  
+
     Return true if and only if the interior of this rectangle intersects
     any point (including the boundary) of the given other rectangle.
-  
-    
+
   .. cpp:function:: void AddPoint(R2Point const& p)
-  
+
     Increase the size of the bounding rectangle to include the given point.
     The rectangle is expanded by the minimum amount possible.
-  
-    
+
   .. cpp:function:: S2R2Rect Expanded(R2Point const& margin) const
-  
+
     Return a rectangle that contains all points whose x-distance from this
     rectangle is at most margin.x(), and whose y-distance from this rectangle
     is at most margin.y().  Note that any expansion of an empty interval
     remains empty, and both components of the given margin must be
     non-negative.
-  
-    
+
   .. cpp:function:: S2R2Rect Union(S2R2Rect const& other) const
-  
+
     Return the smallest rectangle containing the union of this rectangle and
     the given rectangle.
-  
-    
+
   .. cpp:function:: S2R2Rect Intersection(S2R2Rect const& other) const
-  
+
     Return the smallest rectangle containing the intersection of this
     rectangle and the given rectangle.
-  
-    
+
   .. cpp:function:: bool ApproxEquals(S2R2Rect const& other, double max_error = 1e-15) const
-  
+
     Return true if the x- and y-intervals of the two rectangles are the same
     up to the given tolerance (see r1interval.h for details).
-  
-    
+
   .. cpp:function:: static S2Point ToS2Point(R2Point const& p)
-  
+
     Return the unit-length S2Point corresponding to the given point "p" in
     the (s,t)-plane.  "p" need not be restricted to the range [0,1]x[0,1].
-  
-    
+
   .. cpp:function:: virtual S2R2Rect* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-  
+
+
+
 .. cpp:class:: S2Region
 
   An S2Region represents a two-dimensional region over the unit sphere.
   It is an abstract interface with various concrete subtypes.
-  
+
   The main purpose of this interface is to allow complex regions to be
   approximated as simpler regions.  So rather than having a wide variety
   of virtual methods that are implemented by all subtypes, the interface
   is restricted to methods that are useful for computing approximations.
 
-  
   .. cpp:function:: virtual S2Region* Clone() const = 0
-  
+
     Return a deep copy of this region.  If you want to narrow the result to a
     specific known region type, use down_cast<T*> from basictypes.h.
     Subtypes return pointers to that subtype from their Clone() methods.
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const = 0
-  
+
     Return a bounding spherical cap. This is not guaranteed to be exact.
-  
-    
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const = 0
-  
+
     Return a bounding latitude-longitude rectangle that contains the region.
     The bounds are not guaranteed to be tight.
-  
-    
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const = 0
-  
+
     If this method returns true, the region completely contains the given
     cell.  Otherwise, either the region does not contain the cell or the
     containment relationship could not be determined.
-  
-    
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const = 0
-  
+
     If this method returns false, the region does not intersect the given
     cell.  Otherwise, either region intersects the cell, or the intersection
     relationship could not be determined.
-  
-    
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const = 0
-  
+
     Return true if and only if the given point is contained by the region.
     The point 'p' is generally required to be unit length, although some
     subtypes may relax this restriction.
     NOTE: If you will be calling this function on one specific subtype only,
     or if performance is a consideration, please use the non-virtual
     method Contains(S2Point const& p) declared below!
-  
-    
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const = 0
-  
+
     Use encoder to generate a serialized representation of this region.
     Assumes that encoder can be enlarged using calls to Ensure(int).
-    
+
     The representation chosen is left up to the sub-classes but it should
     satisfy the following constraints:
-    
+
     - It should encode a version number.
-    
+
     - It should be deserializable using the corresponding Decode method.
-    
+
     - Performance, not space, should be the chief consideration. Encode() and
       Decode() should be implemented such that the combination is equivalent
       to calling Clone().
-  
-    
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder) = 0
-  
+
     Reconstruct a region from the serialized representation generated by
     Encode(). Note that since this method is virtual, it requires that a
     Region object of the appropriate concrete type has already been
     constructed. It is not possible to decode regions of unknown type.
-    
+
     Whenever the Decode method is changed to deal with new serialized
     representations, it should be done so in a manner that allows for
     older versions to be decoded i.e. the version number in the serialized
     representation should be used to decide how to decode the data.
-    
+
     Returns true on success.
-  
-    
+
   .. cpp:function:: virtual bool DecodeWithinScope(Decoder* const decoder)
-  
+
     Provide the same functionality as Decode, except that decoded regions are
     allowed to point directly into the Decoder's memory buffer rather than
     copying the data.  This method can be much faster for regions that have
     a lot of data (such as polygons), but the decoded region is only valid
     within the scope (lifetime) of the Decoder's memory buffer.
     Default implementation just calls Decode.
-  
-  
+
 .. cpp:class:: S2RegionCoverer
 
   An S2RegionCoverer is a class that allows arbitrary regions to be
   approximated as unions of cells (S2CellUnion).  This is useful for
   implementing various sorts of search and precomputation operations.
-  
+
   Typical usage:
-  
+
   .. code-block:: cpp
-  
+
     S2RegionCoverer coverer;
     coverer.set_max_cells(5);
     S2Cap cap = S2Cap::FromAxisAngle(...);
     vector<S2CellId> covering;
     coverer.GetCovering(cap, &covering);
-    
-  
+
+
   This yields a vector of at most 5 cells that is guaranteed to cover the
   given cap (a disc-shaped region on the sphere).
-  
+
   The approximation algorithm is not optimal but does a pretty good job in
   practice.  The output does not always use the maximum number of cells
   allowed, both because this would not always yield a better approximation,
   and because max_cells() is a limit on how much work is done exploring the
   possible covering as well as a limit on the final output size.
-  
+
   One can also generate interior coverings, which are sets of cells which
   are entirely contained within a region.  Interior coverings can be
   empty, even for non-empty regions, if there are no cells that satisfy
@@ -3982,100 +3606,95 @@ extracted from its source code and included here for reference.
   algorithm may spend a lot of time subdividing cells all the way to leaf
   level to try to find contained cells.
 
-  
   .. cpp:function:: void set_min_level(int min_level)
-  
+
     Set the minimum and maximum cell level to be used.  The default is to use
     all cell levels.  Requires: max_level() >= min_level().
-    
+
     To find the cell level corresponding to a given physical distance, use
     the S2Cell metrics defined in s2.h.  For example, to find the cell
     level that corresponds to an average edge length of 10km, use:
-    
+
     .. code-block:: cpp
-    
+
         int level = S2::kAvgEdge.GetClosestLevel(
                     geostore::S2Earth::KmToRadians(length_km));
-      
-    
+
+
     Note: min_level() takes priority over max_cells(), i.e. cells below the
     given level will never be used even if this causes a large number of
     cells to be returned.
-  
-    
+
   .. cpp:function:: void set_max_level(int max_level)
-  
-  
-    
+
+
+
   .. cpp:function:: int min_level() const
-  
-  
-    
+
+
+
   .. cpp:function:: int max_level() const
-  
-  
-    
+
+
+
   .. cpp:function:: void set_level_mod(int level_mod)
-  
+
     If specified, then only cells where (level - min_level) is a multiple of
     "level_mod" will be used (default 1).  This effectively allows the
     branching factor of the S2CellId hierarchy to be increased.  Currently
     the only parameter values allowed are 1, 2, or 3, corresponding to
     branching factors of 4, 16, and 64 respectively.
-  
-    
+
   .. cpp:function:: int level_mod() const
-  
-  
-    
+
+
+
   .. cpp:function:: void set_max_cells(int max_cells)
-  
+
     Sets the maximum desired number of cells in the approximation (defaults
     to kDefaultMaxCells).  Note the following:
-    
+
      - For any setting of max_cells(), up to 6 cells may be returned if that
        is the minimum number of cells required (e.g. if the region intersects
        all six face cells).  Up to 3 cells may be returned even for very tiny
        convex regions if they happen to be located at the intersection of
        three cube faces.
-    
+
      - For any setting of max_cells(), an arbitrary number of cells may be
        returned if min_level() is too high for the region being approximated.
-    
+
      - If max_cells() is less than 4, the area of the covering may be
        arbitrarily large compared to the area of the original region even if
        the region is convex (e.g. an S2Cap or S2LatLngRect).
-    
-    
+
+
     Accuracy is measured by dividing the area of the covering by the area of
     the original region.  The following table shows the median and worst case
     values for this area ratio on a test case consisting of 100,000 spherical
     caps of random size (generated using s2regioncoverer_unittest):
-    
+
     .. code-block:: cpp
-    
+
       max_cells:        3      4     5     6     8    12    20   100   1000
       median ratio:  5.33   3.32  2.73  2.34  1.98  1.66  1.42  1.11   1.01
       worst case:  215518  14.41  9.72  5.26  3.91  2.75  1.92  1.20   1.02
-  
-    
+
   .. cpp:function:: int max_cells() const
-  
-  
-    
+
+
+
   .. cpp:function:: void GetCovering(S2Region const& region, vector<S2CellId>* covering)
-  
+
     Return a vector of cell ids that covers (GetCovering) or is contained
     within (GetInteriorCovering) the given region and satisfies the various
     restrictions specified above.
-  
-    
+
   .. cpp:function:: void GetInteriorCovering(S2Region const& region, vector<S2CellId>* interior)
-  
-  
-    
+
+
+
   .. cpp:function:: void GetCellUnion(S2Region const& region, S2CellUnion* covering)
-  
+
     Return a normalized cell union that covers (GetCellUnion) or is contained
     within (GetInteriorCellUnion) the given region and satisfies the
     restrictionsEXCEPT* for min_level() and level_mod().  These criteria
@@ -4083,151 +3702,137 @@ extracted from its source code and included here for reference.
     automatically normalized by replacing four child cells with their parent
     whenever possible.  (Note that the list of cell ids passed to the cell
     union constructor does in fact satisfy all the given restrictions.)
-  
-    
+
   .. cpp:function:: void GetInteriorCellUnion(S2Region const& region, S2CellUnion* interior)
-  
-  
-    
+
+
+
   .. cpp:function:: static void GetSimpleCovering(S2Region const& region, S2Point const& start, int level, vector<S2CellId>* output)
-  
+
     Given a connected region and a starting point, return a set of cells at
     the given level that cover the region.
-  
-  
+
 .. cpp:class:: S2RegionIntersection : public S2Region
 
   An S2RegionIntersection represents the intersection of a set of regions.
   It is convenient for computing a covering of the intersection of a set of
   regions.
 
-  
   .. cpp:function:: void Init(vector<S2Region*>* regions)
-  
+
     Initialize region by taking ownership of the given regions.
-  
-    
+
   .. cpp:function:: void Release(vector<S2Region*>* regions)
-  
+
     Release ownership of the regions of this union, and appends them to
     "regions" if non-NULL.  Resets the region to be empty.
-  
-    
+
   .. cpp:function:: int num_regions() const
-  
+
     Accessor methods.
-  
-    
+
   .. cpp:function:: inline S2Region* region(int i) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2RegionIntersection* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-  
+
+
+
 .. cpp:class:: S2RegionUnion : public S2Region
 
   An S2RegionUnion represents a union of possibly overlapping regions.
   It is convenient for computing a covering of a set of regions.
 
-  
   .. cpp:function:: void Init(vector<S2Region*>* regions)
-  
+
     Initialize region by taking ownership of the given regions.
-  
-    
+
   .. cpp:function:: void Release(vector<S2Region*>* regions)
-  
+
     Release ownership of the regions of this union, and appends them to
     "regions" if non-NULL.  Resets the region to be empty.
-  
-    
+
   .. cpp:function:: void Add(S2Region* region)
-  
+
     Add the given region to the union.  This method can be called repeatedly
     as an alternative to Init().
     Takes ownership of the pointer.
-  
-    
+
   .. cpp:function:: int num_regions() const
-  
+
     Accessor methods.
-  
-    
+
   .. cpp:function:: inline S2Region* region(int i) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2RegionUnion* Clone() const
-  
-    
+
+
     S2Region interface (see s2region.h for details):
-  
-    
+
   .. cpp:function:: virtual S2Cap GetCapBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual S2LatLngRect GetRectBound() const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool VirtualContainsPoint(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: bool Contains(S2Point const& p) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Contains(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool MayIntersect(S2Cell const& cell) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual void Encode(Encoder* const encoder) const
-  
-  
-    
+
+
+
   .. cpp:function:: virtual bool Decode(Decoder* const decoder)
-  
-  
-  
+
+

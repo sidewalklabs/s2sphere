@@ -52,25 +52,25 @@ function_re_partial = re.compile(
 
 special_cases = {
     '//  // is the planar centroid, which is simply the centroid of '
-    'the ordinary\n':
+    'the ordinary':
     '// is the planar centroid, which is simply the centroid of '
-    'the ordinary\n',
+    'the ordinary',
 
-    '// ----------------\n': '// \n',
+    '// ----------------': '// ',
 
-    '//  (3) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d\n':
-    '//  (4) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d\n',
+    '//  (3) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d':
+    '//  (4) RobustCrossing(a,b,c,d) <= 0 if a==b or c==d',
 
-    '//  (3) If exactly one of a,b equals one of c,d, then exactly one of\n':
-    '//  (4) If exactly one of a,b equals one of c,d, then exactly one of\n',
+    '//  (3) If exactly one of a,b equals one of c,d, then exactly one of':
+    '//  (4) If exactly one of a,b equals one of c,d, then exactly one of',
 
     '// to be different than vertex(*next_vertex), so this will never '
-    'result in\n':
+    'result in':
     '// to be different than `vertex(*next_vertex)`, so this will never '
-    'result in\n',
+    'result in',
 
-    '// Return true if lng_.lo() > lng_.hi(), i.e. the rectangle crosses\n':
-    '// Return true if `lng_.lo() > lng_.hi()`, i.e. the rectangle crosses\n',
+    '// Return true if lng_.lo() > lng_.hi(), i.e. the rectangle crosses':
+    '// Return true if `lng_.lo() > lng_.hi()`, i.e. the rectangle crosses',
 }
 
 
@@ -103,6 +103,8 @@ def extract_file(in_file, out_file):
         if is_private:
             continue
 
+        line = line.rstrip()
+
         if line in special_cases:
             line = special_cases[line]
 
@@ -121,10 +123,10 @@ def extract_file(in_file, out_file):
                 name=name,
                 description=formatter.comment(cached_lines),
             )
-            out_file.write(' ' * indent +
-                           txt.replace('\n', '\n' + ' ' * indent))
+            for l in txt.splitlines():
+                out_file.write((' ' * indent + l).rstrip() + '\n')
             indent += 2
-        elif line.startswith('typedef') and line.endswith(';\n'):
+        elif line.startswith('typedef') and line.endswith(';'):
             name = line[8:]
             name = name.replace(';', '')
             name = name.strip()
@@ -133,8 +135,8 @@ def extract_file(in_file, out_file):
                 name=name,
                 description=formatter.comment(cached_lines),
             )
-            out_file.write(' ' * indent +
-                           txt.replace('\n', '\n' + ' ' * indent))
+            for l in txt.splitlines():
+                out_file.write((' ' * indent + l).rstrip() + '\n')
             indent += 2
         elif line.startswith('template') and ('(' in line or '{' in line):
             name = line
@@ -149,8 +151,8 @@ def extract_file(in_file, out_file):
                 name=name,
                 description=formatter.comment(cached_lines),
             )
-            out_file.write(' ' * indent +
-                           txt.replace('\n', '\n' + ' ' * indent))
+            for l in txt.splitlines():
+                out_file.write((' ' * indent + l).rstrip() + '\n')
             indent += 2
         elif function_re.search(partial_function + line.strip()) is not None:
             name = partial_function + line.strip()
@@ -166,10 +168,10 @@ def extract_file(in_file, out_file):
                 name=name,
                 description=formatter.comment(cached_lines),
             )
-            out_file.write(' ' * indent +
-                           txt.replace('\n', '\n' + ' ' * indent))
+            for l in txt.splitlines():
+                out_file.write((' ' * indent + l).rstrip() + '\n')
         elif function_re_partial.search(line) is not None:
-            partial_function = line.replace('\n', ' ')
+            partial_function = line + ' '
             continue
 
         partial_function = ''
@@ -181,7 +183,7 @@ class Formatter(object):
     def __init__(self, indent=0):
         self.indent = indent
 
-    def strip(self, line):
+    def strip_comment_tags(self, line):
         return (
             line
             .replace('// ', '')
@@ -207,27 +209,27 @@ class Formatter(object):
                     continue
                 else:
                     inside_list = False
-                    processed.insert(-1, '\n')
+                    processed.insert(-1, '')
             if l.startswith((' -', '-', ' 1.', '1.', ' (1)', '(1)')):
                 inside_list = True
-                if len(processed) > 1 and len(processed[-2]) > 1:
-                    processed.insert(-1, '\n')
+                if len(processed) > 1 and processed[-2]:
+                    processed.insert(-1, '')
                 continue
 
             if inside_block:
-                if l.startswith(' ') or len(l) <= 1 or l.endswith(';\n'):
+                if l.startswith(' ') or not l or l.endswith(';'):
                     pass
                 else:
                     inside_block = False
-                    processed.insert(-1, '\n')
-            elif (l.startswith('  ') or (l.endswith(';\n') and
-                                         processed[-3].endswith(':\n')) or
-                  (l.startswith(' ') and l.endswith(';\n'))):
+                    processed.insert(-1, '')
+            elif (l.startswith('  ') or (l.endswith(';') and
+                                         processed[-3].endswith(':')) or
+                  (l.startswith(' ') and l.endswith(';'))):
                 inside_block = True
-                if len(processed) > 1 and len(processed[-2]) > 1:
-                    processed.insert(-1, '\n')
-                processed.insert(-1, '.. code-block:: cpp\n')
-                processed.insert(-1, '\n')
+                if len(processed) > 1 and processed[-2]:
+                    processed.insert(-1, '')
+                processed.insert(-1, '.. code-block:: cpp')
+                processed.insert(-1, '')
 
             # ensure code-block indent
             if inside_block and not l.startswith('  '):
@@ -236,9 +238,9 @@ class Formatter(object):
         return processed
 
     def comment(self, lines):
-        processed = [self.strip(l) for l in lines]
+        processed = [self.strip_comment_tags(l) for l in lines]
         processed = self.detect_block(processed)
-        return ''.join((' ' * 2) + l for l in processed)
+        return '\n'.join((' ' * 2) + l for l in processed)
 
 
 if __name__ == '__main__':
