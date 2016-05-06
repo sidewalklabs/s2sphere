@@ -1214,6 +1214,10 @@ class CellId(object):
         return face, 2 * i + delta, 2 * j + delta
 
     def get_center_uv(self):
+        '''center of the cell in (u, v) coordinates
+
+        :rtype: pair
+        '''
         face, si, ti = self.get_center_si_ti()
         cls = self.__class__
         return (cls.st_to_uv((0.5 / cls.MAX_SIZE) * si),
@@ -1569,12 +1573,17 @@ def get_norm(face):
 
 
 def get_u_norm(face, u):
-    '''u norm
+    '''Vector normal to the positive v-axis and the plane through the origin.
 
-    Return the right-handed normal (not necessarily unit length) for an
+    The vector is normal to the positive v-axis and a plane that contains the
+    origin and the v-axis.
+
+    The right-handed normal (not necessarily unit length) for an
     edge in the direction of the positive v-axis at the given u-value on
     the given face.  (This vector is perpendicular to the plane through
     the sphere origin that contains the given edge.)
+
+    :rtype: Point
 
     see :cpp:func:`S2::GetUNorm`
     '''
