@@ -11,7 +11,7 @@ import math
 
 @functools.total_ordering
 class Angle(object):
-    '''A one-dimensional angle (as opposed to a two-dimensional solid angle).
+    """A one-dimensional angle (as opposed to a two-dimensional solid angle).
 
     It has methods for converting angles to or from radians and degrees.
 
@@ -19,7 +19,7 @@ class Angle(object):
         angle in radians
 
     see :cpp:class:`S1Angle`
-    '''
+    """
 
     def __init__(self, radians=0):
         if not isinstance(radians, (float, int)):
@@ -44,12 +44,12 @@ class Angle(object):
 
     @classmethod
     def from_degrees(cls, degrees):
-        '''class generator
+        """class generator
 
         :param float degrees:
             degrees
 
-        '''
+        """
         return cls(math.radians(degrees))
 
     @classmethod
@@ -66,12 +66,12 @@ class Angle(object):
 
 
 class Point(object):
-    '''A point in 3d Euclidean space.
+    """A point in 3d Euclidean space.
 
     "Normalized" points are points on the unit sphere.
 
     see :cpp:type:`S2Point`
-    '''
+    """
 
     def __init__(self, x, y, z):
         self.__point = (x, y, z)
@@ -163,10 +163,10 @@ class Point(object):
 
 
 class LatLon(object):
-    '''A point on a sphere in latitute-longitude coordinates.
+    """A point on a sphere in latitute-longitude coordinates.
 
     see :cpp:class:`S2LatLng`
-    '''
+    """
 
     @classmethod
     def from_degrees(cls, lat, lon):
@@ -279,10 +279,10 @@ class LatLon(object):
 
 
 class Cap(object):
-    '''A spherical cap, which is a portion of a sphere cut off by a plane.
+    """A spherical cap, which is a portion of a sphere cut off by a plane.
 
     see :cpp:class:`S2Cap`
-    '''
+    """
 
     ROUND_UP = 1.0 + 1.0 / (1 << 52)
 
@@ -334,7 +334,7 @@ class Cap(object):
         return self.__axis
 
     def area(self):
-        '''2 * pi * height'''
+        """2 * pi * height"""
         return 2 * math.pi * max(0.0, self.height())
 
     def angle(self):
@@ -498,10 +498,10 @@ class Cap(object):
 
 
 class LatLonRect(object):
-    '''A rectangle in latitude-longitude space.
+    """A rectangle in latitude-longitude space.
 
     see :cpp:class:`S2LatLngRect`
-    '''
+    """
 
     def __init__(self, *args):
         if len(args) == 0:
@@ -879,10 +879,10 @@ _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 
 @functools.total_ordering
 class CellId(object):
-    '''S2 cell id
+    """S2 cell id
 
     see :cpp:class:`S2CellId`
-    '''
+    """
 
     # projection types
     LINEAR_PROJECTION = 0
@@ -1215,10 +1215,10 @@ class CellId(object):
         return face, 2 * i + delta, 2 * j + delta
 
     def get_center_uv(self):
-        '''center of the cell in (u, v) coordinates
+        """center of the cell in (u, v) coordinates
 
         :rtype: pair
-        '''
+        """
         face, si, ti = self.get_center_si_ti()
         cls = self.__class__
         return (cls.st_to_uv((0.5 / cls.MAX_SIZE) * si),
@@ -1269,11 +1269,11 @@ class CellId(object):
                 .parent(level))
 
     def get_vertex_neighbors(self, level):
-        '''Return the neighbors of closest vertex to this cell.
+        """Return the neighbors of closest vertex to this cell.
 
         Normally there are four neighbors, but the closest vertex may only have
         three neighbors if it is one of the 8 cube vertices.
-        '''
+        """
         # "level" must be strictly less than this cell's level so that we can
         # determine which vertex this cell is closest to.
         assert level < self.level()
@@ -1454,10 +1454,10 @@ class CellId(object):
 
 
 class Metric(object):
-    '''Metric
+    """Metric
 
     see :cpp:class:`S2::Metric`
-    '''
+    """
 
     def __init__(self, deriv, dim):
         self.__deriv = deriv
@@ -1487,25 +1487,25 @@ class Metric(object):
 
 
 class LengthMetric(Metric):
-    '''Length metric. A 1D specialization of :class:`s2sphere.Metric`.
+    """Length metric. A 1D specialization of :class:`s2sphere.Metric`.
 
     see :cpp:class:`S2::LengthMetric`
-    '''
+    """
     def __init__(self, deriv):
         super(LengthMetric, self).__init__(deriv, 1)
 
 
 class AreaMetric(Metric):
-    '''Area metric. A 2D specialization of :class:`s2sphere.Metric`.
+    """Area metric. A 2D specialization of :class:`s2sphere.Metric`.
 
     see :cpp:class:`S2::AreaMetric`
-    '''
+    """
     def __init__(self, deriv):
         super(AreaMetric, self).__init__(deriv, 2)
 
 
 def drem(x, y):
-    '''Like fmod but rounds to nearest integer instead of floor.'''
+    """Like fmod but rounds to nearest integer instead of floor."""
     xd = decimal.Decimal(x)
     yd = decimal.Decimal(y)
     return float(xd.remainder_near(yd))
@@ -1536,10 +1536,10 @@ def xyz_to_face_uv(p):
 
 
 def face_xyz_to_uv(face, p):
-    '''(face, XYZ) to UV
+    """(face, XYZ) to UV
 
     see :cpp:func:`S2::FaceXYZtoUV`
-    '''
+    """
     if face < 3:
         if p[face] <= 0:
             return False, 0, 0
@@ -1551,10 +1551,10 @@ def face_xyz_to_uv(face, p):
 
 
 def face_uv_to_xyz(face, u, v):
-    '''(face, u, v) to xyz
+    """(face, u, v) to xyz
 
     see :cpp:func:`S2::FaceUVtoXYZ`
-    '''
+    """
     if face == 0:
         return Point(1, u, v)
     elif face == 1:
@@ -1574,7 +1574,7 @@ def get_norm(face):
 
 
 def get_u_norm(face, u):
-    '''Vector normal to the positive v-axis and the plane through the origin.
+    """Vector normal to the positive v-axis and the plane through the origin.
 
     The vector is normal to the positive v-axis and a plane that contains the
     origin and the v-axis.
@@ -1587,7 +1587,7 @@ def get_u_norm(face, u):
     :rtype: Point
 
     see :cpp:func:`S2::GetUNorm`
-    '''
+    """
     if face == 0:
         return Point(u, -1, 0)
     elif face == 1:
@@ -1603,7 +1603,7 @@ def get_u_norm(face, u):
 
 
 def get_v_norm(face, v):
-    '''Vector normal to the positive u-axis and the plane through the origin.
+    """Vector normal to the positive u-axis and the plane through the origin.
 
     The vector is normal to the positive u-axis and a plane that contains the
     origin and the u-axis.
@@ -1613,7 +1613,7 @@ def get_v_norm(face, v):
     the given face.
 
     see :cpp:func:`S2::GetVNorm`
-    '''
+    """
     if face == 0:
         return Point(-v, 0, 1)
     elif face == 1:
@@ -1663,7 +1663,7 @@ def is_unit_length(p):
 
 
 def ortho(a):
-    '''see :cpp:func:`S2::Ortho`'''
+    """see :cpp:func:`S2::Ortho`"""
     k = a.largest_abs_component() - 1
     if k < 0:
         k = 2
@@ -1677,15 +1677,15 @@ def ortho(a):
 
 
 def origin():
-    '''A unique and empirically chosen reference point.
+    """A unique and empirically chosen reference point.
 
     see :cpp:func:`S2::Origin`
-    '''
+    """
     return Point(0.00457, 1, 0.0321).normalize()
 
 
 def robust_cross_prod(a, b):
-    '''A numerically more robust cross product.
+    """A numerically more robust cross product.
 
     The direction of :math:`a \\times b` becomes unstable as :math:`(a + b)` or
     :math:`(a - b)` approaches zero.  This leads to situations where
@@ -1702,7 +1702,7 @@ def robust_cross_prod(a, b):
     even if these two values differ only in the lowest bit of one component.
 
     see :cpp:func:`S2::RobustCrossProd`
-    '''
+    """
     assert is_unit_length(a)
     assert is_unit_length(b)
 
@@ -1714,7 +1714,7 @@ def robust_cross_prod(a, b):
 
 
 def simple_crossing(a, b, c, d):
-    '''see :cpp:func:`S2EdgeUtil::SimpleCrossing`'''
+    """see :cpp:func:`S2EdgeUtil::SimpleCrossing`"""
     ab = a.cross_prod(b)
     acb = -(ab.dot_prod(c))
     bda = ab.dot_prod(d)
@@ -1728,7 +1728,7 @@ def simple_crossing(a, b, c, d):
 
 
 def girard_area(a, b, c):
-    '''see :cpp:func:`S2::GirardArea`'''
+    """see :cpp:func:`S2::GirardArea`"""
     ab = robust_cross_prod(a, b)
     bc = robust_cross_prod(b, c)
     ac = robust_cross_prod(a, c)
@@ -1736,10 +1736,10 @@ def girard_area(a, b, c):
 
 
 def area(a, b, c):
-    '''Area of the triangle (a, b, c).
+    """Area of the triangle (a, b, c).
 
     see :cpp:func:`S2::Area`
-    '''
+    """
     assert is_unit_length(a)
     assert is_unit_length(b)
     assert is_unit_length(c)
@@ -1766,7 +1766,7 @@ def area(a, b, c):
 
 
 def simple_ccw(a, b, c):
-    '''Simple Counterclockwise test.
+    """Simple Counterclockwise test.
 
     Return true if the points A, B, C are strictly counterclockwise.  Return
     false if the points are clockwise or collinear (i.e. if they are all
@@ -1779,12 +1779,12 @@ def simple_ccw(a, b, c):
       If simple_ccw(a,b,c), then !simple_ccw(c,b,a) for all a,b,c.
 
     see :cpp:func:`S2::SimpleCCW`
-    '''
+    """
     return c.cross_prod(a).dot_prod(b) > 0
 
 
 class Interval(object):
-    '''Interval interface'''
+    """Interval interface"""
     def __init__(self, lo, hi):
         # self.__bounds = [args[0], args[1]]
         self.__bounds = (lo, hi)
@@ -1811,10 +1811,10 @@ class Interval(object):
 
 
 class LineInterval(Interval):
-    '''Line Interval in R1
+    """Line Interval in R1
 
     see :cpp:class:`R1Interval`
-    '''
+    """
 
     def __init__(self, lo=1, hi=0):
         super(LineInterval, self).__init__(lo, hi)
@@ -1900,10 +1900,10 @@ class LineInterval(Interval):
 
 
 class SphereInterval(Interval):
-    '''Interval in S1
+    """Interval in S1
 
     see :cpp:class:`S1Interval`
-    '''
+    """
     def __init__(self, lo=math.pi, hi=-math.pi, args_checked=False):
         if args_checked:
             super(SphereInterval, self).__init__(lo, hi)
@@ -1983,13 +1983,13 @@ class SphereInterval(Interval):
             return -1
 
     def complement(self):
-        '''Return the complement of the interior of the interval.
+        """Return the complement of the interior of the interval.
 
         An interval and its complement have the same boundary but do not share
         any interior values. The complement operator is not a bijection, since
         the complement of a singleton interval (containing a single value) is
         the same as the complement of an empty interval.
-        '''
+        """
         if self.lo() == self.hi():
             return self.__class__.full()
         return self.__class__(self.hi(), self.lo())
@@ -2168,10 +2168,10 @@ class SphereInterval(Interval):
 
 
 class Cell(object):
-    '''Cell
+    """Cell
 
     see :cpp:class:`S2Cell`
-    '''
+    """
 
     def __init__(self, cell_id=None):
         self.__uv = [[None, None], [None, None]]
@@ -2390,10 +2390,10 @@ class Cell(object):
 
 
 class CellUnion(object):
-    '''Cell Union
+    """Cell Union
 
     see :cpp:class:`S2CellUnion`
-    '''
+    """
 
     def __init__(self, cell_ids=None, raw=True):
         if cell_ids is None:
@@ -2653,10 +2653,10 @@ FACE_CELLS = (Cell.from_face_pos_level(0, 0, 0),
 
 
 class RegionCoverer(object):
-    '''Region Coverer
+    """Region Coverer
 
     see :cpp:class:`S2RegionCoverer`
-    '''
+    """
 
     class Candidate(object):
         @property
@@ -2785,7 +2785,7 @@ class RegionCoverer(object):
                                                num_levels)
 
         if candidate.num_children == 0:
-            ''' Not needed due to GC '''
+            """ Not needed due to GC """
         elif not self.__interior_covering \
                 and num_terminals == 1 << self.__max_children_shift() \
                 and candidate.cell.level() >= self.__min_level:
@@ -2846,7 +2846,7 @@ class RegionCoverer(object):
                 for child in candidate.children:
                     self.__add_candidate(child)
             elif self.__interior_covering:
-                ''' Do nothing here '''
+                """ Do nothing here """
             else:
                 candidate.is_terminal = True
                 self.__add_candidate(candidate)
