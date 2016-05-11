@@ -334,6 +334,7 @@ class Cap(object):
         return self.__axis
 
     def area(self):
+        '''2 * pi * height'''
         return 2 * math.pi * max(0.0, self.height())
 
     def angle(self):
@@ -1602,7 +1603,10 @@ def get_u_norm(face, u):
 
 
 def get_v_norm(face, v):
-    '''v norm
+    '''Vector normal to the positive u-axis and the plane through the origin.
+
+    The vector is normal to the positive u-axis and a plane that contains the
+    origin and the u-axis.
 
     Return the right-handed normal (not necessarily unit length) for an
     edge in the direction of the positive u-axis at the given v-value on
@@ -1659,10 +1663,7 @@ def is_unit_length(p):
 
 
 def ortho(a):
-    '''ortho
-
-    see :cpp:func:`S2::Ortho`
-    '''
+    '''see :cpp:func:`S2::Ortho`'''
     k = a.largest_abs_component() - 1
     if k < 0:
         k = 2
@@ -1676,9 +1677,7 @@ def ortho(a):
 
 
 def origin():
-    '''Origin
-
-    These values are ones that try not to overlap cells etc
+    '''A unique and empirically chosen reference point.
 
     see :cpp:func:`S2::Origin`
     '''
@@ -1715,10 +1714,7 @@ def robust_cross_prod(a, b):
 
 
 def simple_crossing(a, b, c, d):
-    '''Simple Crossing
-
-    see :cpp:func:`S2EdgeUtil::SimpleCrossing`
-    '''
+    '''see :cpp:func:`S2EdgeUtil::SimpleCrossing`'''
     ab = a.cross_prod(b)
     acb = -(ab.dot_prod(c))
     bda = ab.dot_prod(d)
@@ -1732,10 +1728,7 @@ def simple_crossing(a, b, c, d):
 
 
 def girard_area(a, b, c):
-    '''Girard Area
-
-    see :cpp:func:`S2::GirardArea`
-    '''
+    '''see :cpp:func:`S2::GirardArea`'''
     ab = robust_cross_prod(a, b)
     bc = robust_cross_prod(b, c)
     ac = robust_cross_prod(a, c)
@@ -1743,7 +1736,7 @@ def girard_area(a, b, c):
 
 
 def area(a, b, c):
-    '''Area
+    '''Area of the triangle (a, b, c).
 
     see :cpp:func:`S2::Area`
     '''
@@ -1773,7 +1766,7 @@ def area(a, b, c):
 
 
 def simple_ccw(a, b, c):
-    '''Simple Counterclockwise
+    '''Simple Counterclockwise test.
 
     Return true if the points A, B, C are strictly counterclockwise.  Return
     false if the points are clockwise or collinear (i.e. if they are all
@@ -1989,12 +1982,14 @@ class SphereInterval(Interval):
         else:
             return -1
 
-    #  Return the complement of the interior of the interval.  An interval and
-    # its complement have the same boundary but do not share any interior
-    # values.  The complement operator is not a bijection, since the complement
-    # of a singleton interval (containing a single value) is the same as the
-    # complement of an empty interval.
     def complement(self):
+        '''Return the complement of the interior of the interval.
+
+        An interval and its complement have the same boundary but do not share
+        any interior values. The complement operator is not a bijection, since
+        the complement of a singleton interval (containing a single value) is
+        the same as the complement of an empty interval.
+        '''
         if self.lo() == self.hi():
             return self.__class__.full()
         return self.__class__(self.hi(), self.lo())
