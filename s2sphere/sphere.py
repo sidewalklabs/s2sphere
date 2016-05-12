@@ -1127,6 +1127,45 @@ class CellId(object):
         return cls.from_face_pos_level(5, 0, 0).child_end(level)
 
     @classmethod
+    def walk(cls, level):
+        """Walk along a Hilbert curve at the given level.
+
+        This function does not exist in the SWIG bindings of the original C++
+        library. It provides a more Pythonic way to iterate over cells.
+
+        :returns:
+            Iterator over instances of :class:`CellId`s.
+        """
+        cellid = cls.begin(level).id()
+        endid = cls.end(level).id()
+        increment = cls.begin(level).lsb() << 1
+        while cellid != endid:
+            yield cls(cellid)
+            cellid += increment
+
+    @classmethod
+    def walk_fast(cls, level):
+        """Walk along a Hilbert curve at the given level.
+
+        This function does not exist in the SWIG bindings of the original C++
+        library. It provides a more Pythonic way to iterate over cells.
+
+        Use with caution: This modifies the underlying ``id`` of a single
+        :class:`CellId` instance for performance reasons.
+
+        :returns:
+            Iterator over ids in the same instance of :class:`CellId`.
+        """
+        instance = cls.begin(level)
+        cellid = instance.id()
+        endid = cls.end(level).id()
+        increment = instance.lsb() << 1
+        while cellid != endid:
+            instance.__id = cellid
+            yield instance
+            cellid += increment
+
+    @classmethod
     def none(cls):
         return cls()
 
