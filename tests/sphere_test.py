@@ -364,9 +364,7 @@ class TestCellId(unittest.TestCase):
         cell_size = 1 / (1 << max_walk_level)
         max_dist = CellId.max_edge().get_value(max_walk_level)
 
-        end = CellId.end(max_walk_level)
-        cell_id = CellId.begin(max_walk_level)
-        while cell_id != end:
+        for cell_id in CellId.walk_fast(max_walk_level):
             self.assertLessEqual(
                 cell_id.to_point_raw().angle(
                     cell_id.next_wrap().to_point_raw()), max_dist)
@@ -381,8 +379,6 @@ class TestCellId(unittest.TestCase):
                 CellId.uv_to_st(u) % (0.5 * cell_size), 0, delta=1e-15)
             self.assertAlmostEqual(
                 CellId.uv_to_st(v) % (0.5 * cell_size), 0, delta=1e-15)
-
-            cell_id = cell_id.next()
 
     def testCoverage(self):
         max_dist = 0.5 * CellId.max_diag().get_value(CellId.MAX_LEVEL)
