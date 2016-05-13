@@ -881,6 +881,15 @@ _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 class CellId(object):
     """S2 cell id
 
+    The 64-bit ID has:
+
+    - 3 bits to encode the face
+    - 0-60 bits to encode the position
+    - a 1
+
+    The final 1 is the least significant bit (lsb) in the underlying integer
+    representation and is returned with :func:`s2sphere.CellId.lsb`.
+
     see :cpp:class:`S2CellId`
     """
 
@@ -1136,12 +1145,16 @@ class CellId(object):
         :returns:
             Iterator over instances of :class:`CellId`s.
         """
-        cellid = cls.begin(level).id()
-        endid = cls.end(level).id()
+        cellid_int = cls.begin(level).id()
+        endid_int = cls.end(level).id()
+
+        # Doubling the lsb yields the increment between positions at a certain
+        # level as 64-bit IDs. See CellId docstring for bit encoding.
         increment = cls.begin(level).lsb() << 1
-        while cellid != endid:
-            yield cls(cellid)
-            cellid += increment
+
+        while cellid_int != endid_int:
+            yield cls(cellid_int)
+            cellid_int += increment
 
     @classmethod
     def walk_fast(cls, level):
@@ -1150,20 +1163,25 @@ class CellId(object):
         This function does not exist in the SWIG bindings of the original C++
         library. It provides a more Pythonic way to iterate over cells.
 
-        Use with caution: This modifies the underlying ``id`` of a single
-        :class:`CellId` instance for performance reasons.
+        Use with caution: this repeatedly mutates a single instance with a
+        changing ``id``. If you save the object, it will change out from
+        underneath you.
 
         :returns:
             Iterator over ids in the same instance of :class:`CellId`.
         """
         instance = cls.begin(level)
-        cellid = instance.id()
-        endid = cls.end(level).id()
+        cellid_int = instance.id()
+        endid_int = cls.end(level).id()
+
+        # Doubling the lsb yields the increment between positions at a certain
+        # level as 64-bit IDs. See CellId docstring for bit encoding.
         increment = instance.lsb() << 1
-        while cellid != endid:
-            instance.__id = cellid
+
+        while cellid_int != endid_int:
+            instance.__id = cellid_int
             yield instance
-            cellid += increment
+            cellid_int += increment
 
     @classmethod
     def none(cls):
