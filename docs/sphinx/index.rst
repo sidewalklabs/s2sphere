@@ -37,6 +37,7 @@ Contents
     quickstart
     api
     dev
+    cpp
 
 * :ref:`genindex`
 

@@ -11,14 +11,15 @@ import math
 
 @functools.total_ordering
 class Angle(object):
-    '''A one-dimensional angle (as opposed to a two-dimensional solid angle).
+    """A one-dimensional angle (as opposed to a two-dimensional solid angle).
 
     It has methods for converting angles to or from radians and degrees.
 
     :param float radians:
         angle in radians
 
-    '''
+    see :cpp:class:`S1Angle`
+    """
 
     def __init__(self, radians=0):
         if not isinstance(radians, (float, int)):
@@ -43,12 +44,12 @@ class Angle(object):
 
     @classmethod
     def from_degrees(cls, degrees):
-        '''class generator
+        """class generator
 
         :param float degrees:
             degrees
 
-        '''
+        """
         return cls(math.radians(degrees))
 
     @classmethod
@@ -65,6 +66,12 @@ class Angle(object):
 
 
 class Point(object):
+    """A point in 3d Euclidean space.
+
+    "Normalized" points are points on the unit sphere.
+
+    see :cpp:type:`S2Point`
+    """
 
     def __init__(self, x, y, z):
         self.__point = (x, y, z)
@@ -156,6 +163,10 @@ class Point(object):
 
 
 class LatLon(object):
+    """A point on a sphere in latitute-longitude coordinates.
+
+    see :cpp:class:`S2LatLng`
+    """
 
     @classmethod
     def from_degrees(cls, lat, lon):
@@ -268,6 +279,10 @@ class LatLon(object):
 
 
 class Cap(object):
+    """A spherical cap, which is a portion of a sphere cut off by a plane.
+
+    see :cpp:class:`S2Cap`
+    """
 
     ROUND_UP = 1.0 + 1.0 / (1 << 52)
 
@@ -319,6 +334,7 @@ class Cap(object):
         return self.__axis
 
     def area(self):
+        """2 * pi * height"""
         return 2 * math.pi * max(0.0, self.height())
 
     def angle(self):
@@ -482,6 +498,10 @@ class Cap(object):
 
 
 class LatLonRect(object):
+    """A rectangle in latitude-longitude space.
+
+    see :cpp:class:`S2LatLngRect`
+    """
 
     def __init__(self, *args):
         if len(args) == 0:
@@ -859,7 +879,19 @@ _init_lookup_cell(0, 0, 0, SWAP_MASK | INVERT_MASK, 0, SWAP_MASK | INVERT_MASK)
 
 @functools.total_ordering
 class CellId(object):
-    '''S2 cell id'''
+    """S2 cell id
+
+    The 64-bit ID has:
+
+    - 3 bits to encode the face
+    - 0-60 bits to encode the position
+    - a 1
+
+    The final 1 is the least significant bit (lsb) in the underlying integer
+    representation and is returned with :func:`s2sphere.CellId.lsb`.
+
+    see :cpp:class:`S2CellId`
+    """
 
     # projection types
     LINEAR_PROJECTION = 0
@@ -1104,6 +1136,54 @@ class CellId(object):
         return cls.from_face_pos_level(5, 0, 0).child_end(level)
 
     @classmethod
+    def walk(cls, level):
+        """Walk along a Hilbert curve at the given level.
+
+        This function does not exist in the SWIG bindings of the original C++
+        library. It provides a more Pythonic way to iterate over cells.
+
+        :returns:
+            Iterator over instances of :class:`CellId`s.
+        """
+        cellid_int = cls.begin(level).id()
+        endid_int = cls.end(level).id()
+
+        # Doubling the lsb yields the increment between positions at a certain
+        # level as 64-bit IDs. See CellId docstring for bit encoding.
+        increment = cls.begin(level).lsb() << 1
+
+        while cellid_int != endid_int:
+            yield cls(cellid_int)
+            cellid_int += increment
+
+    @classmethod
+    def walk_fast(cls, level):
+        """Walk along a Hilbert curve at the given level.
+
+        This function does not exist in the SWIG bindings of the original C++
+        library. It provides a more Pythonic way to iterate over cells.
+
+        Use with caution: this repeatedly mutates a single instance with a
+        changing ``id``. If you save the object, it will change out from
+        underneath you.
+
+        :returns:
+            Iterator over ids in the same instance of :class:`CellId`.
+        """
+        instance = cls.begin(level)
+        cellid_int = instance.id()
+        endid_int = cls.end(level).id()
+
+        # Doubling the lsb yields the increment between positions at a certain
+        # level as 64-bit IDs. See CellId docstring for bit encoding.
+        increment = instance.lsb() << 1
+
+        while cellid_int != endid_int:
+            instance.__id = cellid_int
+            yield instance
+            cellid_int += increment
+
+    @classmethod
     def none(cls):
         return cls()
 
@@ -1192,6 +1272,10 @@ class CellId(object):
         return face, 2 * i + delta, 2 * j + delta
 
     def get_center_uv(self):
+        """center of the cell in (u, v) coordinates
+
+        :rtype: pair
+        """
         face, si, ti = self.get_center_si_ti()
         cls = self.__class__
         return (cls.st_to_uv((0.5 / cls.MAX_SIZE) * si),
@@ -1242,11 +1326,11 @@ class CellId(object):
                 .parent(level))
 
     def get_vertex_neighbors(self, level):
-        '''Return the neighbors of closest vertex to this cell.
+        """Return the neighbors of closest vertex to this cell.
 
         Normally there are four neighbors, but the closest vertex may only have
         three neighbors if it is one of the 8 cube vertices.
-        '''
+        """
         # "level" must be strictly less than this cell's level so that we can
         # determine which vertex this cell is closest to.
         assert level < self.level()
@@ -1427,6 +1511,11 @@ class CellId(object):
 
 
 class Metric(object):
+    """Metric
+
+    see :cpp:class:`S2::Metric`
+    """
+
     def __init__(self, deriv, dim):
         self.__deriv = deriv
         self.__dim = dim
@@ -1455,23 +1544,30 @@ class Metric(object):
 
 
 class LengthMetric(Metric):
+    """Length metric. A 1D specialization of :class:`s2sphere.Metric`.
+
+    see :cpp:class:`S2::LengthMetric`
+    """
     def __init__(self, deriv):
         super(LengthMetric, self).__init__(deriv, 1)
 
 
 class AreaMetric(Metric):
+    """Area metric. A 2D specialization of :class:`s2sphere.Metric`.
+
+    see :cpp:class:`S2::AreaMetric`
+    """
     def __init__(self, deriv):
         super(AreaMetric, self).__init__(deriv, 2)
 
 
-# like fmod but rounds to nearest integer instead of floor
 def drem(x, y):
+    """Like fmod but rounds to nearest integer instead of floor."""
     xd = decimal.Decimal(x)
     yd = decimal.Decimal(y)
     return float(xd.remainder_near(yd))
 
 
-# functions originally in S2 source file
 def valid_face_xyz_to_uv(face, p):
     assert p.dot_prod(face_uv_to_xyz(face, 0, 0)) > 0
     if face == 0:
@@ -1497,6 +1593,10 @@ def xyz_to_face_uv(p):
 
 
 def face_xyz_to_uv(face, p):
+    """(face, XYZ) to UV
+
+    see :cpp:func:`S2::FaceXYZtoUV`
+    """
     if face < 3:
         if p[face] <= 0:
             return False, 0, 0
@@ -1508,6 +1608,10 @@ def face_xyz_to_uv(face, p):
 
 
 def face_uv_to_xyz(face, u, v):
+    """(face, u, v) to xyz
+
+    see :cpp:func:`S2::FaceUVtoXYZ`
+    """
     if face == 0:
         return Point(1, u, v)
     elif face == 1:
@@ -1526,11 +1630,21 @@ def get_norm(face):
     return face_uv_to_xyz(face, 0, 0)
 
 
-# Return the right-handed normal (not necessarily unit length) for an
-# edge in the direction of the positive v-axis at the given u-value on
-# the given face.  (This vector is perpendicular to the plane through
-# the sphere origin that contains the given edge.)
 def get_u_norm(face, u):
+    """Vector normal to the positive v-axis and the plane through the origin.
+
+    The vector is normal to the positive v-axis and a plane that contains the
+    origin and the v-axis.
+
+    The right-handed normal (not necessarily unit length) for an
+    edge in the direction of the positive v-axis at the given u-value on
+    the given face.  (This vector is perpendicular to the plane through
+    the sphere origin that contains the given edge.)
+
+    :rtype: Point
+
+    see :cpp:func:`S2::GetUNorm`
+    """
     if face == 0:
         return Point(u, -1, 0)
     elif face == 1:
@@ -1545,10 +1659,18 @@ def get_u_norm(face, u):
         return Point(0, -1, -u)
 
 
-# Return the right-handed normal (not necessarily unit length) for an
-# edge in the direction of the positive u-axis at the given v-value on
-# the given face.
 def get_v_norm(face, v):
+    """Vector normal to the positive u-axis and the plane through the origin.
+
+    The vector is normal to the positive u-axis and a plane that contains the
+    origin and the u-axis.
+
+    Return the right-handed normal (not necessarily unit length) for an
+    edge in the direction of the positive u-axis at the given v-value on
+    the given face.
+
+    see :cpp:func:`S2::GetVNorm`
+    """
     if face == 0:
         return Point(-v, 0, 1)
     elif face == 1:
@@ -1598,6 +1720,7 @@ def is_unit_length(p):
 
 
 def ortho(a):
+    """see :cpp:func:`S2::Ortho`"""
     k = a.largest_abs_component() - 1
     if k < 0:
         k = 2
@@ -1611,12 +1734,15 @@ def ortho(a):
 
 
 def origin():
-    # These values are ones that try not to overlap cells etc
+    """A unique and empirically chosen reference point.
+
+    see :cpp:func:`S2::Origin`
+    """
     return Point(0.00457, 1, 0.0321).normalize()
 
 
 def robust_cross_prod(a, b):
-    '''A numerically more robust cross product.
+    """A numerically more robust cross product.
 
     The direction of :math:`a \\times b` becomes unstable as :math:`(a + b)` or
     :math:`(a - b)` approaches zero.  This leads to situations where
@@ -1631,7 +1757,9 @@ def robust_cross_prod(a, b):
     (since :math:`a` and :math:`b` are unit length).  This
     yields a result that is nearly orthogonal to both :math:`a` and :math:`b`
     even if these two values differ only in the lowest bit of one component.
-    '''
+
+    see :cpp:func:`S2::RobustCrossProd`
+    """
     assert is_unit_length(a)
     assert is_unit_length(b)
 
@@ -1643,6 +1771,7 @@ def robust_cross_prod(a, b):
 
 
 def simple_crossing(a, b, c, d):
+    """see :cpp:func:`S2EdgeUtil::SimpleCrossing`"""
     ab = a.cross_prod(b)
     acb = -(ab.dot_prod(c))
     bda = ab.dot_prod(d)
@@ -1656,6 +1785,7 @@ def simple_crossing(a, b, c, d):
 
 
 def girard_area(a, b, c):
+    """see :cpp:func:`S2::GirardArea`"""
     ab = robust_cross_prod(a, b)
     bc = robust_cross_prod(b, c)
     ac = robust_cross_prod(a, c)
@@ -1663,6 +1793,10 @@ def girard_area(a, b, c):
 
 
 def area(a, b, c):
+    """Area of the triangle (a, b, c).
+
+    see :cpp:func:`S2::Area`
+    """
     assert is_unit_length(a)
     assert is_unit_length(b)
     assert is_unit_length(c)
@@ -1688,28 +1822,26 @@ def area(a, b, c):
     ))
 
 
-# Return true if the points A, B, C are strictly counterclockwise.  Return
-# false if the points are clockwise or collinear (i.e. if they are all
-# contained on some great circle).
-#
-# Due to numerical errors, situations may arise that are mathematically
-# impossible, e.g. ABC may be considered strictly CCW while BCA is not.
-# However, the implementation guarantees the following:
-#
-#   If simple_ccw(a,b,c), then !simple_ccw(c,b,a) for all a,b,c.
 def simple_ccw(a, b, c):
-    # We compute the signed volume of the parallelepiped ABC.  The usual
-    # formula for this is (AxB).C, but we compute it here using (CxA).B
-    # in order to ensure that ABC and CBA are not both CCW.  This follows
-    # from the following identities (which are true numerically, not just
-    # mathematically):
-    #
-    #     (1) x.CrossProd(y) == -(y.CrossProd(x))
-    #     (2) (-x).DotProd(y) == -(x.DotProd(y))
+    """Simple Counterclockwise test.
+
+    Return true if the points A, B, C are strictly counterclockwise.  Return
+    false if the points are clockwise or collinear (i.e. if they are all
+    contained on some great circle).
+
+    Due to numerical errors, situations may arise that are mathematically
+    impossible, e.g. ABC may be considered strictly CCW while BCA is not.
+    However, the implementation guarantees the following:
+
+      If simple_ccw(a,b,c), then !simple_ccw(c,b,a) for all a,b,c.
+
+    see :cpp:func:`S2::SimpleCCW`
+    """
     return c.cross_prod(a).dot_prod(b) > 0
 
 
 class Interval(object):
+    """Interval interface"""
     def __init__(self, lo, hi):
         # self.__bounds = [args[0], args[1]]
         self.__bounds = (lo, hi)
@@ -1736,6 +1868,10 @@ class Interval(object):
 
 
 class LineInterval(Interval):
+    """Line Interval in R1
+
+    see :cpp:class:`R1Interval`
+    """
 
     def __init__(self, lo=1, hi=0):
         super(LineInterval, self).__init__(lo, hi)
@@ -1820,9 +1956,11 @@ class LineInterval(Interval):
                 math.fabs(other.hi() - self.hi()) <= max_error)
 
 
-# originally S1Interval in C++ code
 class SphereInterval(Interval):
+    """Interval in S1
 
+    see :cpp:class:`S1Interval`
+    """
     def __init__(self, lo=math.pi, hi=-math.pi, args_checked=False):
         if args_checked:
             super(SphereInterval, self).__init__(lo, hi)
@@ -1901,12 +2039,14 @@ class SphereInterval(Interval):
         else:
             return -1
 
-    #  Return the complement of the interior of the interval.  An interval and
-    # its complement have the same boundary but do not share any interior
-    # values.  The complement operator is not a bijection, since the complement
-    # of a singleton interval (containing a single value) is the same as the
-    # complement of an empty interval.
     def complement(self):
+        """Return the complement of the interior of the interval.
+
+        An interval and its complement have the same boundary but do not share
+        any interior values. The complement operator is not a bijection, since
+        the complement of a singleton interval (containing a single value) is
+        the same as the complement of an empty interval.
+        """
         if self.lo() == self.hi():
             return self.__class__.full()
         return self.__class__(self.hi(), self.lo())
@@ -2085,6 +2225,10 @@ class SphereInterval(Interval):
 
 
 class Cell(object):
+    """Cell
+
+    see :cpp:class:`S2Cell`
+    """
 
     def __init__(self, cell_id=None):
         self.__uv = [[None, None], [None, None]]
@@ -2303,6 +2447,10 @@ class Cell(object):
 
 
 class CellUnion(object):
+    """Cell Union
+
+    see :cpp:class:`S2CellUnion`
+    """
 
     def __init__(self, cell_ids=None, raw=True):
         if cell_ids is None:
@@ -2562,6 +2710,10 @@ FACE_CELLS = (Cell.from_face_pos_level(0, 0, 0),
 
 
 class RegionCoverer(object):
+    """Region Coverer
+
+    see :cpp:class:`S2RegionCoverer`
+    """
 
     class Candidate(object):
         @property
@@ -2690,7 +2842,7 @@ class RegionCoverer(object):
                                                num_levels)
 
         if candidate.num_children == 0:
-            ''' Not needed due to GC '''
+            """ Not needed due to GC """
         elif not self.__interior_covering \
                 and num_terminals == 1 << self.__max_children_shift() \
                 and candidate.cell.level() >= self.__min_level:
@@ -2751,7 +2903,7 @@ class RegionCoverer(object):
                 for child in candidate.children:
                     self.__add_candidate(child)
             elif self.__interior_covering:
-                ''' Do nothing here '''
+                """ Do nothing here """
             else:
                 candidate.is_terminal = True
                 self.__add_candidate(candidate)
