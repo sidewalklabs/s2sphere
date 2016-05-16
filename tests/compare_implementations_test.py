@@ -9,22 +9,22 @@ import s2sphere
 class TestCellId(unittest.TestCase):
 
     def test_cellid(self):
-        lat, lon = (33, -122)
-        py_cellid = s2sphere.CellId.from_lat_lon(
-            s2sphere.LatLon.from_degrees(lat, lon)
+        lat, lng = (33, -122)
+        py_cellid = s2sphere.CellId.from_lat_lng(
+            s2sphere.LatLng.from_degrees(lat, lng)
         )
         cpp_cellid = s2.S2CellId.FromLatLng(
-            s2.S2LatLng.FromDegrees(lat, lon)
+            s2.S2LatLng.FromDegrees(lat, lng)
         )
         self.assertEqual(py_cellid.id(), cpp_cellid.id())
 
     def cellid_parent_comparison(self, level=12):
-        lat, lon = (33, -122)
+        lat, lng = (33, -122)
         py_cellid = (s2sphere.CellId
-                     .from_lat_lon(s2sphere.LatLon.from_degrees(lat, lon))
+                     .from_lat_lng(s2sphere.LatLng.from_degrees(lat, lng))
                      .parent(level))
         cpp_cellid = (s2.S2CellId
-                      .FromLatLng(s2.S2LatLng.FromDegrees(lat, lon))
+                      .FromLatLng(s2.S2LatLng.FromDegrees(lat, lng))
                       .parent(level))
         self.assertEqual(py_cellid.id(), cpp_cellid.id())
 

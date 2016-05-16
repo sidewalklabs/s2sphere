@@ -162,28 +162,28 @@ class Point(object):
         return self.__class__(self[0] * n, self[1] * n, self[2] * n)
 
 
-class LatLon(object):
+class LatLng(object):
     """A point on a sphere in latitute-longitude coordinates.
 
     see :cpp:class:`S2LatLng`
     """
 
     @classmethod
-    def from_degrees(cls, lat, lon):
-        return cls(math.radians(lat), math.radians(lon))
+    def from_degrees(cls, lat, lng):
+        return cls(math.radians(lat), math.radians(lng))
 
     @classmethod
-    def from_radians(cls, lat, lon):
-        return cls(lat, lon)
+    def from_radians(cls, lat, lng):
+        return cls(lat, lng)
 
     @classmethod
     def from_point(cls, point):
-        return cls(LatLon.latitude(point).radians,
-                   LatLon.longitude(point).radians)
+        return cls(LatLng.latitude(point).radians,
+                   LatLng.longitude(point).radians)
 
     @classmethod
-    def from_angles(cls, lat, lon):
-        return cls(lat.radians, lon.radians)
+    def from_angles(cls, lat, lng):
+        return cls(lat.radians, lng.radians)
 
     @classmethod
     def default(cls):
@@ -193,11 +193,11 @@ class LatLon(object):
     def invalid(cls):
         return cls(math.pi, 2 * math.pi)
 
-    def __init__(self, lat, lon):
-        self.__coords = (lat, lon)
+    def __init__(self, lat, lng):
+        self.__coords = (lat, lng)
 
     def __eq__(self, other):
-        return isinstance(other, LatLon) and self.__coords == other.__coords
+        return isinstance(other, LatLng) and self.__coords == other.__coords
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -206,21 +206,21 @@ class LatLon(object):
         return hash(self.__coords)
 
     def __repr__(self):
-        return 'LatLon: {},{}'.format(math.degrees(self.__coords[0]),
+        return 'LatLng: {},{}'.format(math.degrees(self.__coords[0]),
                                       math.degrees(self.__coords[1]))
 
     def __add__(self, other):
         return self.__class__(self.lat().radians + other.lat().radians,
-                              self.lon().radians + other.lon().radians)
+                              self.lng().radians + other.lng().radians)
 
     def __sub__(self, other):
         return self.__class__(self.lat().radians - other.lat().radians,
-                              self.lon().radians - other.lon().radians)
+                              self.lng().radians - other.lng().radians)
 
-    # only implemented so we can do scalar * LatLon
+    # only implemented so we can do scalar * LatLng
     def __rmul__(self, other):
         return self.__class__(other * self.lat().radians,
-                              other * self.lon().radians)
+                              other * self.lng().radians)
 
     @staticmethod
     def latitude(point):
@@ -236,16 +236,16 @@ class LatLon(object):
     def lat(self):
         return Angle.from_radians(self.__coords[0])
 
-    def lon(self):
+    def lng(self):
         return Angle.from_radians(self.__coords[1])
 
     def is_valid(self):
         return (abs(self.lat().radians) <= (math.pi / 2) and
-                abs(self.lon().radians) <= math.pi)
+                abs(self.lng().radians) <= math.pi)
 
     def to_point(self):
         phi = self.lat().radians
-        theta = self.lon().radians
+        theta = self.lng().radians
         cosphi = math.cos(phi)
         return Point(math.cos(theta) * cosphi,
                      math.sin(theta) * cosphi,
@@ -254,13 +254,13 @@ class LatLon(object):
     def normalized(self):
         return self.__class__(
             max(-math.pi / 2.0, min(math.pi / 2.0, self.lat().radians)),
-            drem(self.lon().radians, 2 * math.pi))
+            drem(self.lng().radians, 2 * math.pi))
 
     def approx_equals(self, other, max_error=1e-15):
         return (math.fabs(self.lat().radians -
                           other.lat().radians) < max_error and
-                math.fabs(self.lon().radians -
-                          other.lon().radians) < max_error)
+                math.fabs(self.lng().radians -
+                          other.lng().radians) < max_error)
 
     def get_distance(self, other):
         assert self.is_valid()
@@ -268,11 +268,11 @@ class LatLon(object):
 
         from_lat = self.lat().radians
         to_lat = other.lat().radians
-        from_lon = self.lon().radians
-        to_lon = other.lon().radians
+        from_lng = self.lng().radians
+        to_lng = other.lng().radians
         dlat = math.sin(0.5 * (to_lat - from_lat))
-        dlon = math.sin(0.5 * (to_lon - from_lon))
-        x = dlat * dlat + dlon * dlon * math.cos(from_lat) * math.cos(to_lat)
+        dlng = math.sin(0.5 * (to_lng - from_lng))
+        x = dlat * dlat + dlng * dlng * math.cos(from_lat) * math.cos(to_lat)
         return Angle.from_radians(
             2 * math.atan2(math.sqrt(x), math.sqrt(max(0.0, 1.0 - x)))
         )
@@ -451,15 +451,15 @@ class Cap(object):
 
     def get_rect_bound(self):
         if self.is_empty():
-            return LatLonRect.empty()
+            return LatLngRect.empty()
 
-        axis_ll = LatLon.from_point(self.axis())
+        axis_ll = LatLng.from_point(self.axis())
         cap_angle = self.angle().radians
 
         all_longitudes = False
-        lat, lon = [], []
-        lon.append(-math.pi)
-        lon.append(math.pi)
+        lat, lng = [], []
+        lng.append(-math.pi)
+        lng.append(math.pi)
 
         lat.append(axis_ll.lat().radians - cap_angle)
         if lat[0] <= -math.pi / 2.0:
@@ -476,10 +476,10 @@ class Cap(object):
             sin_c = math.cos(axis_ll.lat().radians)
             if sin_a <= sin_c:
                 angle_a = math.asin(sin_a / sin_c)
-                lon[0] = drem(axis_ll.lon().radians - angle_a, 2 * math.pi)
-                lon[1] = drem(axis_ll.lon().radians + angle_a, 2 * math.pi)
+                lng[0] = drem(axis_ll.lng().radians - angle_a, 2 * math.pi)
+                lng[1] = drem(axis_ll.lng().radians + angle_a, 2 * math.pi)
 
-        return LatLonRect(LineInterval(*lat), SphereInterval(*lon))
+        return LatLngRect(LineInterval(*lat), SphereInterval(*lng))
 
     def approx_equals(self, other, max_error=1e-14):
         return ((self.axis().angle(other.axis()) <= max_error and
@@ -497,7 +497,7 @@ class Cap(object):
                                               self.angle() + distance)
 
 
-class LatLonRect(object):
+class LatLngRect(object):
     """A rectangle in latitude-longitude space.
 
     see :cpp:class:`S2LatLngRect`
@@ -506,33 +506,33 @@ class LatLonRect(object):
     def __init__(self, *args):
         if len(args) == 0:
             self.__lat = LineInterval.empty()
-            self.__lon = SphereInterval.empty()
-        elif isinstance(args[0], LatLon) and isinstance(args[1], LatLon):
+            self.__lng = SphereInterval.empty()
+        elif isinstance(args[0], LatLng) and isinstance(args[1], LatLng):
             lo, hi = args
             self.__lat = LineInterval(lo.lat().radians, hi.lat().radians)
-            self.__lon = SphereInterval(lo.lon().radians, hi.lon().radians)
+            self.__lng = SphereInterval(lo.lng().radians, hi.lng().radians)
         elif isinstance(args[0], LineInterval) \
                 and isinstance(args[1], SphereInterval):
-            self.__lat, self.__lon = args
+            self.__lat, self.__lng = args
         else:
             raise NotImplementedError()
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__) and
-                self.lat() == other.lat() and self.lon() == other.lon())
+                self.lat() == other.lat() and self.lng() == other.lng())
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __repr__(self):
         return '{}: {}, {}'.format(self.__class__.__name__,
-                                   self.lat(), self.lon())
+                                   self.lat(), self.lng())
 
     def lat(self):
         return self.__lat
 
-    def lon(self):
-        return self.__lon
+    def lng(self):
+        return self.__lng
 
     def lat_lo(self):
         return Angle.from_radians(self.lat().lo())
@@ -540,17 +540,17 @@ class LatLonRect(object):
     def lat_hi(self):
         return Angle.from_radians(self.lat().hi())
 
-    def lon_lo(self):
-        return Angle.from_radians(self.lon().lo())
+    def lng_lo(self):
+        return Angle.from_radians(self.lng().lo())
 
-    def lon_hi(self):
-        return Angle.from_radians(self.lon().hi())
+    def lng_hi(self):
+        return Angle.from_radians(self.lng().hi())
 
     def lo(self):
-        return LatLon.from_angles(self.lat_lo(), self.lon_lo())
+        return LatLng.from_angles(self.lat_lo(), self.lng_lo())
 
     def hi(self):
-        return LatLon.from_angles(self.lat_hi(), self.lon_hi())
+        return LatLng.from_angles(self.lat_hi(), self.lng_hi())
 
     # Construct a rectangle of the given size centered around the given point.
     # "center" needs to be normalized, but "size" does not.  The latitude
@@ -574,55 +574,55 @@ class LatLonRect(object):
     def from_point_pair(cls, a, b):
         assert a.is_valid()
         assert b.is_valid()
-        return LatLonRect(LineInterval.from_point_pair(a.lat().radians,
+        return LatLngRect(LineInterval.from_point_pair(a.lat().radians,
                                                        b.lat().radians),
-                          SphereInterval.from_point_pair(a.lon().radians,
-                                                         b.lon().radians))
+                          SphereInterval.from_point_pair(a.lng().radians,
+                                                         b.lng().radians))
 
     @classmethod
     def full_lat(cls):
         return LineInterval(-math.pi / 2.0, math.pi / 2.0)
 
     @classmethod
-    def full_lon(cls):
+    def full_lng(cls):
         return SphereInterval.full()
 
     @classmethod
     def full(cls):
-        return cls(cls.full_lat(), cls.full_lon())
+        return cls(cls.full_lat(), cls.full_lng())
 
     def is_full(self):
-        return self.lat() == self.__class__.full_lat() and self.lon().is_full()
+        return self.lat() == self.__class__.full_lat() and self.lng().is_full()
 
     def is_valid(self):
         return (math.fabs(self.lat().lo()) <= math.pi / 2.0 and
                 math.fabs(self.lat().hi()) <= math.pi / 2.0 and
-                self.lon().is_valid() and
-                self.lat().is_empty() == self.lon().is_empty())
+                self.lng().is_valid() and
+                self.lat().is_empty() == self.lng().is_empty())
 
     @classmethod
     def empty(cls):
         return cls()
 
     def get_center(self):
-        return LatLon.from_radians(self.lat().get_center(),
-                                   self.lon().get_center())
+        return LatLng.from_radians(self.lat().get_center(),
+                                   self.lng().get_center())
 
     def get_size(self):
-        return LatLon.from_radians(self.lat().get_length(),
-                                   self.lon().get_length())
+        return LatLng.from_radians(self.lat().get_length(),
+                                   self.lng().get_length())
 
     def get_vertex(self, k):
         # Twiddle bits to return the points in CCW order (SW, SE, NE, NW)
-        return LatLon.from_radians(self.lat().bound(k >> 1),
-                                   self.lon().bound((k >> 1) ^ (k & 1)))
+        return LatLng.from_radians(self.lat().bound(k >> 1),
+                                   self.lng().bound((k >> 1) ^ (k & 1)))
 
     def is_empty(self):
         return self.lat().is_empty()
 
     def is_point(self):
         return (self.lat().lo() == self.lat().hi() and
-                self.lon().lo() == self.lon().hi())
+                self.lng().lo() == self.lng().hi())
 
     def convolve_with_cap(self, angle):
         cap = Cap.from_axis_angle(Point(1, 0, 0), angle)
@@ -636,14 +636,14 @@ class LatLonRect(object):
 
     def contains(self, other):
         if isinstance(other, Point):
-            return self.contains(LatLon.from_point(other))
-        elif isinstance(other, LatLon):
+            return self.contains(LatLng.from_point(other))
+        elif isinstance(other, LatLng):
             assert other.is_valid()
             return (self.lat().contains(other.lat().radians) and
-                    self.lon().contains(other.lon().radians))
+                    self.lng().contains(other.lng().radians))
         elif isinstance(other, self.__class__):
             return (self.lat().contains(other.lat()) and
-                    self.lon().contains(other.lon()))
+                    self.lng().contains(other.lng()))
         elif isinstance(other, Cell):
             return self.contains(other.get_rect_bound())
         else:
@@ -651,14 +651,14 @@ class LatLonRect(object):
 
     def interior_contains(self, other):
         if isinstance(other, Point):
-            self.interior_contains(LatLon(other))
-        elif isinstance(other, LatLon):
+            self.interior_contains(LatLng(other))
+        elif isinstance(other, LatLng):
             assert other.is_valid()
             return (self.lat().interior_contains(other.lat().radians) and
-                    self.lon().interior_contains(other.lon().radians))
+                    self.lng().interior_contains(other.lng().radians))
         elif isinstance(other, self.__class__):
             return (self.lat().interior_contains(other.lat()) and
-                    self.lon().interior_contains(other.lon()))
+                    self.lng().interior_contains(other.lng()))
         else:
             raise NotImplementedError()
 
@@ -669,7 +669,7 @@ class LatLonRect(object):
         if isinstance(args[0], self.__class__):
             other = args[0]
             return (self.lat().intersects(other.lat()) and
-                    self.lon().intersects(other.lon()))
+                    self.lng().intersects(other.lng()))
         elif isinstance(args[0], Cell):
             cell = args[0]
             if self.is_empty():
@@ -685,54 +685,54 @@ class LatLonRect(object):
             cell_ll = []
             for i in range(4):
                 cell_v.append(cell.get_vertex(i))
-                cell_ll.append(LatLon.from_point(cell_v[i]))
+                cell_ll.append(LatLng.from_point(cell_v[i]))
                 if self.contains(cell_ll[i]):
                     return True
                 if cell.contains(self.get_vertex(i).to_point()):
                     return True
 
             for i in range(4):
-                edge_lon = SphereInterval.from_point_pair(
-                    cell_ll[i].lon().radians,
-                    cell_ll[(i + 1) & 3].lon().radians,
+                edge_lng = SphereInterval.from_point_pair(
+                    cell_ll[i].lng().radians,
+                    cell_ll[(i + 1) & 3].lng().radians,
                 )
-                if not self.lon().intersects(edge_lon):
+                if not self.lng().intersects(edge_lng):
                     continue
 
                 a = cell_v[i]
                 b = cell_v[(i + 1) & 3]
-                if edge_lon.contains(self.lon().lo()):
-                    if self.__class__.intersects_lon_edge(
+                if edge_lng.contains(self.lng().lo()):
+                    if self.__class__.intersects_lng_edge(
                             a, b,
-                            self.lat(), self.lon().lo()):
+                            self.lat(), self.lng().lo()):
                         return True
-                if edge_lon.contains(self.lon().hi()):
-                    if self.__class__.intersects_lon_edge(
+                if edge_lng.contains(self.lng().hi()):
+                    if self.__class__.intersects_lng_edge(
                             a, b,
-                            self.lat(), self.lon().hi()):
+                            self.lat(), self.lng().hi()):
                         return True
                 if self.__class__.intersects_lat_edge(
                         a, b,
-                        self.lat().lo(), self.lon()):
+                        self.lat().lo(), self.lng()):
                     return True
                 if self.__class__.intersects_lat_edge(
                         a, b,
-                        self.lat().hi(), self.lon()):
+                        self.lat().hi(), self.lng()):
                     return True
             return False
         else:
             raise NotImplementedError()
 
     @classmethod
-    def intersects_lon_edge(cls, a, b, lat, lon):
+    def intersects_lng_edge(cls, a, b, lat, lng):
         return simple_crossing(
             a, b,
-            LatLon.from_radians(lat.lo(), lon).to_point(),
-            LatLon.from_radians(lat.hi(), lon).to_point(),
+            LatLng.from_radians(lat.lo(), lng).to_point(),
+            LatLng.from_radians(lat.hi(), lng).to_point(),
         )
 
     @classmethod
-    def intersects_lat_edge(cls, a, b, lat, lon):
+    def intersects_lat_edge(cls, a, b, lat, lng):
         assert is_unit_length(a)
         assert is_unit_length(b)
 
@@ -761,11 +761,11 @@ class LatLonRect(object):
 
         if ab_theta.contains(theta):
             isect = x * cos_theta + y * sin_theta
-            if lon.contains(math.atan2(isect[1], isect[0])):
+            if lng.contains(math.atan2(isect[1], isect[0])):
                 return True
         if ab_theta.contains(-theta):
             isect = x * cos_theta - y * sin_theta
-            if lon.contains(math.atan2(isect[1], isect[0])):
+            if lng.contains(math.atan2(isect[1], isect[0])):
                 return True
         return False
 
@@ -773,20 +773,20 @@ class LatLonRect(object):
         if isinstance(args[0], self.__class__):
             other = args[0]
             return (self.lat().interior_intersects(other.lat()) and
-                    self.lon().interior_intersects(other.lon()))
+                    self.lng().interior_intersects(other.lng()))
         else:
             raise NotImplementedError()
 
     def union(self, other):
         return self.__class__(self.lat().union(other.lat()),
-                              self.lon().union(other.lon()))
+                              self.lng().union(other.lng()))
 
     def intersection(self, other):
         lat = self.lat().intersection(other.lat())
-        lon = self.lon().intersection(other.lon())
-        if lat.is_empty() or lon.is_empty():
+        lng = self.lng().intersection(other.lng())
+        if lat.is_empty() or lng.is_empty():
             return self.__class__.empty()
-        return self.__class__(lat, lon)
+        return self.__class__(lat, lng)
 
     # Return a rectangle that contains all points whose latitude distance from
     # this rectangle is at most margin.lat(), and whose longitude distance
@@ -799,18 +799,18 @@ class LatLonRect(object):
     # the sphere (e.g. 5km), use the ConvolveWithCap() method instead.
     def expanded(self, margin):
         assert margin.lat().radians > 0
-        assert margin.lon().radians > 0
+        assert margin.lng().radians > 0
         return self.__class__(
             (self.lat()
              .expanded(margin.lat().radians)
              .intersection(self.full_lat())),
-            (self.lon()
-             .expanded(margin.lon().radians))
+            (self.lng()
+             .expanded(margin.lng().radians))
         )
 
     def approx_equals(self, other, max_error=1e-15):
         return (self.lat().approx_equals(other.lat(), max_error) and
-                self.lon().approx_equals(other.lon(), max_error))
+                self.lng().approx_equals(other.lng(), max_error))
 
     def get_cap_bound(self):
         if self.is_empty():
@@ -826,9 +826,9 @@ class LatLonRect(object):
         pole_cap = Cap.from_axis_angle(Point(0, 0, pole_z),
                                        Angle.from_radians(pole_angle))
 
-        lon_span = self.lon().hi() - self.lon().lo()
-        if drem(lon_span, 2 * math.pi) >= 0:
-            if lon_span < 2 * math.pi:
+        lng_span = self.lng().hi() - self.lng().lo()
+        if drem(lng_span, 2 * math.pi) >= 0:
+            if lng_span < 2 * math.pi:
                 mid_cap = Cap.from_axis_angle(self.get_center().to_point(),
                                               Angle.from_radians(0))
 
@@ -929,7 +929,7 @@ class CellId(object):
         return self.id() < other.id()
 
     @classmethod
-    def from_lat_lon(cls, ll):
+    def from_lat_lng(cls, ll):
         return cls.from_point(ll.to_point())
 
     @classmethod
@@ -1246,8 +1246,8 @@ class CellId(object):
         return self.__class__(self.id() + (steps << step_shift))
 
     # Return the S2LatLng corresponding to the center of the given cell.
-    def to_lat_lon(self):
-        return LatLon.from_point(self.to_point_raw())
+    def to_lat_lng(self):
+        return LatLng.from_point(self.to_point_raw())
 
     def to_point_raw(self):
         face, si, ti = self.get_center_si_ti()
@@ -2250,8 +2250,8 @@ class Cell(object):
                     (1.0 / CellId.MAX_SIZE) * ij_hi)
 
     @classmethod
-    def from_lat_lon(cls, lat_lon):
-        return cls(CellId.from_lat_lon(lat_lon))
+    def from_lat_lng(cls, lat_lng):
+        return cls(CellId.from_lat_lng(lat_lng))
 
     @classmethod
     def from_point(cls, point):
@@ -2377,11 +2377,11 @@ class Cell(object):
 
     def get_latitude(self, i, j):
         p = face_uv_to_xyz(self.__face, self.__uv[0][i], self.__uv[1][j])
-        return LatLon.latitude(p).radians
+        return LatLng.latitude(p).radians
 
     def get_longitude(self, i, j):
         p = face_uv_to_xyz(self.__face, self.__uv[0][i], self.__uv[1][j])
-        return LatLon.longitude(p).radians
+        return LatLng.longitude(p).radians
 
     def get_cap_bound(self):
         u = 0.5 * (self.__uv[0][0] + self.__uv[0][1])
@@ -2409,39 +2409,39 @@ class Cell(object):
             max_error = 1.0 / (1 << 51)
             lat = LineInterval.from_point_pair(self.get_latitude(i, j),
                                                self.get_latitude(1 - i, 1 - j))
-            lat = lat.expanded(max_error).intersection(LatLonRect.full_lat())
+            lat = lat.expanded(max_error).intersection(LatLngRect.full_lat())
 
             if lat.lo() == (-math.pi / 2.0) or lat.hi() == (math.pi / 2.0):
-                return LatLonRect(lat, SphereInterval.full())
+                return LatLngRect(lat, SphereInterval.full())
 
-            lon = SphereInterval.from_point_pair(self.get_longitude(i, 1 - j),
+            lng = SphereInterval.from_point_pair(self.get_longitude(i, 1 - j),
                                                  self.get_longitude(1 - i, j))
-            return LatLonRect(lat, lon.expanded(max_error))
+            return LatLngRect(lat, lng.expanded(max_error))
 
         pole_min_lat = math.asin(math.sqrt(1.0 / 3.0))
 
         if self.__face == 0:
-            return LatLonRect(
+            return LatLngRect(
                 LineInterval(-math.pi / 4.0, math.pi / 4.0),
                 SphereInterval(-math.pi / 4.0, math.pi / 4.0))
         elif self.__face == 1:
-            return LatLonRect(
+            return LatLngRect(
                 LineInterval(-math.pi / 4.0, math.pi / 4.0),
                 SphereInterval(math.pi / 4.0, 3.0 * math.pi / 4.0))
         elif self.__face == 2:
-            return LatLonRect(
+            return LatLngRect(
                 LineInterval(pole_min_lat, math.pi / 2.0),
                 SphereInterval(-math.pi, math.pi))
         elif self.__face == 3:
-            return LatLonRect(
+            return LatLngRect(
                 LineInterval(-math.pi / 4.0, math.pi / 4.0),
                 SphereInterval(3.0 * math.pi / 4.0, -3.0 * math.pi / 4.0))
         elif self.__face == 4:
-            return LatLonRect(
+            return LatLngRect(
                 LineInterval(-math.pi / 4.0, math.pi / 4.0),
                 SphereInterval(-3.0 * math.pi / 4.0, -math.pi / 4.0))
         else:
-            return LatLonRect(
+            return LatLngRect(
                 LineInterval(-math.pi / 2.0, -pole_min_lat),
                 SphereInterval(-math.pi, math.pi))
 
