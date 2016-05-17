@@ -22,8 +22,8 @@ import cProfile
 from pstats import Stats
 
 import s2sphere
-from s2sphere import Angle, CellId, LatLon, Point, Cell
-from s2sphere import LineInterval, SphereInterval, LatLonRect
+from s2sphere import Angle, CellId, LatLng, Point, Cell
+from s2sphere import LineInterval, SphereInterval, LatLngRect
 from s2sphere import RegionCoverer, CellUnion, Cap
 
 
@@ -67,77 +67,77 @@ class TestAngle(unittest.TestCase):
         self.assertEqual(Angle.from_degrees((-45)).radians, -math.pi / 4)
 
 
-class TestLatLon(unittest.TestCase):
+class TestLatLng(unittest.TestCase):
 
     def testBasics(self):
-        ll_rad = LatLon.from_radians(math.pi / 4, math.pi / 2)
+        ll_rad = LatLng.from_radians(math.pi / 4, math.pi / 2)
         self.assertEqual(ll_rad.lat().radians, math.pi / 4)
-        self.assertEqual(ll_rad.lon().radians, math.pi / 2)
+        self.assertEqual(ll_rad.lng().radians, math.pi / 2)
         self.assertTrue(ll_rad.is_valid())
 
-        ll_deg = LatLon.from_degrees(45, 90)
+        ll_deg = LatLng.from_degrees(45, 90)
         self.assertEqual(ll_rad, ll_deg)
-        self.assertFalse(LatLon.from_degrees(-91, 0).is_valid())
-        self.assertFalse(LatLon.from_degrees(0, 181).is_valid())
+        self.assertFalse(LatLng.from_degrees(-91, 0).is_valid())
+        self.assertFalse(LatLng.from_degrees(0, 181).is_valid())
 
-        bad = LatLon.from_degrees(120, 200)
+        bad = LatLng.from_degrees(120, 200)
         self.assertFalse(bad.is_valid())
         better = bad.normalized()
         self.assertTrue(better.is_valid())
         self.assertEqual(Angle.from_degrees(90), better.lat())
         self.assertEqual(Angle.from_degrees(-160).radians,
-                         better.lon().radians)
+                         better.lng().radians)
 
         self.assertTrue(
-            (LatLon.from_degrees(10, 20) + LatLon.from_degrees(20, 30))
-            .approx_equals(LatLon.from_degrees(30, 50)))
+            (LatLng.from_degrees(10, 20) + LatLng.from_degrees(20, 30))
+            .approx_equals(LatLng.from_degrees(30, 50)))
         self.assertTrue(
-            (LatLon.from_degrees(10, 20) - LatLon.from_degrees(20, 30))
-            .approx_equals(LatLon.from_degrees(-10, -10)))
-        # self.assertTrue((0.5 * LatLon.from_degrees(10, 20)).approx_equals(
-        #            LatLon.from_degrees(5, 10)))
+            (LatLng.from_degrees(10, 20) - LatLng.from_degrees(20, 30))
+            .approx_equals(LatLng.from_degrees(-10, -10)))
+        # self.assertTrue((0.5 * LatLng.from_degrees(10, 20)).approx_equals(
+        #            LatLng.from_degrees(5, 10)))
 
-        invalid = LatLon.invalid()
+        invalid = LatLng.invalid()
         self.assertFalse(invalid.is_valid())
 
-        default_ll = LatLon.default()
+        default_ll = LatLng.default()
         self.assertTrue(default_ll.is_valid())
         self.assertEqual(0, default_ll.lat().radians)
-        self.assertEqual(0, default_ll.lon().radians)
+        self.assertEqual(0, default_ll.lng().radians)
 
     def testConversion(self):
-        self.assertEqual(LatLon.from_point(LatLon.from_degrees(
+        self.assertEqual(LatLng.from_point(LatLng.from_degrees(
             90.0, 65.0).to_point()).lat().degrees, 90.0)
 
-        self.assertEqual(LatLon.from_point(LatLon.from_radians(
+        self.assertEqual(LatLng.from_point(LatLng.from_radians(
             -math.pi / 2, 1).to_point()).lat().radians, -math.pi / 2)
 
-        self.assertEqual(abs(LatLon.from_point(LatLon.from_degrees(
-            12.2, 180.0).to_point()).lon().degrees), 180.0)
+        self.assertEqual(abs(LatLng.from_point(LatLng.from_degrees(
+            12.2, 180.0).to_point()).lng().degrees), 180.0)
 
-        self.assertEqual(abs(LatLon.from_point(LatLon.from_radians(
-            0.1, -math.pi).to_point()).lon().radians), math.pi)
+        self.assertEqual(abs(LatLng.from_point(LatLng.from_radians(
+            0.1, -math.pi).to_point()).lng().radians), math.pi)
 
     def testDistance(self):
         self.assertEqual(
             0.0,
-            LatLon.from_degrees(90, 0).get_distance(
-                LatLon.from_degrees(90, 0)
+            LatLng.from_degrees(90, 0).get_distance(
+                LatLng.from_degrees(90, 0)
             ).radians)
         self.assertAlmostEqual(
             77.0,
-            LatLon.from_degrees(-37, 25).get_distance(
-                LatLon.from_degrees(-66, -155)
+            LatLng.from_degrees(-37, 25).get_distance(
+                LatLng.from_degrees(-66, -155)
             ).degrees, delta=1e-13)
         self.assertAlmostEqual(
             115.0,
-            LatLon.from_degrees(0, 165).get_distance(
-                LatLon.from_degrees(0, -80)
+            LatLng.from_degrees(0, 165).get_distance(
+                LatLng.from_degrees(0, -80)
             ).degrees, delta=1e-13)
         self.assertAlmostEqual(
             180.0,
-            LatLon.from_degrees(47, -127).get_distance(
-                LatLon.from_degrees(-47, 53)
+            LatLng.from_degrees(47, -127).get_distance(
+                LatLng.from_degrees(-47, 53)
             ).degrees, delta=2e-6)
 
 
@@ -175,8 +175,8 @@ class TestCellId(unittest.TestCase):
         return Point(x, y, z).normalize()
 
     @staticmethod
-    def get_cell_id(lat, lon):
-        return CellId.from_lat_lon(LatLon.from_degrees(lat, lon))
+    def get_cell_id(lat, lng):
+        return CellId.from_lat_lng(LatLng.from_degrees(lat, lng))
 
     def testDefaultConstructor(self):
         cell_id = CellId()
@@ -295,8 +295,8 @@ class TestCellId(unittest.TestCase):
             cell_id = TestCellId.get_random_cell_id(CellId.MAX_LEVEL)
             self.assertTrue(cell_id.is_leaf())
             self.assertEqual(cell_id.level(), CellId.MAX_LEVEL)
-            center = cell_id.to_lat_lon()
-            self.assertEqual(CellId.from_lat_lon(center).id(), cell_id.id())
+            center = cell_id.to_lat_lng()
+            self.assertEqual(CellId.from_lat_lng(center).id(), cell_id.id())
 
     def testTokens(self):
         for i in xrange(TOKEN_ITERATIONS):
@@ -639,7 +639,7 @@ class TestCell(unittest.TestCase):
             parent_rect = cell.get_rect_bound()
             if cell.contains(Point(0, 0, 1)) \
                     or cell.contains(Point(0, 0, -1)):
-                self.assertTrue(parent_rect.lon().is_full())
+                self.assertTrue(parent_rect.lng().is_full())
             child_cap = children[i].get_cap_bound()
             child_rect = children[i].get_rect_bound()
 
@@ -1247,8 +1247,8 @@ class TestCap(unittest.TestCase):
         # self.eps = 1e-15
         self.eps = 1e-14
 
-    def get_lat_lon_point(self, lat_degrees, lon_degrees):
-        return LatLon.from_degrees(lat_degrees, lon_degrees).to_point()
+    def get_lat_lng_point(self, lat_degrees, lng_degrees):
+        return LatLng.from_degrees(lat_degrees, lng_degrees).to_point()
 
     def testBasic(self):
         empty = Cap.empty()
@@ -1322,18 +1322,18 @@ class TestCap(unittest.TestCase):
             Point(1, 0, -(1 + self.eps)).normalize()))
 
         # A concave cap.
-        concave = Cap.from_axis_angle(self.get_lat_lon_point(80, 10),
+        concave = Cap.from_axis_angle(self.get_lat_lng_point(80, 10),
                                       Angle.from_degrees(150))
         self.assertTrue(
-            concave.contains(self.get_lat_lon_point(-70 * (1 - self.eps), 10)))
+            concave.contains(self.get_lat_lng_point(-70 * (1 - self.eps), 10)))
         self.assertFalse(
-            concave.contains(self.get_lat_lon_point(-70 * (1 + self.eps), 10)))
+            concave.contains(self.get_lat_lng_point(-70 * (1 + self.eps), 10)))
         self.assertTrue(
             concave.contains(
-                self.get_lat_lon_point(-50 * (1 - self.eps), -170)))
+                self.get_lat_lng_point(-50 * (1 - self.eps), -170)))
         self.assertFalse(
             concave.contains(
-                self.get_lat_lon_point(-50 * (1 + self.eps), -170)))
+                self.get_lat_lng_point(-50 * (1 + self.eps), -170)))
 
         # Cap containment tests.
         self.assertFalse(empty.contains(xaxis))
@@ -1367,12 +1367,12 @@ class TestCap(unittest.TestCase):
         # degrees.  (EXPECT_DOUBLE_EQ isn't sufficient.)
 
         # Cap that includes the south pole.
-        rect = Cap.from_axis_angle(self.get_lat_lon_point(-45, 57),
+        rect = Cap.from_axis_angle(self.get_lat_lng_point(-45, 57),
                                    Angle.from_degrees(50)
                                    ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, -90, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 5, delta=degree_eps)
-        self.assertTrue(rect.lon().is_full())
+        self.assertTrue(rect.lng().is_full())
 
         # Cap that is tangent to the north pole.
         rect = Cap.from_axis_angle(Point(1, 0, 1).normalize(),
@@ -1380,14 +1380,14 @@ class TestCap(unittest.TestCase):
                                    ).get_rect_bound()
         self.assertAlmostEqual(rect.lat().lo(), 0, delta=self.eps)
         self.assertAlmostEqual(rect.lat().hi(), math.pi / 2.0, delta=self.eps)
-        self.assertTrue(rect.lon().is_full())
+        self.assertTrue(rect.lng().is_full())
 
         rect = Cap.from_axis_angle(Point(1, 0, 1).normalize(),
                                    Angle.from_degrees(45 + 5e-15),
                                    ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, 0, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 90, delta=degree_eps)
-        self.assertTrue(rect.lon().is_full())
+        self.assertTrue(rect.lng().is_full())
 
         # The eastern hemisphere.
         rect = Cap.from_axis_angle(Point(0, 1, 0),
@@ -1395,24 +1395,24 @@ class TestCap(unittest.TestCase):
                                    ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, -90, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 90, delta=degree_eps)
-        self.assertTrue(rect.lon().is_full())
+        self.assertTrue(rect.lng().is_full())
 
         # A cap centered on the equator.
-        rect = Cap.from_axis_angle(self.get_lat_lon_point(0, 50),
+        rect = Cap.from_axis_angle(self.get_lat_lng_point(0, 50),
                                    Angle.from_degrees(20)
                                    ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, -20, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 20, delta=degree_eps)
-        self.assertAlmostEqual(rect.lon_lo().degrees, 30, delta=degree_eps)
-        self.assertAlmostEqual(rect.lon_hi().degrees, 70, delta=degree_eps)
+        self.assertAlmostEqual(rect.lng_lo().degrees, 30, delta=degree_eps)
+        self.assertAlmostEqual(rect.lng_hi().degrees, 70, delta=degree_eps)
 
         # A cap centered on the north pole.
-        rect = Cap.from_axis_angle(self.get_lat_lon_point(90, 123),
+        rect = Cap.from_axis_angle(self.get_lat_lng_point(90, 123),
                                    Angle.from_degrees(10)
                                    ).get_rect_bound()
         self.assertAlmostEqual(rect.lat_lo().degrees, 80, delta=degree_eps)
         self.assertAlmostEqual(rect.lat_hi().degrees, 90, delta=degree_eps)
-        self.assertTrue(rect.lon().is_full())
+        self.assertTrue(rect.lng().is_full())
 
     def testCellMethods(self):
         face_radius = math.atan(math.sqrt(2))
@@ -1506,15 +1506,15 @@ class TestCap(unittest.TestCase):
             cap50.expanded(Angle.from_degrees(130.01)).is_full())
 
 
-class TestLatLonRect(unittest.TestCase):
+class TestLatLngRect(unittest.TestCase):
 
-    def rect_from_degrees(self, lat_lo, lon_lo, lat_hi, lon_hi):
-        return LatLonRect(LatLon.from_degrees(lat_lo, lon_lo),
-                          LatLon.from_degrees(lat_hi, lon_hi))
+    def rect_from_degrees(self, lat_lo, lng_lo, lat_hi, lng_hi):
+        return LatLngRect(LatLng.from_degrees(lat_lo, lng_lo),
+                          LatLng.from_degrees(lat_hi, lng_hi))
 
     def testEmptyAndFull(self):
-        empty = LatLonRect.empty()
-        full = LatLonRect.full()
+        empty = LatLngRect.empty()
+        full = LatLngRect.full()
         self.assertTrue(empty.is_valid())
         self.assertTrue(empty.is_empty())
         self.assertFalse(empty.is_point())
@@ -1522,84 +1522,84 @@ class TestLatLonRect(unittest.TestCase):
         self.assertTrue(full.is_full())
         self.assertFalse(full.is_point())
 
-        default_empty = LatLonRect()
+        default_empty = LatLngRect()
         self.assertTrue(default_empty.is_valid())
         self.assertTrue(default_empty.is_empty())
         self.assertEqual(empty.lat().bounds(), default_empty.lat().bounds())
-        self.assertEqual(empty.lon().bounds(), default_empty.lon().bounds())
+        self.assertEqual(empty.lng().bounds(), default_empty.lng().bounds())
 
     def testAccessors(self):
         d1 = self.rect_from_degrees(-90, 0, -45, 180)
         self.assertEqual(d1.lat_lo().degrees, -90)
         self.assertEqual(d1.lat_hi().degrees, -45)
-        self.assertEqual(d1.lon_lo().degrees, 0)
-        self.assertEqual(d1.lon_hi().degrees, 180)
+        self.assertEqual(d1.lng_lo().degrees, 0)
+        self.assertEqual(d1.lng_hi().degrees, 180)
         self.assertEqual(d1.lat(),
                          LineInterval(-math.pi / 2.0, -math.pi / 4.0))
-        self.assertEqual(d1.lon(),
+        self.assertEqual(d1.lng(),
                          SphereInterval(0, math.pi))
 
     def testFromCenterSize(self):
         self.assertTrue(
-            LatLonRect.from_center_size(
-                LatLon.from_degrees(80, 170),
-                LatLon.from_degrees(40, 60),
+            LatLngRect.from_center_size(
+                LatLng.from_degrees(80, 170),
+                LatLng.from_degrees(40, 60),
             ).approx_equals(self.rect_from_degrees(60, 140, 90, -160))
         )
 
-        self.assertTrue(LatLonRect.from_center_size(
-            LatLon.from_degrees(10, 40),
-            LatLon.from_degrees(210, 400)).is_full()) \
+        self.assertTrue(LatLngRect.from_center_size(
+            LatLng.from_degrees(10, 40),
+            LatLng.from_degrees(210, 400)).is_full()) \
 
         self.assertTrue(
-            LatLonRect.from_center_size(
-                LatLon.from_degrees(-90, 180),
-                LatLon.from_degrees(20, 50),
+            LatLngRect.from_center_size(
+                LatLng.from_degrees(-90, 180),
+                LatLng.from_degrees(20, 50),
             ).approx_equals(self.rect_from_degrees(-90, 155, -80, -155))
         )
 
     def testFromPoint(self):
-        p = LatLon.from_degrees(23, 47)
-        self.assertEqual(LatLonRect.from_point(p), LatLonRect(p, p))
-        self.assertTrue(LatLonRect.from_point(p).is_point())
+        p = LatLng.from_degrees(23, 47)
+        self.assertEqual(LatLngRect.from_point(p), LatLngRect(p, p))
+        self.assertTrue(LatLngRect.from_point(p).is_point())
 
     def testFromPointPair(self):
-        self.assertEqual(LatLonRect.from_point_pair(
-            LatLon.from_degrees(-35, -140), LatLon.from_degrees(15, 155)),
+        self.assertEqual(LatLngRect.from_point_pair(
+            LatLng.from_degrees(-35, -140), LatLng.from_degrees(15, 155)),
             self.rect_from_degrees(-35, 155, 15, -140))
-        self.assertEqual(LatLonRect.from_point_pair(
-            LatLon.from_degrees(25, -70), LatLon.from_degrees(-90, 80)),
+        self.assertEqual(LatLngRect.from_point_pair(
+            LatLng.from_degrees(25, -70), LatLng.from_degrees(-90, 80)),
             self.rect_from_degrees(-90, -70, 25, 80))
 
     def testGetCenterSize(self):
-        r1 = LatLonRect(LineInterval(0, math.pi / 2.0),
+        r1 = LatLngRect(LineInterval(0, math.pi / 2.0),
                         SphereInterval(-math.pi, 0))
         self.assertEqual(r1.get_center(),
-                         LatLon.from_radians(math.pi / 4.0, -math.pi / 2.0))
+                         LatLng.from_radians(math.pi / 4.0, -math.pi / 2.0))
         self.assertEqual(r1.get_size(),
-                         LatLon.from_radians(math.pi / 2.0, math.pi))
+                         LatLng.from_radians(math.pi / 2.0, math.pi))
         self.assertLess(
-            LatLonRect.empty().get_size().lat().radians, 0)
+            LatLngRect.empty().get_size().lat().radians, 0)
         self.assertLess(
-            LatLonRect.empty().get_size().lon().radians, 0)
+            LatLngRect.empty().get_size().lng().radians, 0)
 
     def testGetVertex(self):
-        r1 = LatLonRect(LineInterval(0, math.pi / 2.0),
+        r1 = LatLngRect(LineInterval(0, math.pi / 2.0),
                         SphereInterval(-math.pi, 0))
-        self.assertEqual(r1.get_vertex(0), LatLon.from_radians(0, math.pi))
-        self.assertEqual(r1.get_vertex(1), LatLon.from_radians(0, 0))
+        self.assertEqual(r1.get_vertex(0), LatLng.from_radians(0, math.pi))
+        self.assertEqual(r1.get_vertex(1), LatLng.from_radians(0, 0))
         self.assertEqual(r1.get_vertex(2),
-                         LatLon.from_radians(math.pi / 2.0, 0))
+                         LatLng.from_radians(math.pi / 2.0, 0))
         self.assertEqual(r1.get_vertex(3),
-                         LatLon.from_radians(math.pi / 2.0, math.pi))
+                         LatLng.from_radians(math.pi / 2.0, math.pi))
 
         # Make sure the get_vertex() returns vertices in CCW order.
         for i in range(4):
             lat = math.pi / 4.0 * (i - 2)
-            lon = math.pi / 2.0 * (i - 2) + 0.2
-            r = LatLonRect(LineInterval(lat, lat + math.pi / 4.0),
-                           SphereInterval(s2sphere.drem(lon, 2 * math.pi),
-                           s2sphere.drem(lon + math.pi / 2.0, 2 * math.pi)))
+            lng = math.pi / 2.0 * (i - 2) + 0.2
+            r = LatLngRect(LineInterval(lat, lat + math.pi / 4.0),
+                           SphereInterval(s2sphere.drem(lng, 2 * math.pi),
+                           s2sphere.drem(lng + math.pi / 2.0, 2 * math.pi)))
             for k in range(4):
                 self.assertTrue(
                     s2sphere.simple_ccw(r.get_vertex((k - 1) & 3).to_point(),
@@ -1608,14 +1608,14 @@ class TestLatLonRect(unittest.TestCase):
                 )
 
     def testContains(self):
-        eq_m180 = LatLon.from_radians(0, -math.pi)
-        north_pole = LatLon.from_radians(math.pi / 2.0, 0)
-        r1 = LatLonRect(eq_m180, north_pole)
+        eq_m180 = LatLng.from_radians(0, -math.pi)
+        north_pole = LatLng.from_radians(math.pi / 2.0, 0)
+        r1 = LatLngRect(eq_m180, north_pole)
 
-        self.assertTrue(r1.contains(LatLon.from_degrees(30, -45)))
-        self.assertTrue(r1.interior_contains(LatLon.from_degrees(30, -45)))
-        self.assertFalse(r1.contains(LatLon.from_degrees(30, 45)))
-        self.assertFalse(r1.interior_contains(LatLon.from_degrees(30, 45)))
+        self.assertTrue(r1.contains(LatLng.from_degrees(30, -45)))
+        self.assertTrue(r1.interior_contains(LatLng.from_degrees(30, -45)))
+        self.assertFalse(r1.contains(LatLng.from_degrees(30, 45)))
+        self.assertFalse(r1.interior_contains(LatLng.from_degrees(30, 45)))
         self.assertTrue(r1.contains(eq_m180))
         self.assertFalse(r1.interior_contains(eq_m180))
         self.assertTrue(r1.contains(north_pole))
@@ -1672,7 +1672,7 @@ class TestLatLonRect(unittest.TestCase):
             self.rect_from_degrees(-15, -160, -15, -150),
             self.rect_from_degrees(20, 145, 25, 155), "FFFF",
             self.rect_from_degrees(-15, 145, 25, -150),
-            LatLonRect.empty(),
+            LatLngRect.empty(),
         )
         self.check_interval_ops(
             self.rect_from_degrees(70, -10, 90, -140),
@@ -1687,28 +1687,28 @@ class TestLatLonRect(unittest.TestCase):
             self.rect_from_degrees(12, 30, 60, 60),
             self.rect_from_degrees(0, 0, 30, 18), "FFFF",
             self.rect_from_degrees(0, 0, 60, 60),
-            LatLonRect.empty(),
+            LatLngRect.empty(),
         )
         self.check_interval_ops(
             self.rect_from_degrees(0, 0, 18, 42),
             self.rect_from_degrees(30, 12, 42, 60), "FFFF",
             self.rect_from_degrees(0, 0, 42, 60),
-            LatLonRect.empty(),
+            LatLngRect.empty(),
         )
 
     def testExpanded(self):
         self.assertTrue(self.rect_from_degrees(70, 150, 80, 170)
-                        .expanded(LatLon.from_degrees(20, 30))
+                        .expanded(LatLng.from_degrees(20, 30))
                         .approx_equals(
                             self.rect_from_degrees(50, 120, 90, -160))
                         )
-        self.assertTrue(LatLonRect.empty().expanded(
-            LatLon.from_degrees(20, 30)).is_empty())
-        self.assertTrue(LatLonRect.full().expanded(
-            LatLon.from_degrees(20, 30)).is_full())
+        self.assertTrue(LatLngRect.empty().expanded(
+            LatLng.from_degrees(20, 30)).is_empty())
+        self.assertTrue(LatLngRect.full().expanded(
+            LatLng.from_degrees(20, 30)).is_full())
 
         self.assertTrue(self.rect_from_degrees(-90, 170, 10, 20)
-                        .expanded(LatLon.from_degrees(30, 80))
+                        .expanded(LatLng.from_degrees(30, 80))
                         .approx_equals(
                             self.rect_from_degrees(-90, -180, 40, 180))
                         )
@@ -1769,13 +1769,13 @@ class TestLatLonRect(unittest.TestCase):
 
         # Special cases.
         self.check_cell_ops(
-            LatLonRect.empty(),
+            LatLngRect.empty(),
             Cell.from_face_pos_level(3, 0, 0), 0)
         self.check_cell_ops(
-            LatLonRect.full(),
+            LatLngRect.full(),
             Cell.from_face_pos_level(2, 0, 0), 4)
         self.check_cell_ops(
-            LatLonRect.full(),
+            LatLngRect.full(),
             Cell.from_face_pos_level(5, 0, 25), 4)
 
         # This rectangle includes the first quadrant of face 0.  It's expanded
@@ -1806,11 +1806,11 @@ class TestLatLonRect(unittest.TestCase):
         # It has two angles of 60 degrees and two of 120 degrees.
         cell0tr = Cell.from_point(Point(1 + 1e-12, 1, 1))
         cell0tr.get_rect_bound()
-        v0 = LatLon.from_point(cell0tr.get_vertex_raw(0))
+        v0 = LatLng.from_point(cell0tr.get_vertex_raw(0))
         self.check_cell_ops(self.rect_from_degrees(v0.lat().degrees - 1e-8,
-                            v0.lon().degrees - 1e-8,
+                            v0.lng().degrees - 1e-8,
                             v0.lat().degrees - 2e-10,
-                            v0.lon().degrees + 1e-10),
+                            v0.lng().degrees + 1e-10),
                             cell0tr, 1)
 
         # Rectangles that intersect a face but where no vertex of one region
@@ -1824,9 +1824,9 @@ class TestLatLonRect(unittest.TestCase):
         bound202 = cell202.get_rect_bound()
         self.check_cell_ops(
             self.rect_from_degrees(bound202.lo().lat().degrees + 3,
-                                   bound202.lo().lon().degrees + 3,
+                                   bound202.lo().lng().degrees + 3,
                                    bound202.hi().lat().degrees - 3,
-                                   bound202.hi().lon().degrees - 3),
+                                   bound202.hi().lng().degrees - 3),
             cell202, 2)
 
 
