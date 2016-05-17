@@ -24,7 +24,8 @@ setup(
             'flake8>=2.5.4',
             'hacking>=0.11.0',
             'nose>=1.3.4',
-            'numpy>=1.11.0'
+            'numpy>=1.11.0',
+            'coveralls>=1.1'
         ],
         'docs': [
             'Sphinx>=1.4.1',

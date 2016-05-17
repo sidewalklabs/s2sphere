@@ -1,9 +1,12 @@
 machine:
   environment:
-    TESTCMD: 'python -V && pip install .[tests] && flake8 && nosetests -vv --exclude=compare_implementations_test'
+    TESTCMD: 'python -V && pip install .[tests] && flake8 && nosetests --with-coverage -vv --exclude=compare_implementations_test'
 
 test:
   override:
     - deactivate && pyenv shell 2.7.11 && bash -c "$TESTCMD"
     - deactivate && pyenv shell 3.4.4 && bash -c "$TESTCMD"
     - deactivate && pyenv shell 3.5.1 && bash -c "$TESTCMD"
+
+  post:
+    - coveralls
