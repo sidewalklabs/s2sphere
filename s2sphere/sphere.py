@@ -914,7 +914,7 @@ class CellId(object):
         self.__id = id_ % 0xffffffffffffffff
 
     def __repr__(self):
-        return 'CellId: {}'.format(self.id())
+        return 'CellId: {:016x}'.format(self.id())
 
     def __hash__(self):
         return hash(self.id())
@@ -1432,11 +1432,22 @@ class CellId(object):
         return 1 << (self.__class__.MAX_LEVEL - level)
 
     def to_token(self):
-        return format(self.id(), 'x')
+        """A unique string token for this cell id.
+
+        This is a hex encoded version of the cell id with the right zeros
+        stripped of.
+        """
+        return format(self.id(), '016x').rstrip('0')
 
     @classmethod
     def from_token(cls, token):
-        return cls(int(token, 16))
+        """Creates a CellId from a hex encoded cell id string, called a token.
+
+        :param str token:
+            A hex representation of the cell id. If the input is shorter than
+            16 characters, zeros are appended on the right.
+        """
+        return cls(int(token.ljust(16, '0'), 16))
 
     @classmethod
     def st_to_uv(cls, s):
