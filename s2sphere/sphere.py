@@ -914,7 +914,7 @@ class CellId(object):
         self.__id = id_ % 0xffffffffffffffff
 
     def __repr__(self):
-        return 'CellId: {:x}'.format(self.id())
+        return 'CellId: {:016x}'.format(self.id())
 
     def __hash__(self):
         return hash(self.id())
@@ -1447,9 +1447,7 @@ class CellId(object):
             A hex representation of the cell id. If the input is shorter than
             16 characters, zeros are appended on the right.
         """
-        if len(token) < 16:
-            token = token + '0' * (16 - len(token))
-        return cls(int(token, 16))
+        return cls(int(token.ljust(16, '0'), 16))
 
     @classmethod
     def st_to_uv(cls, s):
