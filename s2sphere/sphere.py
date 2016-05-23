@@ -914,7 +914,7 @@ class CellId(object):
         self.__id = id_ % 0xffffffffffffffff
 
     def __repr__(self):
-        return 'CellId: {}'.format(self.id())
+        return 'CellId: {:x}'.format(self.id())
 
     def __hash__(self):
         return hash(self.id())
