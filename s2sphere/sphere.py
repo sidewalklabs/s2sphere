@@ -1436,6 +1436,14 @@ class CellId(object):
 
     @classmethod
     def from_token(cls, token):
+        """Creates a CellId from a hex encoded cell id string, called a token.
+
+        :param str token:
+            A hex representation of the cell id. If the input is shorter than
+            16 characters, zeros are appended on the right.
+        """
+        if len(token) < 16:
+            token = token + '0' * (16 - len(token))
         return cls(int(token, 16))
 
     @classmethod
