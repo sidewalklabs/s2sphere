@@ -1437,7 +1437,7 @@ class CellId(object):
         This is a hex encoded version of the cell id with the right zeros
         stripped of.
         """
-        return format(self.id(), 'x').rstrip('0')
+        return format(self.id(), '016x').rstrip('0')
 
     @classmethod
     def from_token(cls, token):
