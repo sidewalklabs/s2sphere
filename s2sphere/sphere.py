@@ -1432,7 +1432,12 @@ class CellId(object):
         return 1 << (self.__class__.MAX_LEVEL - level)
 
     def to_token(self):
-        return format(self.id(), 'x')
+        """A unique string token for this cell id.
+
+        This is a hex encoded version of the cell id with the right zeros
+        stripped of.
+        """
+        return format(self.id(), 'x').rstrip('0')
 
     @classmethod
     def from_token(cls, token):

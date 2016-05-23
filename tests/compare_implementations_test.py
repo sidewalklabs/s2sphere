@@ -37,6 +37,11 @@ class TestCellId(unittest.TestCase):
         cpp_cellid = s2.S2CellId.FromToken('89c259c4')
         self.assertEqual(py_cellid.id(), cpp_cellid.id())
 
+    def test_cellid_to_token(self):
+        py_cellid = s2sphere.CellId.from_token('89c259c4')
+        cpp_cellid = s2.S2CellId.FromToken('89c259c4')
+        self.assertEqual(py_cellid.to_token(), cpp_cellid.ToToken())
+
 
 if __name__ == '__main__':
     unittest.main()
