@@ -1538,10 +1538,19 @@ class Metric(object):
         return math.ldexp(self.deriv(), -self.__dim * level)
 
     def get_closest_level(self, value):
-        raise NotImplementedError()
+        return self.get_min_level(
+            (math.sqrt(2) if self.__dim == 1 else 2) * value
+        )
 
     def get_min_level(self, value):
-        raise NotImplementedError()
+        if value <= 0:
+            return CellId.MAX_LEVEL
+
+        m, x = math.frexp(value / self.deriv())
+        level = max(0, min(CellId.MAX_LEVEL, -((x - 1) >> (self.__dim - 1))))
+        assert level == CellId.MAX_LEVEL or self.get_value(level) <= value
+        assert level == 0 or self.get_value(level - 1) > value
+        return level
 
     def get_max_level(self, value):
         if value <= 0:
@@ -1570,6 +1579,12 @@ class AreaMetric(Metric):
     """
     def __init__(self, deriv):
         super(AreaMetric, self).__init__(deriv, 2)
+
+
+kMaxAngleSpan = LengthMetric(1.704897179199218452)  # quadratic projection
+kAvgEdge = LengthMetric(1.459213746386106062)  # quadratic projection
+kMinEdge = LengthMetric(2 * math.sqrt(2) / 3)  # quadratic projection
+kMaxEdge = LengthMetric(kMaxAngleSpan.deriv())
 
 
 def drem(x, y):
@@ -2883,9 +2898,9 @@ class RegionCoverer(object):
 
             if level > 0:
                 cell_id = CellId.from_point(cap.axis())
-                base = cell_id.get_vertex_neighbors(level)
-                for i in range(len(base)):
-                    self.__add_candidate(self.__new_candidate(Cell(base[i])))
+                vertex_neighbors = cell_id.get_vertex_neighbors(level)
+                for neighbor in vertex_neighbors:
+                    self.__add_candidate(self.__new_candidate(Cell(neighbor)))
                 return
 
         for face in range(6):

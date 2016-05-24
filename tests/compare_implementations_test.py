@@ -47,6 +47,16 @@ class TestCellId(unittest.TestCase):
         cpp_cellid = s2.S2CellId.FromToken('03d23c0bdf')
         self.assertEqual(py_cellid.to_token(), cpp_cellid.ToToken())
 
+    def test_metric_level(self):
+        # get level 10km scale
+        radians = 10 / 6370
+        py_level_min = s2sphere.kAvgEdge.get_min_level(radians)
+        py_level_closest = s2sphere.kAvgEdge.get_closest_level(radians)
+        py_level_max = s2sphere.kAvgEdge.get_max_level(radians)
+        self.assertEqual(py_level_min, 10)
+        self.assertEqual(py_level_closest, 10)
+        self.assertEqual(py_level_max, 9)
+
 
 if __name__ == '__main__':
     unittest.main()
