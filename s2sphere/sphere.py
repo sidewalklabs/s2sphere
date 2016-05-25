@@ -1524,6 +1524,9 @@ class CellId(object):
 class Metric(object):
     """Metric
 
+    The classes :class:`s2sphere.LengthMetric` and
+    :class:`s2sphere.AreaMetric` are specializations of this class.
+
     see :cpp:class:`S2::Metric`
     """
 
@@ -1538,20 +1541,34 @@ class Metric(object):
         return math.ldexp(self.deriv(), -self.__dim * level)
 
     def get_closest_level(self, value):
-        # Return the level at which the metric has approximately the given
-        # value.  For example, `s2sphere.AVG_EDGE.get_closest_level(0.1)`
-        # returns the level at which the average cell edge length is
-        # approximately 0.1. The return value is always a valid level.
+        """Closest cell level according to the given value.
+
+        Return the level at which the metric has approximately the given
+        value.  For example, ``s2sphere.AVG_EDGE.get_closest_level(0.1)``
+        returns the level at which the average cell edge length is
+        approximately 0.1. The return value is always a valid level.
+
+        :param value:
+            Depending on whether this is used in one or two dimensions, this is
+            an angle in radians or a solid angle in steradians.
+        """
         return self.get_min_level(
             (math.sqrt(2) if self.__dim == 1 else 2) * value
         )
 
     def get_min_level(self, value):
-        # Return the minimum level such that the metric is at most the given
-        # value, or `s2sphere.CellId.MAX_LEVEL` if there is no such level.
-        # For example, `s2sphere.MAX_DIAG.get_min_level(0.1)` returns the
-        # minimum level such that all cell diagonal lengths are 0.1 or smaller.
-        # The return value is always a valid level.
+        """Minimum cell level for given value.
+
+        Return the minimum level such that the metric is at most the given
+        value, or ``s2sphere.CellId.MAX_LEVEL`` if there is no such level.
+        For example, ``s2sphere.MAX_DIAG.get_min_level(0.1)`` returns the
+        minimum level such that all cell diagonal lengths are 0.1 or smaller.
+        The return value is always a valid level.
+
+        :param value:
+            Depending on whether this is used in one or two dimensions, this is
+            an angle in radians or a solid angle in steradians.
+        """
         if value <= 0:
             return CellId.MAX_LEVEL
 
@@ -1562,11 +1579,18 @@ class Metric(object):
         return level
 
     def get_max_level(self, value):
-        # Return the maximum level such that the metric is at least the given
-        # value, or zero if there is no such level.  For example,
-        # `s2sphere.MIN_WIDTH.get_max_level(0.1)` returns the maximum level
-        # such that all cells have a minimum width of 0.1 or larger.
-        # The return value is always a valid level.
+        """Maximum cell level for given value.
+
+        Return the maximum level such that the metric is at least the given
+        value, or zero if there is no such level.  For example,
+        ``s2sphere.MIN_WIDTH.get_max_level(0.1)`` returns the maximum level
+        such that all cells have a minimum width of 0.1 or larger.
+        The return value is always a valid level.
+
+        :param value:
+            Depending on whether this is used in one or two dimensions, this is
+            an angle in radians or a solid angle in steradians.
+        """
         if value <= 0:
             return CellId.MAX_LEVEL
 
