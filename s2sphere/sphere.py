@@ -617,6 +617,16 @@ class LatLngRect(object):
         return LatLng.from_radians(self.lat().bound(k >> 1),
                                    self.lng().bound((k >> 1) ^ (k & 1)))
 
+    def area(self):
+        """Area in steradians."""
+        if self.is_empty():
+            return 0.0
+
+        return self.lng().get_length() * math.fabs(
+            math.sin(self.lat_hi().radians) -
+            math.sin(self.lat_lo().radians)
+        )
+
     def is_empty(self):
         return self.lat().is_empty()
 
