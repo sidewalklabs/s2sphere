@@ -32,11 +32,11 @@ API
    :members:
    :undoc-members:
 
-.. autoclass:: s2sphere.LatLon
+.. autoclass:: s2sphere.LatLng
    :members:
    :undoc-members:
 
-.. autoclass:: s2sphere.LatLonRect
+.. autoclass:: s2sphere.LatLngRect
    :members:
    :undoc-members:
 
