@@ -57,6 +57,15 @@ class TestCellId(unittest.TestCase):
         self.assertEqual(py_level_closest, 10)
         self.assertEqual(py_level_max, 9)
 
+        # get level 15km scale
+        radians = 15 / 6370
+        py_level_min = s2sphere.kAvgEdge.get_min_level(radians)
+        py_level_closest = s2sphere.kAvgEdge.get_closest_level(radians)
+        py_level_max = s2sphere.kAvgEdge.get_max_level(radians)
+        self.assertEqual(py_level_min, 10)
+        self.assertEqual(py_level_closest, 9)
+        self.assertEqual(py_level_max, 9)
+
 
 if __name__ == '__main__':
     unittest.main()
