@@ -1584,7 +1584,10 @@ class AreaMetric(Metric):
 kMaxAngleSpan = LengthMetric(1.704897179199218452)  # quadratic projection
 kAvgEdge = LengthMetric(1.459213746386106062)  # quadratic projection
 kMinEdge = LengthMetric(2 * math.sqrt(2) / 3)  # quadratic projection
-kMaxEdge = LengthMetric(kMaxAngleSpan.deriv())
+kMaxEdge = LengthMetric(kMaxAngleSpan.deriv())  # true for all projections
+kAvgArea = AreaMetric(4 * math.pi / 6)  # true for all projections
+kMinArea = AreaMetric(8 * math.sqrt(2))  # quadratic projection
+kMaxArea = AreaMetric(2.635799256963161491)  # quadratic projection
 
 
 def drem(x, y):
