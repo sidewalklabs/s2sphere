@@ -1,6 +1,5 @@
 from __future__ import print_function, unicode_literals, division
 
-import math
 import unittest
 
 import s2  # SWIG wrapped original C++ implementation
@@ -51,18 +50,18 @@ class TestCellId(unittest.TestCase):
     def test_metric_level(self):
         # get level 10km scale
         radians = 10 / 6370
-        py_level_min = s2sphere.kAvgEdge.get_min_level(radians)
-        py_level_closest = s2sphere.kAvgEdge.get_closest_level(radians)
-        py_level_max = s2sphere.kAvgEdge.get_max_level(radians)
+        py_level_min = s2sphere.AVG_EDGE.get_min_level(radians)
+        py_level_closest = s2sphere.AVG_EDGE.get_closest_level(radians)
+        py_level_max = s2sphere.AVG_EDGE.get_max_level(radians)
         self.assertEqual(py_level_min, 10)
         self.assertEqual(py_level_closest, 10)
         self.assertEqual(py_level_max, 9)
 
         # get level 15km scale
         radians = 15 / 6370
-        py_level_min = s2sphere.kAvgEdge.get_min_level(radians)
-        py_level_closest = s2sphere.kAvgEdge.get_closest_level(radians)
-        py_level_max = s2sphere.kAvgEdge.get_max_level(radians)
+        py_level_min = s2sphere.AVG_EDGE.get_min_level(radians)
+        py_level_closest = s2sphere.AVG_EDGE.get_closest_level(radians)
+        py_level_max = s2sphere.AVG_EDGE.get_max_level(radians)
         self.assertEqual(py_level_min, 10)
         self.assertEqual(py_level_closest, 9)
         self.assertEqual(py_level_max, 9)
@@ -70,18 +69,18 @@ class TestCellId(unittest.TestCase):
     def test_cell_area_at_level(self):
         # get level for 10x10km scale
         solid_angle = 10 * 10 / (6370**2)
-        py_level_min = s2sphere.kAvgArea.get_min_level(solid_angle)
-        py_level_closest = s2sphere.kAvgArea.get_closest_level(solid_angle)
-        py_level_max = s2sphere.kAvgArea.get_max_level(solid_angle)
+        py_level_min = s2sphere.AVG_AREA.get_min_level(solid_angle)
+        py_level_closest = s2sphere.AVG_AREA.get_closest_level(solid_angle)
+        py_level_max = s2sphere.AVG_AREA.get_max_level(solid_angle)
         self.assertEqual(py_level_min, 10)
         self.assertEqual(py_level_closest, 10)
         self.assertEqual(py_level_max, 9)
 
         # get level for 15x15km scale
         solid_angle = 15 * 15 / (6370**2)
-        py_level_min = s2sphere.kAvgArea.get_min_level(solid_angle)
-        py_level_closest = s2sphere.kAvgArea.get_closest_level(solid_angle)
-        py_level_max = s2sphere.kAvgArea.get_max_level(solid_angle)
+        py_level_min = s2sphere.AVG_AREA.get_min_level(solid_angle)
+        py_level_closest = s2sphere.AVG_AREA.get_closest_level(solid_angle)
+        py_level_max = s2sphere.AVG_AREA.get_max_level(solid_angle)
         self.assertEqual(py_level_min, 10)
         self.assertEqual(py_level_closest, 9)
         self.assertEqual(py_level_max, 9)

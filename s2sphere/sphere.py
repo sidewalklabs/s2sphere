@@ -1143,7 +1143,7 @@ class CellId(object):
         library. It provides a more Pythonic way to iterate over cells.
 
         :returns:
-            Iterator over instances of :class:`CellId`s.
+            Iterator over instances of :class:`CellId` s.
         """
         cellid_int = cls.begin(level).id()
         endid_int = cls.end(level).id()
@@ -1538,11 +1538,20 @@ class Metric(object):
         return math.ldexp(self.deriv(), -self.__dim * level)
 
     def get_closest_level(self, value):
+        # Return the level at which the metric has approximately the given
+        # value.  For example, `s2sphere.AVG_EDGE.get_closest_level(0.1)`
+        # returns the level at which the average cell edge length is
+        # approximately 0.1. The return value is always a valid level.
         return self.get_min_level(
             (math.sqrt(2) if self.__dim == 1 else 2) * value
         )
 
     def get_min_level(self, value):
+        # Return the minimum level such that the metric is at most the given
+        # value, or `s2sphere.CellId.MAX_LEVEL` if there is no such level.
+        # For example, `s2sphere.MAX_DIAG.get_min_level(0.1)` returns the
+        # minimum level such that all cell diagonal lengths are 0.1 or smaller.
+        # The return value is always a valid level.
         if value <= 0:
             return CellId.MAX_LEVEL
 
@@ -1553,6 +1562,11 @@ class Metric(object):
         return level
 
     def get_max_level(self, value):
+        # Return the maximum level such that the metric is at least the given
+        # value, or zero if there is no such level.  For example,
+        # `s2sphere.MIN_WIDTH.get_max_level(0.1)` returns the maximum level
+        # such that all cells have a minimum width of 0.1 or larger.
+        # The return value is always a valid level.
         if value <= 0:
             return CellId.MAX_LEVEL
 
@@ -1566,14 +1580,49 @@ class Metric(object):
 class LengthMetric(Metric):
     """Length metric. A 1D specialization of :class:`s2sphere.Metric`.
 
+    Preconfigured instances of this class are
+    :const:`s2sphere.AVG_ANGLE_SPAN`,
+    :const:`s2sphere.MIN_ANGLE_SPAN`,
+    :const:`s2sphere.MAX_ANGLE_SPAN`,
+    :const:`s2sphere.AVG_EDGE`,
+    :const:`s2sphere.MIN_EDGE`,
+    :const:`s2sphere.MAX_EDGE`,
+    :const:`s2sphere.AVG_DIAG`,
+    :const:`s2sphere.MIN_DIAG`,
+    :const:`s2sphere.MAX_DIAG`,
+    :const:`s2sphere.AVG_WIDTH`,
+    :const:`s2sphere.MIN_WIDTH` and
+    :const:`s2sphere.MAX_WIDTH`.
+
     see :cpp:class:`S2::LengthMetric`
     """
     def __init__(self, deriv):
         super(LengthMetric, self).__init__(deriv, 1)
 
 
+AVG_ANGLE_SPAN = LengthMetric(math.pi / 2)  # true for all projections
+MIN_ANGLE_SPAN = LengthMetric(4 / 3)  # quadratic projection
+MAX_ANGLE_SPAN = LengthMetric(1.704897179199218452)  # quadratic projection
+
+AVG_EDGE = LengthMetric(1.459213746386106062)  # quadratic projection
+MIN_EDGE = LengthMetric(2 * math.sqrt(2) / 3)  # quadratic projection
+MAX_EDGE = LengthMetric(MAX_ANGLE_SPAN.deriv())  # true for all projections
+
+AVG_DIAG = LengthMetric(2.060422738998471683)  # quadratic projection
+MIN_DIAG = LengthMetric(8 * math.sqrt(2) / 9)  # quadratic projection
+MAX_DIAG = LengthMetric(2.438654594434021032)  # quadratic projection
+
+AVG_WIDTH = LengthMetric(1.434523672886099389)  # quadratic projection
+MIN_WIDTH = LengthMetric(2 * math.sqrt(2) / 3)  # quadratic projection
+MAX_WIDTH = LengthMetric(MAX_ANGLE_SPAN.deriv())  # true for all projections
+
+
 class AreaMetric(Metric):
     """Area metric. A 2D specialization of :class:`s2sphere.Metric`.
+
+    Preconfigured instances of this class are
+    :const:`s2sphere.AVG_AREA`, :const:`s2sphere.MIN_AREA`,
+    :const:`s2sphere.MAX_AREA`.
 
     see :cpp:class:`S2::AreaMetric`
     """
@@ -1581,13 +1630,9 @@ class AreaMetric(Metric):
         super(AreaMetric, self).__init__(deriv, 2)
 
 
-kMaxAngleSpan = LengthMetric(1.704897179199218452)  # quadratic projection
-kAvgEdge = LengthMetric(1.459213746386106062)  # quadratic projection
-kMinEdge = LengthMetric(2 * math.sqrt(2) / 3)  # quadratic projection
-kMaxEdge = LengthMetric(kMaxAngleSpan.deriv())  # true for all projections
-kAvgArea = AreaMetric(4 * math.pi / 6)  # true for all projections
-kMinArea = AreaMetric(8 * math.sqrt(2))  # quadratic projection
-kMaxArea = AreaMetric(2.635799256963161491)  # quadratic projection
+AVG_AREA = AreaMetric(4 * math.pi / 6)  # true for all projections
+MIN_AREA = AreaMetric(8 * math.sqrt(2))  # quadratic projection
+MAX_AREA = AreaMetric(2.635799256963161491)  # quadratic projection
 
 
 def drem(x, y):
