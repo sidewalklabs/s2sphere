@@ -1607,6 +1607,12 @@ class TestLatLngRect(unittest.TestCase):
                                         r.get_vertex((k + 1) & 3).to_point())
                 )
 
+    def testArea(self):
+        self.assertEqual(s2sphere.LatLngRect.empty().area(), 0.0)
+        self.assertEqual(s2sphere.LatLngRect.full().area(), 4 * math.pi)
+        self.assertEqual(self.rect_from_degrees(0, 0, 90, 90).area(),
+                         math.pi / 2)
+
     def testContains(self):
         eq_m180 = LatLng.from_radians(0, -math.pi)
         north_pole = LatLng.from_radians(math.pi / 2.0, 0)
