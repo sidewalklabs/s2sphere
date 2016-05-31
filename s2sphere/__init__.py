@@ -2,6 +2,7 @@
 # flake8: noqa  (don't lint this file)
 
 from __future__ import absolute_import
+import cbackend
 from .sphere import *
 
 __version__ = '0.2.3'

@@ -1,4 +1,5 @@
-from __future__ import print_function, unicode_literals, division
+from __future__ import (absolute_import, print_function, unicode_literals,
+                        division)
 from future.builtins import int
 from future.builtins import range
 
@@ -7,6 +8,8 @@ import decimal
 import functools
 import heapq
 import math
+
+import cbackend
 
 
 @functools.total_ordering
@@ -1292,32 +1295,10 @@ class CellId(object):
                 cls.st_to_uv((0.5 / cls.MAX_SIZE) * ti))
 
     def to_face_ij_orientation(self):
-        i, j = 0, 0
-        face = self.face()
-        bits = (face & SWAP_MASK)
-
-        for k in range(7, -1, -1):
-            if k == 7:
-                nbits = (self.__class__.MAX_LEVEL - 7 * LOOKUP_BITS)
-            else:
-                nbits = LOOKUP_BITS
-
-            bits += (
-                self.id() >> (k * 2 * LOOKUP_BITS + 1) &
-                ((1 << (2 * nbits)) - 1)
-            ) << 2
-            bits = LOOKUP_IJ[bits]
-            i += (bits >> (LOOKUP_BITS + 2)) << (k * LOOKUP_BITS)
-            j += ((bits >> 2) & ((1 << LOOKUP_BITS) - 1)) << (k * LOOKUP_BITS)
-            bits &= (SWAP_MASK | INVERT_MASK)
-
-        assert 0 == POS_TO_ORIENTATION[2]
-        assert SWAP_MASK == POS_TO_ORIENTATION[0]
-        if (self.lsb() & 0x1111111111111110) != 0:
-            bits ^= SWAP_MASK
-        orientation = bits
-
-        return face, i, j, orientation
+        return cbackend.to_face_ij_orientation(self.id(),
+                                               self.face(),
+                                               self.lsb(),
+                                               self.__class__.MAX_LEVEL)
 
     def get_edge_neighbors(self):
         level = self.level()

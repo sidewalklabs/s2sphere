@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from Cython.Build import cythonize
 from setuptools import setup
 
 
@@ -18,7 +19,8 @@ setup(
     author_email='sven@sidewalklabs.com',
     url='http://s2sphere.readthedocs.io',
     packages=['s2sphere'],
-    install_requires=['future'],
+    ext_modules=cythonize('cbackend.pyx'),
+    install_requires=['future', 'cython'],
     extras_require={
         'tests': [
             'flake8>=2.5.4',
