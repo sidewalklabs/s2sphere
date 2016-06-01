@@ -19,7 +19,7 @@ setup(
     author_email='sven@sidewalklabs.com',
     url='http://s2sphere.readthedocs.io',
     packages=['s2sphere'],
-    ext_modules=cythonize('cbackend.pyx'),
+    ext_modules=cythonize('s2sphere/cbackend.pyx'),
     install_requires=['future', 'cython'],
     extras_require={
         'tests': [

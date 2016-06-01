@@ -9,7 +9,7 @@ import functools
 import heapq
 import math
 
-import cbackend
+from . import cbackend
 
 
 @functools.total_ordering
