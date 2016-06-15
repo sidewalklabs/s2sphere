@@ -355,6 +355,11 @@ class TestCellId(unittest.TestCase):
                                  cells[i].contains(cells[j]) or
                                  cells[j].contains(cells[i]))
 
+    def test_walk_fast_and_slow(self):
+        slow = [c.to_token() for c in CellId.walk(2)]
+        fast = [c.to_token() for c in CellId.walk_fast(2)]
+        self.assertEqual(slow, fast)
+
     def testContinuity(self):
         # Make sure that sequentially increasing cell ids form a continuous
         # path over the surface of the sphere, i.e. there are no
