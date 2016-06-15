@@ -42,6 +42,11 @@ class TestCellId(unittest.TestCase):
         cpp_cellid = s2.S2CellId.FromToken('89c259c4')
         self.assertEqual(py_cellid.to_token(), cpp_cellid.ToToken())
 
+    def test_average_area(self):
+        # has not equivalent SWIG wrapped version
+        py_cell = s2sphere.Cell(s2sphere.CellId.from_token('89c259c4'))
+        self.assertEqual(py_cell.average_area(), 3.120891902436607e-08)
+
     def test_zeroprefix_token(self):
         py_cellid = s2sphere.CellId.from_token('03d23c0bdf')
         cpp_cellid = s2.S2CellId.FromToken('03d23c0bdf')

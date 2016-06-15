@@ -1489,11 +1489,6 @@ class CellId(object):
             raise ValueError('unknown projection type')
 
     @classmethod
-    def avg_area(cls):
-        # Same for all projections.
-        return AreaMetric(4 * math.pi / 6)
-
-    @classmethod
     def max_edge(cls):
         return LengthMetric(cls.max_angle_span().deriv())
 
@@ -1548,6 +1543,12 @@ class Metric(object):
         return self.__deriv
 
     def get_value(self, level):
+        """The value of this metric at a given level.
+
+        :returns:
+            Depending on whether this is used in one or two dimensions, this is
+            an angle in radians or a solid angle in steradians.
+        """
         return math.ldexp(self.deriv(), -self.__dim * level)
 
     def get_closest_level(self, value):
@@ -2421,6 +2422,7 @@ class Cell(object):
     # more expensive but it is accurate to 6 digits of precision even for leaf
     # cells (whose area is approximately 1e-18).
     def exact_area(self):
+        """cell area accurate to 6 digits but slow to compute"""
         v0 = self.get_vertex(0)
         v1 = self.get_vertex(1)
         v2 = self.get_vertex(2)
@@ -2428,9 +2430,14 @@ class Cell(object):
         return area(v0, v1, v2) + area(v0, v2, v3)
 
     def average_area(self):
-        return CellId.avg_area().get_value(self.__level)
+        return AVG_AREA.get_value(self.__level)
 
     def approx_area(self):
+        """approximate area of a cell which is accurate to within 3%
+
+        For cells at level 5 or higher (cells with edge length 350km or
+        smaller), it is accurate to within 0.1%.
+        """
         if self.__level < 2:
             return self.average_area()
 

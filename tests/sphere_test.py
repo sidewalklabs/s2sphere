@@ -2256,10 +2256,10 @@ class TestRegionCoverer(unittest.TestCase):
             coverer.level_mod = 1 + random.randrange(1, 3)
 
             max_area = min(4 * math.pi, (3 * coverer.max_cells + 1) *
-                           CellId.avg_area().get_value(coverer.min_level))
+                           s2sphere.AVG_AREA.get_value(coverer.min_level))
 
             cap = self.get_random_cap(
-                0.1 * CellId.avg_area().get_value(CellId.MAX_LEVEL), max_area)
+                0.1 * s2sphere.AVG_AREA.get_value(CellId.MAX_LEVEL), max_area)
             covering = coverer.get_covering(cap)
             self.check_covering(coverer, cap, covering, False)
             interior = coverer.get_interior_covering(cap)
@@ -2284,9 +2284,9 @@ class TestRegionCoverer(unittest.TestCase):
             coverer.min_level = level
             coverer.max_level = level
             max_area = min(
-                4 * math.pi, 1000 * CellId.avg_area().get_value(level))
+                4 * math.pi, 1000 * s2sphere.AVG_AREA.get_value(level))
             cap = self.get_random_cap(
-                0.1 * CellId.avg_area().get_value(CellId.MAX_LEVEL), max_area)
+                0.1 * s2sphere.AVG_AREA.get_value(CellId.MAX_LEVEL), max_area)
             covering = RegionCoverer.get_simple_covering(cap, cap.axis(),
                                                          level)
             self.check_covering(coverer, cap, covering, False)
