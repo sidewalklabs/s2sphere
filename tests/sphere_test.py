@@ -2168,6 +2168,16 @@ class TestCellUnion(unittest.TestCase):
         empty_cell_union.expand(10)
         self.assertEqual(0, empty_cell_union.num_cells())
 
+    def testRectBound(self):
+        union = CellUnion([CellId.from_token('874'), CellId.from_token('87c')])
+        bound = union.get_rect_bound()
+        bound_cell1 = Cell(CellId.from_token('874')).get_rect_bound()
+        bound_cell2 = Cell(CellId.from_token('87c')).get_rect_bound()
+        self.assertEqual(bound.lat_lo().degrees, bound_cell1.lat_lo().degrees)
+        self.assertEqual(bound.lat_hi().degrees, bound_cell2.lat_hi().degrees)
+        self.assertEqual(bound.lng_lo().degrees, bound_cell1.lng_lo().degrees)
+        self.assertEqual(bound.lng_hi().degrees, bound_cell2.lng_hi().degrees)
+
 
 class TestRegionCoverer(unittest.TestCase):
 

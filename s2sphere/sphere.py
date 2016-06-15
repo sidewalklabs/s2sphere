@@ -2815,6 +2815,13 @@ class CellUnion(object):
         else:
             raise NotImplementedError()
 
+    def get_rect_bound(self):
+        """rectangular bound"""
+        bound = LatLngRect.empty()
+        for cell_id in self.__cell_ids:
+            bound = bound.union(Cell(cell_id).get_rect_bound())
+        return bound
+
 
 FACE_CELLS = (Cell.from_face_pos_level(0, 0, 0),
               Cell.from_face_pos_level(1, 0, 0),
