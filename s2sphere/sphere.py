@@ -859,8 +859,8 @@ POS_TO_IJ = ((0, 1, 3, 2),
              (3, 2, 0, 1),
              (3, 1, 0, 2))
 POS_TO_ORIENTATION = [SWAP_MASK, 0, 0, INVERT_MASK | SWAP_MASK]
-LOOKUP_POS = [None] * (1 << (2 * LOOKUP_BITS + 2))
-LOOKUP_IJ = [None] * (1 << (2 * LOOKUP_BITS + 2))
+LOOKUP_POS = [None] * (1 << (2 * LOOKUP_BITS + 2))  # type: List[int]
+LOOKUP_IJ = [None] * (1 << (2 * LOOKUP_BITS + 2))  # type: List[int]
 
 
 def _init_lookup_cell(level, i, j, orig_orientation, pos, orientation):
@@ -2340,7 +2340,8 @@ class Cell(object):
     """
 
     def __init__(self, cell_id=None):
-        self.__uv = [[None, None], [None, None]]
+        # type: (CellId) -> None
+        self.__uv = [[None, None], [None, None]]  # type: List[List[float]]
         if cell_id is not None:
             self.__cell_id = cell_id
             face, i, j, orientation = cell_id.to_face_ij_orientation()
@@ -2360,6 +2361,7 @@ class Cell(object):
 
     @classmethod
     def from_lat_lng(cls, lat_lng):
+        # type: (LatLng) -> Cell
         return cls(CellId.from_lat_lng(lat_lng))
 
     @classmethod
@@ -2376,6 +2378,11 @@ class Cell(object):
         return cls(CellId.from_face_pos_level(face, pos, level))
 
     def id(self):
+        # type: () -> CellId
+        """get id
+
+        :rtype: CellId
+        """
         return self.__cell_id
 
     def face(self):
