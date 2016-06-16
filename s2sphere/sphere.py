@@ -2350,13 +2350,11 @@ class Cell(object):
             self.__level = cell_id.level()
 
             cell_size = cell_id.get_size_ij()
-            for d in range(2):
-                ij_lo = ij[d] & -cell_size
+            for ij_, uv_ in zip(ij, self.__uv):
+                ij_lo = ij_ & -cell_size
                 ij_hi = ij_lo + cell_size
-                self.__uv[d][0] = CellId.st_to_uv(
-                    (1.0 / CellId.MAX_SIZE) * ij_lo)
-                self.__uv[d][1] = CellId.st_to_uv(
-                    (1.0 / CellId.MAX_SIZE) * ij_hi)
+                uv_[0] = CellId.st_to_uv((1.0 / CellId.MAX_SIZE) * ij_lo)
+                uv_[1] = CellId.st_to_uv((1.0 / CellId.MAX_SIZE) * ij_hi)
 
     @classmethod
     def from_lat_lng(cls, lat_lng):
