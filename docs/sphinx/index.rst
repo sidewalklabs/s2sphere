@@ -40,4 +40,3 @@ Contents
     cpp
 
 * :ref:`genindex`
-
