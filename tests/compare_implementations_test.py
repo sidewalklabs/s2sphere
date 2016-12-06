@@ -73,7 +73,7 @@ class TestCellId(unittest.TestCase):
 
     def test_cell_area_at_level(self):
         # get level for 10x10km scale
-        solid_angle = 10 * 10 / (6370**2)
+        solid_angle = 10 * 10 / (6370 ** 2)
         py_level_min = s2sphere.AVG_AREA.get_min_level(solid_angle)
         py_level_closest = s2sphere.AVG_AREA.get_closest_level(solid_angle)
         py_level_max = s2sphere.AVG_AREA.get_max_level(solid_angle)
@@ -82,7 +82,7 @@ class TestCellId(unittest.TestCase):
         self.assertEqual(py_level_max, 9)
 
         # get level for 15x15km scale
-        solid_angle = 15 * 15 / (6370**2)
+        solid_angle = 15 * 15 / (6370 ** 2)
         py_level_min = s2sphere.AVG_AREA.get_min_level(solid_angle)
         py_level_closest = s2sphere.AVG_AREA.get_closest_level(solid_angle)
         py_level_max = s2sphere.AVG_AREA.get_max_level(solid_angle)

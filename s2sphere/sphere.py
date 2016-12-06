@@ -881,6 +881,7 @@ def _init_lookup_cell(level, i, j, orig_orientation, pos, orientation):
                 pos + index, orientation ^ POS_TO_ORIENTATION[index],
             )
 
+
 _init_lookup_cell(0, 0, 0, 0, 0, 0)
 _init_lookup_cell(0, 0, 0, SWAP_MASK, 0, SWAP_MASK)
 _init_lookup_cell(0, 0, 0, INVERT_MASK, 0, INVERT_MASK)
@@ -2388,10 +2389,13 @@ class Cell(object):
     def is_leaf(self):
         return self.__level == CellId.MAX_LEVEL
 
-    # Return the inward-facing normal of the great circle passing through
-    # the edge from vertex k to vertex k+1 (mod 4).  The normals returned
-    # by GetEdgeRaw are not necessarily unit length.
     def get_edge(self, k):
+        """the k-th edge
+
+        Return the inward-facing normal of the great circle passing through
+        the edge from vertex k to vertex k+1 (mod 4).  The normals returned
+        by GetEdgeRaw are not necessarily unit length.
+        """
         return self.get_edge_raw(k).normalize()
 
     def get_edge_raw(self, k):
@@ -2404,10 +2408,12 @@ class Cell(object):
         else:
             return -get_u_norm(self.__face, self.__uv[0][0])  # West
 
-    # Return the k-th vertex of the cell (k = 0,1,2,3).  Vertices are returned
-    # in CCW order.  The points returned by GetVertexRaw are not necessarily
-    # unit length.
     def get_vertex(self, k):
+        """Return the k-th vertex of the cell (k = 0,1,2,3).
+
+        Vertices are returned in CCW order.
+        The points returned by GetVertexRaw are not necessarily unit length.
+        """
         return self.get_vertex_raw(k).normalize()
 
     def get_vertex_raw(self, k):
@@ -2416,11 +2422,13 @@ class Cell(object):
             self.__uv[0][(k >> 1) ^ (k & 1)], self.__uv[1][k >> 1],
         )
 
-    # Return the area of this cell as accurately as possible.  This method is
-    # more expensive but it is accurate to 6 digits of precision even for leaf
-    # cells (whose area is approximately 1e-18).
     def exact_area(self):
-        """cell area accurate to 6 digits but slow to compute"""
+        """cell area in steradians accurate to 6 digits but slow to compute
+
+        Return the area of this cell as accurately as possible.  This method is
+        more expensive but it is accurate to 6 digits of precision even for
+        leaf cells (whose area is approximately 1e-18).
+        """
         v0 = self.get_vertex(0)
         v1 = self.get_vertex(1)
         v2 = self.get_vertex(2)
@@ -2428,10 +2436,11 @@ class Cell(object):
         return area(v0, v1, v2) + area(v0, v2, v3)
 
     def average_area(self):
+        """cell area in steradians"""
         return AVG_AREA.get_value(self.__level)
 
     def approx_area(self):
-        """approximate area of a cell which is accurate to within 3%
+        """approximate cell area in steradians accurate to within 3%
 
         For cells at level 5 or higher (cells with edge length 350km or
         smaller), it is accurate to within 0.1%.
