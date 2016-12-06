@@ -8,6 +8,7 @@ addons:
     packages:
       - libssl-dev
       - python-dev
+      - python-pip
       - python3-pip
       - scons
       - swig
@@ -24,40 +25,21 @@ matrix:
     - os: osx
       compiler: clang
 
-before_install:
-- |
-  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-    brew update
-    brew install swig
-    brew outdated openssl || brew upgrade openssl
-    brew outdated cmake || brew upgrade cmake
-  fi
-- python -V
-
 script:
 - git submodule update --init --recursive
-- cd tests/s2-geometry && ./travis.sh && cd -
-# dependencies for Python tests
-- |
-  if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
-    # We really want to use the system version of Python.  Travis'
-    # has broken distutils paths, and assumes a virtualenv.
-    export PATH="/usr/bin:${PATH}"
-  fi
-  if [ "${TRAVIS_OS_NAME}" == "osx" ]; then
-    # add binaries installed with pip's --user option into PATH
-    ls ${HOME}/Library/Python
-    export PATH="${HOME}/Library/Python/2.7/bin:${HOME}/Library/Python/3.4/bin:${PATH}"
-  fi
-  which python2.7
-  python2.7 -V
-  echo "$PATH"
-- pip install --user --upgrade pip
-- pip install --user numpy nose flake8 hacking
-- "pip install --user ."
+- pip install --upgrade pip
+- pip install numpy nose flake8 hacking
+- pip install .
 - flake8
-- python2.7 tests/compare_implementations_test.py -vv
 - nosetests-2.7 -vv --exclude=compare_implementations_test
+- |
+  if [[ "${TRAVIS_OS_NAME}" = "linux" ]]; then
+    cd tests/s2-geometry && ./travis.sh && cd -
+
+    # use special python version that is used by s2-geometry under linux
+    sudo /usr/bin/pip install .
+    /usr/bin/python2.7 tests/compare_implementations_test.py -vv
+  fi
 # py3
 - |
   if [[ "${py3}" == "true" ]]; then

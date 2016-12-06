@@ -18,18 +18,20 @@ setup(
     author_email='sven@sidewalklabs.com',
     url='http://s2sphere.readthedocs.io',
     packages=['s2sphere'],
-    install_requires=['future'],
+    install_requires=[
+        'future>=0.15',
+    ],
     extras_require={
         'tests': [
             'flake8>=2.5.4',
             'hacking>=0.11.0',
             'nose>=1.3.4',
             'numpy>=1.11.0',
-            'coveralls>=1.1'
+            'coveralls>=1.1',
         ],
         'docs': [
             'Sphinx>=1.4.1',
-            'sphinx-rtd-theme>=0.1.9'
+            'sphinx-rtd-theme>=0.1.9',
         ]
     },
     license='MIT',
