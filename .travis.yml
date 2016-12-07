@@ -31,14 +31,14 @@ script:
 - pip install numpy nose flake8 hacking
 - pip install .
 - flake8
-- nosetests-2.7 -vv --exclude=compare_implementations_test
+- nosetests-2.7 -vv
 - |
   if [[ "${TRAVIS_OS_NAME}" = "linux" ]]; then
     cd tests/s2-geometry && ./travis.sh && cd -
 
     # use special python version that is used by s2-geometry under linux
     sudo /usr/bin/pip install .
-    /usr/bin/python2.7 tests/compare_implementations_test.py -vv
+    /usr/bin/python2.7 tests/compare_implementations.py -vv
   fi
 # py3
 - |
@@ -48,5 +48,5 @@ script:
     pip3 install --user .
 
     echo "Python 3 tests:"
-    nosetests-3.4 -vv --exclude=compare_implementations_test
+    nosetests-3.4 -vv
   fi

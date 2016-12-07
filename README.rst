@@ -26,4 +26,4 @@ To set up the library for development:
 .. code-block:: sh
 
     pip install .[tests]
-    nosetests -vv --exclude=compare_implementations_test
+    nosetests -vv
