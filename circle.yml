@@ -1,6 +1,6 @@
 machine:
   environment:
-    TESTCMD: 'python -V && pip install .[tests] && flake8 && nosetests --with-coverage -vv --exclude=compare_implementations_test'
+    TESTCMD: 'python -V && pip install .[tests] && flake8 && nosetests --with-coverage -vv'
 
 test:
   override:

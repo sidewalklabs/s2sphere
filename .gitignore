@@ -23,6 +23,7 @@ var/
 *.egg
 venv/
 venv3/
+.ipynb_checkpoints/
 
 # Installer logs
 pip-log.txt
@@ -54,6 +55,6 @@ coverage.xml
 # Sphinx documentation
 docs/sphinx/_build/
 
-# IntelliJ / PyCharm
+# IntelliJ / PyCharm / VScode
 .idea
-
+.vscode
