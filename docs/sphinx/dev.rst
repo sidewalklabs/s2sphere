@@ -47,10 +47,6 @@ generating docs:
     # install
     pip install -e .[tests,docs]
 
-    # run tests without C lib
-    flake8
-    nosetests -vv --exclude=compare_implementations_test
-
 
 Documentation
 -------------
@@ -66,4 +62,9 @@ Tests
 
 .. code-block:: sh
 
+    # run tests that don't require the C library
+    flake8
     nosetests -vv
+
+    # tests that compare C and Python implementations
+    python tests/compare_implementations.py -vv
