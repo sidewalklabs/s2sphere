@@ -1665,11 +1665,14 @@ class AreaMetric(Metric):
     def __init__(self, deriv):
         super(AreaMetric, self).__init__(deriv, 2)
 
+
 #: Average cell area for all projections.
 AVG_AREA = AreaMetric(4 * math.pi / 6)
 
+
 #: Minimum cell area for quadratic projections.
 MIN_AREA = AreaMetric(8 * math.sqrt(2) / 9)
+
 
 #: Maximum cell area for quadratic projections.
 MAX_AREA = AreaMetric(2.635799256963161491)
