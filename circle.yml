@@ -1,6 +1,6 @@
 machine:
   environment:
-    TESTCMD: 'python -V && pip install .[tests] && flake8 && nosetests -vv'
+    TESTCMD: 'python -V && pip install --upgrade pip && pip install .[tests] && flake8 && nosetests -vv'
 
 test:
   override:
