@@ -12,6 +12,12 @@ API
    :members:
    :undoc-members:
 
+.. autodata:: s2sphere.MIN_AREA
+
+.. autodata:: s2sphere.AVG_AREA
+
+.. autodata:: s2sphere.MAX_AREA
+
 .. autoclass:: s2sphere.Cap
    :members:
    :undoc-members:

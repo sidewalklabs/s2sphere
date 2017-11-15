@@ -27,10 +27,9 @@ setup(
             'hacking>=0.11.0',
             'nose>=1.3.4',
             'numpy>=1.11.0',
-            'coveralls>=1.1',
         ],
         'docs': [
-            'Sphinx>=1.4.1',
+            'Sphinx>=1.6.5',
             'sphinx-rtd-theme>=0.1.9',
         ]
     },
