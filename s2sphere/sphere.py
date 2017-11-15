@@ -1668,7 +1668,7 @@ class AreaMetric(Metric):
 
 
 AVG_AREA = AreaMetric(4 * math.pi / 6)  # true for all projections
-MIN_AREA = AreaMetric(8 * math.sqrt(2))  # quadratic projection
+MIN_AREA = AreaMetric(8 * math.sqrt(2) / 9)  # quadratic projection
 MAX_AREA = AreaMetric(2.635799256963161491)  # quadratic projection
 
 
