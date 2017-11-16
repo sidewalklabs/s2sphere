@@ -26,6 +26,9 @@ matrix:
       compiler: clang
 
 script:
+- ls ~/Library/Python/2.7/bin/
+- ls ~/Library/Python/3.4/bin/
+- export PATH=$PATH:~/Library/Python/2.7/bin/
 - git submodule update --init --recursive
 - pip install --user --upgrade pip
 - pip install --user numpy nose flake8 hacking
