@@ -26,10 +26,11 @@ matrix:
       compiler: clang
 
 script:
+- export PATH=$PATH:~/Library/Python/2.7/bin/
 - git submodule update --init --recursive
-- pip install --upgrade pip
-- pip install numpy nose flake8 hacking
-- pip install .
+- pip install --user --upgrade pip
+- pip install --user numpy nose flake8 hacking
+- pip install --user .
 - flake8
 - nosetests-2.7 -vv
 - |

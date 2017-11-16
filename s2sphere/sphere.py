@@ -1655,21 +1655,27 @@ MAX_WIDTH = LengthMetric(MAX_ANGLE_SPAN.deriv())  # true for all projections
 
 
 class AreaMetric(Metric):
-    """Area metric. A 2D specialization of :class:`s2sphere.Metric`.
+    """Area metric. A 2D specialization of `s2sphere.Metric` (check for API).
 
-    Preconfigured instances of this class are
-    :const:`s2sphere.AVG_AREA`, :const:`s2sphere.MIN_AREA`,
-    :const:`s2sphere.MAX_AREA`.
+    Preconfigured instances of this class are `s2sphere.AVG_AREA`,
+    `s2sphere.MIN_AREA`, `s2sphere.MAX_AREA`.
 
-    see :cpp:class:`S2::AreaMetric`
+    See C++ docs at :cpp:class:`S2::AreaMetric`.
     """
     def __init__(self, deriv):
         super(AreaMetric, self).__init__(deriv, 2)
 
 
-AVG_AREA = AreaMetric(4 * math.pi / 6)  # true for all projections
-MIN_AREA = AreaMetric(8 * math.sqrt(2))  # quadratic projection
-MAX_AREA = AreaMetric(2.635799256963161491)  # quadratic projection
+#: Average cell area for all projections.
+AVG_AREA = AreaMetric(4 * math.pi / 6)
+
+
+#: Minimum cell area for quadratic projections.
+MIN_AREA = AreaMetric(8 * math.sqrt(2) / 9)
+
+
+#: Maximum cell area for quadratic projections.
+MAX_AREA = AreaMetric(2.635799256963161491)
 
 
 def drem(x, y):

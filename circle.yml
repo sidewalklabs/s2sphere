@@ -1,12 +1,9 @@
 machine:
   environment:
-    TESTCMD: 'python -V && pip install .[tests] && flake8 && nosetests --with-coverage -vv'
+    TESTCMD: 'python -V && pip install --upgrade pip && pip install .[tests] && flake8 && nosetests -vv'
 
 test:
   override:
     - deactivate && pyenv shell 2.7.11 && bash -c "$TESTCMD"
     - deactivate && pyenv shell 3.4.4 && bash -c "$TESTCMD"
     - deactivate && pyenv shell 3.5.1 && bash -c "$TESTCMD"
-
-  post:
-    - coveralls
